@@ -1,119 +1,65 @@
+import { createFileItemsGenerator } from "./application/file-items-generator";
 import {
-	PathFilter,
-	ImportAliasMapper,
-	ModulesRegistry,
-	PackagesRegistry,
-	Summary,
-	FSPath,
-	EventSubscriber,
-	Module,
-	Package,
-	EventName,
-	EventData,
-	Import,
-	ImportSource,
-	ParserErrors,
-} from "./values";
-import { assert, AppError } from "./lib/errors";
-import { EventHub } from "./lib/event-hub";
-import { isAbsolutePath, normalizePath } from "./lib/fs-path";
-import { FSTree } from "./lib/fs-tree";
-import { loadFiles } from "./module-files-loader";
-import { transformFiles } from "./transformer";
-import { collectPackages } from "./packages-collector";
-import { collectSummary } from "./summary-collector";
+	type DispatcherRecord as ReportGeneratorDispatcherRecord,
+	generateReport,
+} from "./application/report-generator";
+import { type Options, createSettings } from "./application/settings-provider";
+import {
+	type DispatcherRecord as DomainDispatcherRecord,
+	type Modules,
+	type Packages,
+	type Summary,
+	process,
+} from "./domain";
+import { AppError } from "./lib/errors";
+import { EventBus, type EventBusDispatcher, type EventBusSubscriber } from "./lib/event-bus";
 
-export type {
-	PathFilter,
-	ImportAliasMapper,
-	ModulesRegistry,
-	PackagesRegistry,
-	Summary,
-	Module,
-	Package,
-	EventName,
-	EventData,
-	Import,
-	ImportSource,
-	ParserErrors,
-};
+type EventBusRecord = DomainDispatcherRecord & ReportGeneratorDispatcherRecord;
 
-export { AppError };
-
-export interface Options {
-	paths: FSPath[];
-	pathFilter?: PathFilter;
-	importAliasMapper?: ImportAliasMapper;
-	extraPackageEntryFileNames?: string[];
-	extraPackageEntryFilePaths?: FSPath[];
-}
-
-export interface Result {
-	modulesRegistry: ModulesRegistry;
-	packagesRegistry: PackagesRegistry;
+interface Result {
+	modules: Modules;
+	packages: Packages;
 	summary: Summary;
 }
 
-export class ItDepends {
-	#options: Required<Options>;
-	#eventHub = new EventHub();
+export { AppError };
 
-	on: EventSubscriber;
+export class ItDepends implements EventBusSubscriber<EventBusRecord> {
+	on;
+
+	#options;
+	#eventBus;
 
 	constructor(options: Options) {
-		this.#options = this.#assertAndPrepareOptions(options);
+		this.#options = options;
 
-		this.on = this.#eventHub.on;
+		this.#eventBus = new EventBus<EventBusRecord>();
+
+		this.on = this.#eventBus.on;
 	}
 
-	async run(): Promise<Result> {
-		const { paths, pathFilter, importAliasMapper, extraPackageEntryFileNames, extraPackageEntryFilePaths } =
-			this.#options;
+	run = async (): Promise<Result> => {
+		const settings = await createSettings(this.#options);
 
-		const files = loadFiles({ paths, filter: pathFilter });
+		const fileItems = createFileItemsGenerator(settings);
 
-		const { modulesRegistry, parserErrors } = await transformFiles({
-			files,
-			importAliasMapper,
-			eventSender: this.#eventHub.send,
+		const { modules, packages, summary, fsNavCursor } = await process({
+			fileItems,
+			settings,
+			dispatcher: this.#eventBus as EventBusDispatcher<DomainDispatcherRecord>,
 		});
 
-		const fsTree = new FSTree(modulesRegistry.paths);
+		if (settings.report) {
+			await generateReport({
+				modules,
+				packages,
+				summary,
+				fsNavCursor,
+				settings: settings.report,
+				dispatcher: this.#eventBus as EventBusDispatcher<ReportGeneratorDispatcherRecord>,
+			});
+		}
 
-		const packagesRegistry = collectPackages({ fsTree, extraPackageEntryFileNames, extraPackageEntryFilePaths });
-		const summary = collectSummary({ modulesRegistry, packagesRegistry, parserErrors });
-
-		return { modulesRegistry, packagesRegistry, summary };
-	}
-
-	#assertAndPrepareOptions({
-		paths,
-		pathFilter = () => true,
-		importAliasMapper = () => null,
-		extraPackageEntryFileNames = [],
-		extraPackageEntryFilePaths = [],
-	}: Options): Required<Options> {
-		assert(paths.length > 0, "Empty paths");
-		this.#assertAllAbsolutePaths(paths, "All path should be absolute");
-		this.#assertAllAbsolutePaths(extraPackageEntryFilePaths, "All paths for package entries should be absolute");
-
-		return {
-			pathFilter,
-			importAliasMapper,
-			extraPackageEntryFileNames,
-			extraPackageEntryFilePaths: this.#normalizePaths(extraPackageEntryFilePaths),
-			paths: this.#normalizePaths(paths),
-		};
-	}
-
-	#assertAllAbsolutePaths(paths: FSPath[], message: string) {
-		assert(
-			paths.every((path) => isAbsolutePath(path)),
-			message,
-		);
-	}
-
-	#normalizePaths(paths: FSPath[]): FSPath[] {
-		return paths.map((path) => normalizePath(path));
-	}
+		return { modules, packages, summary };
+	};
 }

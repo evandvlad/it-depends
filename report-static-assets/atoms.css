@@ -1,0 +1,157 @@
+.link {
+	color: var(--g-dark-blue-color);
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.list {
+	list-style-type: none;
+}
+
+.container {
+	display: flex;
+
+	&.container--vertical {
+		flex-direction: column;
+	}
+
+	&.container--horizontal {
+		flex-direction: row;
+	}
+}
+
+.callout {
+	padding: 8px 18px 8px 8px;
+
+	.callout__title {
+		cursor: pointer;
+		font-size: var(--g-medium-font-size);
+	}
+
+	.callout__content {
+		padding: 15px 5px 15px 15px;
+	}
+
+	&.callout--empty {
+		.callout__title {
+			cursor: default;
+			padding-left: 13px;
+		}
+	}
+	
+	&.callout--green {
+		background-color: var(--g-pale-green-color);
+	}
+	
+	&.callout--yellow {
+		background-color: var(--g-pale-yellow-color);
+	}
+	
+	&.callout--red {
+		background-color: var(--g-pale-red-color);
+	}
+}
+
+.frame {
+	padding: 20px;
+
+	&.frame--green {
+		background-color: var(--g-pale-green-color);
+	}
+	
+	&.frame--yellow {
+		background-color: var(--g-pale-yellow-color);
+	}
+	
+	&.frame--red {
+		background-color: var(--g-pale-red-color);
+	}
+}
+
+.details {
+	&.details--empty {
+		padding-left: 13px;
+	}
+
+	.details__title {
+		cursor: pointer;
+	}
+
+	.details__content {
+		padding: 2px 2px 2px 13px;
+	}
+}
+
+.code {
+	background-color: var(--g-white-color);
+	padding: 10px 15px;
+	overflow: auto;
+}
+
+.tabs {
+	display: flex;
+	flex-wrap: wrap;
+
+	.tabs__tab-label {
+		font-size: var(--g-medium-font-size);
+		padding: 5px 22px 5px 17px;
+		cursor: pointer;
+	}
+
+	.tabs__tab-handle {
+		display: none;
+	}
+
+	.tabs__tab-content {
+		display: none;
+		background-color: var(--g-white-color);
+		padding: 8px 16px;
+	}
+
+	& > .tabs__tab-handle:checked + .tabs__tab-label + .tabs__tab-content {
+		display: block;
+		order: 999;
+		width: 100%;
+	}
+
+	& > .tabs__tab-handle:checked + .tabs__tab-label {
+		background-color: var(--g-white-color);
+		cursor: default;
+	}
+}
+
+.tree {
+	& & {
+		margin-left: 14px;
+	}
+
+	.tree__item {
+		margin-left: 13px;
+	}
+
+	.tree__subtree-item {
+		cursor: pointer;
+	}
+}
+
+.datalist {
+	font-size: var(--g-medium-font-size);
+
+	.datalist__item {
+		display: flex;
+		align-items: center;
+		padding: 10px 25px;
+		border-top: 1px solid var(--g-gray-color);
+
+		&:first-child {
+			border: none;
+		}
+	}
+
+	.datalist__item-label {
+		flex-shrink: 0;
+		margin-right: 10px;
+	}
+}

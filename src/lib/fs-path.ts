@@ -1,33 +1,37 @@
-import libPath from "node:path";
+import { isAbsolute, join } from "node:path";
 
-import { FSPath } from "../values";
+type ShortFsPath = string & { __brand: "short-fs-path" };
 
-export function normalizePath(path: FSPath) {
-	return path.replaceAll("\\", "/").replace(/\/{2,}/g, "/");
+export type AbsoluteFsPath = string & { __brand: "absolute-fs-path" };
+
+type FsPath = ShortFsPath | AbsoluteFsPath;
+
+export const delimiter = "/";
+
+export function shortFsPath(path: string) {
+	return path as ShortFsPath;
 }
 
-export function joinPaths(subPath1: FSPath, subPath2: FSPath) {
-	return normalizePath(libPath.join(subPath1, subPath2));
+export function absoluteFsPath(path: string) {
+	return path as AbsoluteFsPath;
 }
 
-export function isAbsolutePath(path: FSPath) {
-	return libPath.isAbsolute(path);
+export function normalizePath<T extends FsPath>(path: T) {
+	return path.replaceAll("\\", delimiter).replace(/\/{2,}/g, delimiter) as T;
 }
 
-export function getPathBreadcrumbs(path: FSPath): FSPath[] {
-	const preparedPath = path.endsWith("/") ? path.slice(0, -1) : path;
-	const parts = preparedPath.split("/");
+export function joinPaths<T extends FsPath>(subPath1: T, subPath2: string) {
+	return normalizePath(join(subPath1, subPath2) as T);
+}
 
-	return parts.reduce<FSPath[]>((acc, part) => {
-		if (acc.length === 0) {
-			acc.push(part);
-			return acc;
-		}
+export function isAbsolutePath(path: string): path is AbsoluteFsPath {
+	return isAbsolute(path);
+}
 
-		const prevPath = acc.at(-1)!;
+export function getParentPath<T extends FsPath>(path: T): T {
+	return joinPaths(path, "..");
+}
 
-		acc.push([prevPath, part].join("/"));
-
-		return acc;
-	}, []);
+export function getName(path: FsPath) {
+	return normalizePath(path).split(delimiter).at(-1)!;
 }

@@ -1,0 +1,25 @@
+@import url("reset.css");
+@import url("atoms.css");
+@import url("components.css");
+
+:root {
+	--g-black-color: #000;
+	--g-white-color: #fff;
+	--g-dark-blue-color: #032f62;
+	--g-light-gray-color: #f6f6f6;
+	--g-gray-color: #ddd;
+	--g-dark-gray-color: #777;
+	--g-pale-yellow-color: #fdfaea;
+	--g-pale-red-color: #ffe9e8;
+	--g-pale-green-color: #ebf6ef;
+
+	--g-base-font-size: 12px;
+	--g-medium-font-size: 14px;
+	--g-large-font-size: 16px;
+}
+
+body {
+	font: var(--g-base-font-size) / 1.5 Verdana, sans-serif;
+	background-color: var(--g-white-color);
+	color: var(--g-black-color);
+}
