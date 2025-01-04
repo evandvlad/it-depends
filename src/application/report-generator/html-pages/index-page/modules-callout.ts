@@ -2,6 +2,7 @@ import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { ComponentContext } from "../../values";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
 import { type TreeItem, tree } from "../atoms/tree";
@@ -34,7 +35,7 @@ export function modulesCallout(ctx: ComponentContext) {
 	const items = ctx.modules.toValues().map(({ path }) => moduleLink({ path }, ctx));
 
 	return callout({
-		title: `Modules: ${count} (${info.join(", ")})`,
+		title: `Modules ${counter({ value: count })} (${info.join(", ")})`,
 		content: tabs({
 			items: [
 				{

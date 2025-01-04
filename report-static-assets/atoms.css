@@ -154,3 +154,12 @@
 		margin-right: 10px;
 	}
 }
+
+.counter {
+	display: inline-block;
+	font-size: var(--g-x-small-font-size);
+	padding: 3px 9px;
+	transform: translateY(-0.3em);
+	border-radius: 100%;
+	background-color: var(--g-white-color);
+}

@@ -2,6 +2,7 @@ import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { ComponentContext } from "../../values";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
 import { type TreeItem, tree } from "../atoms/tree";
@@ -51,7 +52,7 @@ function getTabs(ctx: ComponentContext) {
 
 export function packagesCallout(ctx: ComponentContext) {
 	return callout({
-		title: `Packages: ${ctx.summary.packagesCount}`,
+		title: `Packages ${counter({ value: ctx.summary.packagesCount })}`,
 		content: ctx.summary.packagesCount > 0 ? getTabs(ctx) : "",
 		color: "green",
 		open: true,

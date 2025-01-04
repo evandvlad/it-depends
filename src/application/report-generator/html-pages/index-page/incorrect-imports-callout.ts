@@ -1,6 +1,7 @@
 import type { ComponentContext } from "../../values";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
 import { moduleLink } from "../components/module-link";
@@ -18,7 +19,7 @@ export function incorrectImportsCallout(ctx: ComponentContext) {
 
 			acc.items.push(
 				details({
-					title: `${moduleLink({ path }, ctx)} - ${importSources.length}`,
+					title: `${moduleLink({ path }, ctx)} ${counter({ value: importSources.length })}`,
 					content: list({ items }),
 				}),
 			);
@@ -29,7 +30,7 @@ export function incorrectImportsCallout(ctx: ComponentContext) {
 	);
 
 	return callout({
-		title: `Incorrect imports: ${count}`,
+		title: `Incorrect imports ${counter({ value: count })}`,
 		content: items.join(""),
 		color: count > 0 ? "red" : "green",
 	});

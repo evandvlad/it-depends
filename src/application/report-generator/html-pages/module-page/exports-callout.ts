@@ -1,6 +1,7 @@
 import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { ComponentContext } from "../../values";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
 import { moduleLink } from "../components/module-link";
@@ -18,7 +19,7 @@ export function exportsCallout({ path }: Params, ctx: ComponentContext) {
 
 			acc.items.push(
 				details({
-					title: `${value}: ${paths.length}`,
+					title: `${value} ${counter({ value: paths.length })}`,
 					content: list({ items: paths.map((p) => moduleLink({ path: p }, ctx)) }),
 				}),
 			);
@@ -29,7 +30,7 @@ export function exportsCallout({ path }: Params, ctx: ComponentContext) {
 	);
 
 	return callout({
-		title: `Exports: ${count}`,
+		title: `Exports ${counter({ value: count })}`,
 		content: items.join(""),
 		color: "green",
 		open: true,

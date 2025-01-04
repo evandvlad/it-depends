@@ -3,6 +3,7 @@ import type { Rec } from "../../../../lib/rec";
 import type { ComponentContext } from "../../values";
 import { callout } from "../atoms/callout";
 import { container } from "../atoms/container";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
 import { errorInfo } from "../components/error-info";
@@ -16,14 +17,14 @@ function numModuleItemsCallout(title: string, record: Rec<AbsoluteFsPath, number
 	const { count, items } = record.reduce<{ count: number; items: string[] }>(
 		(acc, num, path) => {
 			acc.count += num;
-			acc.items.push(`${moduleLink({ path }, ctx)} - ${num}`);
+			acc.items.push(`${moduleLink({ path }, ctx)} ${counter({ value: num })}`);
 			return acc;
 		},
 		{ count: 0, items: [] },
 	);
 
 	return callout({
-		title: `${title}: ${count}`,
+		title: `${title} ${counter({ value: count })}`,
 		content: list({ items }),
 		color: count > 0 ? "yellow" : "green",
 	});
@@ -36,7 +37,7 @@ function moduleItemsWithValuesCallout(title: string, record: Rec<AbsoluteFsPath,
 
 			acc.items.push(
 				details({
-					title: `${moduleLink({ path }, ctx)} - ${values.length}`,
+					title: `${moduleLink({ path }, ctx)} ${counter({ value: values.length })}`,
 					content: values.join(", "),
 				}),
 			);
@@ -47,7 +48,7 @@ function moduleItemsWithValuesCallout(title: string, record: Rec<AbsoluteFsPath,
 	);
 
 	return callout({
-		title: `${title}: ${count}`,
+		title: `${title} ${counter({ value: count })}`,
 		content: items.join(""),
 		color: count > 0 ? "yellow" : "green",
 	});
@@ -81,7 +82,7 @@ function emptyExportsCallout(ctx: ComponentContext) {
 	const items = ctx.summary.emptyExports.map((path) => moduleLink({ path }, ctx));
 
 	return callout({
-		title: `Empty exports: ${items.length}`,
+		title: `Empty exports ${counter({ value: items.length })}`,
 		content: list({ items }),
 		color: items.length > 0 ? "yellow" : "green",
 	});
@@ -96,7 +97,7 @@ function parserErrorsCallout(ctx: ComponentContext) {
 	);
 
 	return callout({
-		title: `Parser errors: ${errors.length}`,
+		title: `Parser errors ${counter({ value: errors.length })}`,
 		content: errors.join(""),
 		color: errors.length > 0 ? "red" : "green",
 	});

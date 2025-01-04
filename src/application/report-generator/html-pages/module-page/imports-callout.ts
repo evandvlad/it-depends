@@ -1,6 +1,7 @@
 import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { ComponentContext } from "../../values";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { moduleLink } from "../components/module-link";
 
@@ -19,7 +20,7 @@ export function importsCallout({ path }: Params, ctx: ComponentContext) {
 
 			acc.items.push(
 				details({
-					title: `${label} - ${values.length}`,
+					title: `${label} ${counter({ value: values.length })}`,
 					content: values.join(", "),
 				}),
 			);
@@ -30,7 +31,7 @@ export function importsCallout({ path }: Params, ctx: ComponentContext) {
 	);
 
 	return callout({
-		title: `Imports: ${count}`,
+		title: `Imports ${counter({ value: count })}`,
 		content: items.join(""),
 		color: "green",
 		open: true,
