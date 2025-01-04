@@ -44,3 +44,39 @@
 	padding-left: 15px;
 	margin-left: 15px;
 }
+
+.error-info {
+	font-family: var(--g-mono-font-style);
+	background-color: var(--g-white-color);
+	padding: 10px 15px;
+	overflow: auto;
+}
+
+.module-code {
+	font-family: var(--g-mono-font-style);
+	background-color: var(--g-white-color);
+	padding: 10px 15px;
+	overflow: auto;
+	
+
+	.module-code__content {
+		display: table;
+		table-layout: fixed;
+	}
+
+	.module-code__line {
+		display: table-row;
+	}
+
+	.module-code__line-gutter {
+		display: table-cell;
+		text-align: right;
+		padding-right: 20px;
+		color: var(--g-dark-gray-color);
+	}
+
+	.module-code__line-code {
+		display: table-cell;
+		white-space: nowrap;
+	}
+}

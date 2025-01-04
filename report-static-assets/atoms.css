@@ -84,12 +84,6 @@
 	}
 }
 
-.code {
-	background-color: var(--g-white-color);
-	padding: 10px 15px;
-	overflow: auto;
-}
-
 .tabs {
 	display: flex;
 	flex-wrap: wrap;

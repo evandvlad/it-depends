@@ -2,10 +2,10 @@ import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { Rec } from "../../../../lib/rec";
 import type { ComponentContext } from "../../values";
 import { callout } from "../atoms/callout";
-import { code } from "../atoms/code";
 import { container } from "../atoms/container";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
+import { errorInfo } from "../components/error-info";
 import { layout } from "../components/layout";
 import { moduleLink } from "../components/module-link";
 import { incorrectImportsCallout } from "./incorrect-imports-callout";
@@ -92,7 +92,7 @@ function parserErrorsCallout(ctx: ComponentContext) {
 	const errors = ctx.summary.parserErrors.toEntries().map(([path, error]) =>
 		details({
 			title: moduleLink({ path }, ctx),
-			content: code({ content: error.stack || error.message }),
+			content: errorInfo({ error }),
 			open: true,
 		}),
 	);

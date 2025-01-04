@@ -98,7 +98,7 @@ export class ModuleFactory {
 		return {
 			path,
 			language,
-			content,
+			content: content.split("\r\n").join("\n"),
 			name: getName(path),
 			package: null,
 			imports: [],

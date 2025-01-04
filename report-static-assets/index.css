@@ -16,6 +16,7 @@
 	--g-base-font-size: 12px;
 	--g-medium-font-size: 14px;
 	--g-large-font-size: 16px;
+	--g-mono-font-style: Monaco, monospace;
 }
 
 body {
