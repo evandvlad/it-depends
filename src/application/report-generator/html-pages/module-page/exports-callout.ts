@@ -20,7 +20,6 @@ export function exportsCallout({ path }: Params, ctx: ComponentContext) {
 				details({
 					title: `${value}: ${paths.length}`,
 					content: list({ items: paths.map((p) => moduleLink({ path: p }, ctx)) }),
-					open: true,
 				}),
 			);
 

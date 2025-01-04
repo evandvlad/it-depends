@@ -21,7 +21,6 @@ export function importsCallout({ path }: Params, ctx: ComponentContext) {
 				details({
 					title: `${label} - ${values.length}`,
 					content: values.join(", "),
-					open: true,
 				}),
 			);
 

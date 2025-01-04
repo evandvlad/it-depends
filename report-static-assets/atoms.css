@@ -8,6 +8,10 @@
 
 .list {
 	list-style-type: none;
+
+	.list__item {
+		padding: 2px 0;
+	}
 }
 
 .container {
@@ -23,21 +27,20 @@
 }
 
 .callout {
-	padding: 8px 18px 8px 8px;
-
 	.callout__title {
+		padding: 12px 10px;
 		cursor: pointer;
-		font-size: var(--g-medium-font-size);
 	}
 
 	.callout__content {
-		padding: 15px 5px 15px 15px;
+		border-top: 2px solid var(--g-white-color);
+		padding: 15px 25px;
 	}
 
 	&.callout--empty {
 		.callout__title {
 			cursor: default;
-			padding-left: 13px;
+			padding-left: 24px;
 		}
 	}
 	
@@ -56,6 +59,7 @@
 
 .frame {
 	padding: 20px;
+	height: fit-content;
 
 	&.frame--green {
 		background-color: var(--g-pale-green-color);
@@ -71,8 +75,10 @@
 }
 
 .details {
+	padding: 2px 0;
+
 	&.details--empty {
-		padding-left: 13px;
+		padding-left: 15px;
 	}
 
 	.details__title {
@@ -80,7 +86,7 @@
 	}
 
 	.details__content {
-		padding: 2px 2px 2px 13px;
+		padding: 4px 4px 4px 16px;
 	}
 }
 
@@ -89,7 +95,6 @@
 	flex-wrap: wrap;
 
 	.tabs__tab-label {
-		font-size: var(--g-medium-font-size);
 		padding: 5px 22px 5px 17px;
 		cursor: pointer;
 	}
@@ -101,7 +106,7 @@
 	.tabs__tab-content {
 		display: none;
 		background-color: var(--g-white-color);
-		padding: 8px 16px;
+		padding: 10px 18px;
 	}
 
 	& > .tabs__tab-handle:checked + .tabs__tab-label + .tabs__tab-content {
@@ -118,21 +123,21 @@
 
 .tree {
 	& & {
-		margin-left: 14px;
+		margin-left: 15px;
 	}
 
 	.tree__item {
-		margin-left: 13px;
+		margin-left: 15px;
+		padding: 2px 0;
 	}
 
 	.tree__subtree-item {
 		cursor: pointer;
+		padding: 2px 0;
 	}
 }
 
 .datalist {
-	font-size: var(--g-medium-font-size);
-
 	.datalist__item {
 		display: flex;
 		align-items: center;

@@ -7,5 +7,5 @@ export function list({ items }: Params) {
 		return "";
 	}
 
-	return `<ul class="list">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+	return `<ul class="list">${items.map((item) => `<li class="list__item">${item}</li>`).join("")}</ul>`;
 }

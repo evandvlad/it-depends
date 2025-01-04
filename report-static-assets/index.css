@@ -13,9 +13,10 @@
 	--g-pale-red-color: #ffe9e8;
 	--g-pale-green-color: #ebf6ef;
 
-	--g-base-font-size: 12px;
-	--g-medium-font-size: 14px;
-	--g-large-font-size: 16px;
+	--g-base-font-size: 14px;
+	--g-small-font-size: 12px;
+	--g-medium-font-size: 16px;
+	--g-large-font-size: 18px;
 	--g-mono-font-style: Monaco, monospace;
 }
 

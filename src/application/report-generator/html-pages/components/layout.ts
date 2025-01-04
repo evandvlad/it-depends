@@ -21,14 +21,18 @@ export function layout({ title, content, header = "" }: Params, ctx: ComponentCo
 			<body>
 				<main class="layout">
 					<div class="layout__header">
-						<a class="layout__header-link" href="${ctx.pathInformer.indexHtmlPagePath}">It-depends</a>
-						<div class="layout__header-content">${header}</div>
+						<div class="layout__header-content">
+							<a class="layout__header-link" href="${ctx.pathInformer.indexHtmlPagePath}">It-depends</a>
+							${header}
+						</div>
 					</div>
 					<div class="layout__content">
 						${content}
 					</div>
 					<footer class="layout__footer">
-						Version: ${ctx.version}, Generated at ${new Date().toString()}
+						<div class="layout__footer-content">
+							Version: ${ctx.version}, Generated at ${new Date().toString()}
+						</div>
 					</footer>
 				</main>
 			</body>

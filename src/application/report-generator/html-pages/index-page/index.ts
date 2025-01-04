@@ -38,7 +38,6 @@ function moduleItemsWithValuesCallout(title: string, record: Rec<AbsoluteFsPath,
 				details({
 					title: `${moduleLink({ path }, ctx)} - ${values.length}`,
 					content: values.join(", "),
-					open: true,
 				}),
 			);
 
@@ -93,7 +92,6 @@ function parserErrorsCallout(ctx: ComponentContext) {
 		details({
 			title: moduleLink({ path }, ctx),
 			content: errorInfo({ error }),
-			open: true,
 		}),
 	);
 
