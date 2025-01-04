@@ -27,7 +27,9 @@ export function modulePage({ path }: Params, ctx: ComponentContext) {
 							items: [moduleDatalist({ path }, ctx), importsCallout({ path }, ctx), exportsCallout({ path }, ctx)],
 						})}
 					</div>`,
-					`<div style="max-width: 990px">${frame({ content: moduleCode({ path }, ctx) })}</div>`,
+					`<div style="max-width: 990px; min-width: 300px">
+						${frame({ content: moduleCode({ path }, ctx) })}
+					</div>`,
 				],
 				direction: "horizontal",
 				gap: "20px",

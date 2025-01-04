@@ -95,7 +95,7 @@
 	flex-wrap: wrap;
 
 	.tabs__tab-label {
-		padding: 5px 22px 5px 17px;
+		padding: 10px 24px;
 		cursor: pointer;
 	}
 
@@ -106,7 +106,7 @@
 	.tabs__tab-content {
 		display: none;
 		background-color: var(--g-white-color);
-		padding: 10px 18px;
+		padding: 10px 24px;
 	}
 
 	& > .tabs__tab-handle:checked + .tabs__tab-label + .tabs__tab-content {
@@ -142,7 +142,9 @@
 		display: flex;
 		align-items: center;
 		padding: 10px 25px;
-		border-top: 1px solid var(--g-gray-color);
+		border-top-width: 1px;
+		border-top-style: solid;
+		justify-content: space-between;
 
 		&:first-child {
 			border: none;
@@ -152,6 +154,18 @@
 	.datalist__item-label {
 		flex-shrink: 0;
 		margin-right: 10px;
+	}
+
+	&.datalist--border-white {
+		.datalist__item {
+			border-color: var(--g-white-color);
+		}
+	}
+
+	&.datalist--border-gray {
+		.datalist__item {
+			border-color: var(--g-gray-color);
+		}
 	}
 }
 

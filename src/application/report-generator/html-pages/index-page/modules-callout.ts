@@ -2,7 +2,9 @@ import type { AbsoluteFsPath } from "../../../../lib/fs-path";
 import type { ComponentContext } from "../../values";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { container } from "../atoms/container";
 import { counter } from "../atoms/counter";
+import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
 import { type TreeItem, tree } from "../atoms/tree";
@@ -23,30 +25,29 @@ function collectTreeItems({ path }: { path: AbsoluteFsPath }, ctx: ComponentCont
 }
 
 export function modulesCallout(ctx: ComponentContext) {
-	const { count, info } = ctx.summary.modulesCounter.reduce<{ count: number; info: string[] }>(
-		(acc, num, language) => {
-			acc.count += num;
-			acc.info.push(`${language} - ${num}`);
-			return acc;
-		},
-		{ count: 0, info: [] },
-	);
-
+	const count = ctx.summary.modulesCounter.reduce((acc, num) => acc + num, 0);
 	const items = ctx.modules.toValues().map(({ path }) => moduleLink({ path }, ctx));
 
+	const langDatalistContent = datalist({
+		borderColor: "white",
+		items: ctx.summary.modulesCounter.toEntries().map(([lang, value]) => ({ label: lang, value: value.toString() })),
+	});
+
+	const tabsContent = tabs({
+		items: [
+			{
+				label: "Modules tree",
+				content: tree({
+					items: collectTreeItems({ path: ctx.fsNavCursor.shortRootPath }, ctx),
+				}),
+			},
+			{ label: "Modules list", content: list({ items }) },
+		],
+	});
+
 	return callout({
-		title: `Modules ${counter({ value: count })} (${info.join(", ")})`,
-		content: tabs({
-			items: [
-				{
-					label: "Modules tree",
-					content: tree({
-						items: collectTreeItems({ path: ctx.fsNavCursor.shortRootPath }, ctx),
-					}),
-				},
-				{ label: "Modules list", content: list({ items }) },
-			],
-		}),
+		title: `Modules ${counter({ value: count })}`,
+		content: container({ items: [langDatalistContent, tabsContent] }),
 		open: true,
 		color: "green",
 	});
