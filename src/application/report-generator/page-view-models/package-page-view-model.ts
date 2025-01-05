@@ -33,10 +33,10 @@ export class PackagePageViewModel extends PageViewModel {
 	}
 
 	collectModuleLinks<T>(handler: (linkData: LinkData) => T) {
-		return this.#package.modules.map((path) => handler(this.getModuleLinkData(path)));
+		return this.#package.modules.toSorted().map((path) => handler(this.getModuleLinkData(path)));
 	}
 
 	collectChildPackageLinks<T>(handler: (linkData: LinkData) => T) {
-		return this.#package.packages.map((path) => handler(this.getPackageLinkData(path)));
+		return this.#package.packages.toSorted().map((path) => handler(this.getPackageLinkData(path)));
 	}
 }
