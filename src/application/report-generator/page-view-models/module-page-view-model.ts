@@ -50,7 +50,7 @@ export class ModulePageViewModel extends PageViewModel {
 		this.numOfExports = module.exports.reduce((acc, paths) => acc + paths.length, 0);
 	}
 
-	collectImportItems(handler: (params: { name: string; moduleLink: LinkData | null; values: string[] }) => string) {
+	collectImportItems<T>(handler: (params: { name: string; moduleLink: LinkData | null; values: string[] }) => T) {
 		return this.#module.imports.map(({ importSource, values }) =>
 			handler({
 				name: importSource.importPath,
@@ -60,7 +60,7 @@ export class ModulePageViewModel extends PageViewModel {
 		);
 	}
 
-	collectExportItems(handler: (params: { moduleLinks: LinkData[]; value: string }) => string) {
+	collectExportItems<T>(handler: (params: { moduleLinks: LinkData[]; value: string }) => T) {
 		return this.#module.exports.toEntries().map(([value, paths]) =>
 			handler({
 				value,

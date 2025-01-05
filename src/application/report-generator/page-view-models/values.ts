@@ -8,7 +8,7 @@ export interface LinkTreeItem {
 	linkData: LinkData | null;
 }
 
-export interface LinkTreeNode {
-	content: string;
-	children: LinkTreeNode[];
+export interface LinkTreeNode<T> {
+	content: T;
+	children: LinkTreeNode<T>[];
 }
