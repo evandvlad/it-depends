@@ -167,7 +167,13 @@ export class IndexPageViewModel extends PageViewModel {
 		return this.#fsNavCursor.getNodeChildrenByPath(path).map(({ path, name }) => {
 			const content = handler(
 				this.#modules.has(path)
-					? { name: this.#modules.get(path).name, linkData: this.getModuleLinkData(path) }
+					? {
+							name: this.#modules.get(path).name,
+							linkData: {
+								...this.getModuleLinkData(path),
+								content: name,
+							},
+						}
 					: { name, linkData: null },
 			);
 
@@ -185,7 +191,10 @@ export class IndexPageViewModel extends PageViewModel {
 			return {
 				content: handler({
 					name: pack.name,
-					linkData: this.getPackageLinkData(path),
+					linkData: {
+						...this.getPackageLinkData(path),
+						content: pack.name,
+					},
 				}),
 				children: this.#collectPackageTree<T>(pack.packages, handler),
 			};
