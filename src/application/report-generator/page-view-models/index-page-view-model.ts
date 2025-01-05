@@ -179,6 +179,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 			return {
 				content,
+				title: this.#fsNavCursor.getShortPathByPath(path),
 				children: this.#collectModuleTree<T>(path, handler),
 			};
 		});
@@ -191,11 +192,13 @@ export class IndexPageViewModel extends PageViewModel {
 			return {
 				content: handler({
 					name: pack.name,
+
 					linkData: {
 						...this.getPackageLinkData(path),
 						content: pack.name,
 					},
 				}),
+				title: this.#fsNavCursor.getShortPathByPath(path),
 				children: this.#collectPackageTree<T>(pack.packages, handler),
 			};
 		});

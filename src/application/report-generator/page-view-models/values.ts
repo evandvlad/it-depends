@@ -10,5 +10,6 @@ export interface LinkTreeItem {
 
 export interface LinkTreeNode<T> {
 	content: T;
+	title: string;
 	children: LinkTreeNode<T>[];
 }
