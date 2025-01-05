@@ -10,8 +10,7 @@ import { parserErrorsCallout } from "./parser-errors-callout";
 import { possiblyUnusedExportValuesCallout } from "./possibly-unused-export-values-callout";
 import { shadowedExportValuesCallout } from "./shadowed-export-values-callout";
 import { unparsedDynamicImportsCallout } from "./unparsed-dynamic-imports-callout";
-import { unresolvedFullExportsCallout } from "./unresolved-full-exports-callout";
-import { unresolvedFullImportsCallout } from "./unresolved-full-imports-callout";
+import { unresolvedFullIECallout } from "./unresolved-full-ie-callout";
 
 export function indexPage(pageViewModel: IndexPageViewModel) {
 	return layout(
@@ -32,8 +31,7 @@ export function indexPage(pageViewModel: IndexPageViewModel) {
 								emptyExportsCallout(pageViewModel),
 								outOfScopeImportsCallout(pageViewModel),
 								unparsedDynamicImportsCallout(pageViewModel),
-								unresolvedFullImportsCallout(pageViewModel),
-								unresolvedFullExportsCallout(pageViewModel),
+								unresolvedFullIECallout(pageViewModel),
 								shadowedExportValuesCallout(pageViewModel),
 							],
 						})}

@@ -22,8 +22,7 @@ export class IndexPageViewModel extends PageViewModel {
 	readonly numOfPossiblyUnusedExportValues;
 	readonly numOfOutOfScopeImports;
 	readonly numOfUnparsedDynamicImports;
-	readonly numOfUnresolvedFullImports;
-	readonly numOfUnresolvedFullExports;
+	readonly numOfUnresolvedFullIE;
 	readonly numOfShadowedExportValues;
 
 	#modules;
@@ -49,16 +48,18 @@ export class IndexPageViewModel extends PageViewModel {
 			.map(([lang, value]) => ({ label: lang, value: value.toString() }));
 
 		this.numOfIncorrectImports = summary.incorrectImports.reduce((acc, importSources) => acc + importSources.length, 0);
+		this.numOfOutOfScopeImports = summary.outOfScopeImports.reduce((acc, importPaths) => acc + importPaths.length, 0);
 
 		this.numOfPossiblyUnusedExportValues = summary.possiblyUnusedExportValues.reduce(
 			(acc, values) => acc + values.length,
 			0,
 		);
 
-		this.numOfOutOfScopeImports = summary.outOfScopeImports.reduce((acc, importPaths) => acc + importPaths.length, 0);
+		this.numOfUnresolvedFullIE =
+			summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0) +
+			summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
+
 		this.numOfUnparsedDynamicImports = summary.unparsedDynamicImports.reduce((acc, value) => acc + value, 0);
-		this.numOfUnresolvedFullImports = summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0);
-		this.numOfUnresolvedFullExports = summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
 		this.numOfShadowedExportValues = summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
 	}
 
