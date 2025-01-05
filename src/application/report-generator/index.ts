@@ -53,4 +53,6 @@ export async function generateReport({ settings, dispatcher, summary, modules, p
 		staticAssetsPath: settings.staticAssetsPath,
 		htmlPages,
 	});
+
+	dispatcher.dispatch("report-generation-completed");
 }

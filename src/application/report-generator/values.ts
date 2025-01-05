@@ -8,4 +8,5 @@ export interface ReportSettings {
 
 export type DispatcherRecord = {
 	"report-generation-started": [];
+	"report-generation-completed": [];
 };
