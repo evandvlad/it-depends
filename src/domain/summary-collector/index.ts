@@ -15,12 +15,12 @@ interface Params {
 }
 
 export interface Summary {
-	packagesCount: number;
-	modulesCounter: Rec<Language, number>;
-	unparsedDynamicImportsCounter: Rec<AbsoluteFsPath, number>;
-	unresolvedFullImportsCounter: Rec<AbsoluteFsPath, number>;
-	unresolvedFullExportsCounter: Rec<AbsoluteFsPath, number>;
-	shadowedExportValuesCounter: Rec<AbsoluteFsPath, number>;
+	packages: number;
+	languages: Rec<Language, number>;
+	unparsedDynamicImports: Rec<AbsoluteFsPath, number>;
+	unresolvedFullImports: Rec<AbsoluteFsPath, number>;
+	unresolvedFullExports: Rec<AbsoluteFsPath, number>;
+	shadowedExportValues: Rec<AbsoluteFsPath, number>;
 	outOfScopeImports: Rec<AbsoluteFsPath, ImportPath[]>;
 	possiblyUnusedExportValues: Rec<AbsoluteFsPath, string[]>;
 	incorrectImports: Rec<AbsoluteFsPath, ImportSource[]>;
@@ -34,15 +34,15 @@ export class SummaryCollector {
 	#incorrectImportsFinder;
 
 	#summary: Summary = {
-		packagesCount: 0,
-		modulesCounter: Rec.fromObject({
+		packages: 0,
+		languages: Rec.fromObject({
 			typescript: 0,
 			javascript: 0,
 		}),
-		unparsedDynamicImportsCounter: new Rec(),
-		unresolvedFullImportsCounter: new Rec(),
-		unresolvedFullExportsCounter: new Rec(),
-		shadowedExportValuesCounter: new Rec(),
+		unparsedDynamicImports: new Rec(),
+		unresolvedFullImports: new Rec(),
+		unresolvedFullExports: new Rec(),
+		shadowedExportValues: new Rec(),
 		possiblyUnusedExportValues: new Rec(),
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
@@ -58,7 +58,7 @@ export class SummaryCollector {
 	}
 
 	collect() {
-		this.#summary.packagesCount = this.#packages.size;
+		this.#summary.packages = this.#packages.size;
 
 		this.#modules.forEach((module) => {
 			this.#handleModule(module);
@@ -68,45 +68,36 @@ export class SummaryCollector {
 	}
 
 	#handleModule(module: Module) {
+		const { path, language, imports, exports } = module;
+
 		const {
-			path,
-			language,
-			imports,
-			exports,
+			languages,
+			unparsedDynamicImports,
 			unresolvedFullImports,
 			unresolvedFullExports,
 			shadowedExportValues,
-			unparsedDynamicImportsCount,
-		} = module;
-
-		const {
-			modulesCounter,
-			unparsedDynamicImportsCounter,
-			unresolvedFullImportsCounter,
-			unresolvedFullExportsCounter,
-			shadowedExportValuesCounter,
 			outOfScopeImports,
 			emptyExports,
 			possiblyUnusedExportValues,
 			incorrectImports,
 		} = this.#summary;
 
-		modulesCounter.set(language, modulesCounter.get(language) + 1);
+		languages.set(language, languages.get(language) + 1);
 
-		if (unparsedDynamicImportsCount > 0) {
-			unparsedDynamicImportsCounter.set(path, unparsedDynamicImportsCount);
+		if (module.unparsedDynamicImports > 0) {
+			unparsedDynamicImports.set(path, module.unparsedDynamicImports);
 		}
 
-		if (unresolvedFullImports.length > 0) {
-			unresolvedFullImportsCounter.set(path, unresolvedFullImports.length);
+		if (module.unresolvedFullImports.length > 0) {
+			unresolvedFullImports.set(path, module.unresolvedFullImports.length);
 		}
 
-		if (unresolvedFullExports.length > 0) {
-			unresolvedFullExportsCounter.set(path, unresolvedFullExports.length);
+		if (module.unresolvedFullExports.length > 0) {
+			unresolvedFullExports.set(path, module.unresolvedFullExports.length);
 		}
 
-		if (shadowedExportValues.length > 0) {
-			shadowedExportValuesCounter.set(path, shadowedExportValues.length);
+		if (module.shadowedExportValues.length > 0) {
+			shadowedExportValues.set(path, module.shadowedExportValues.length);
 		}
 
 		imports.forEach(({ importSource }) => {
@@ -129,7 +120,7 @@ export class SummaryCollector {
 			}
 		});
 
-		if (exports.size === 0 && unresolvedFullExports.length === 0) {
+		if (exports.size === 0 && module.unresolvedFullExports.length === 0) {
 			emptyExports.push(path);
 		}
 

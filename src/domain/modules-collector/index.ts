@@ -3,7 +3,7 @@ import type { FileEntries } from "../file-items-transformer";
 import { bindModules } from "./binder";
 import { ImportSourceResolver } from "./import-source-resolver";
 import { ModuleFactory } from "./module-factory";
-import type { ImportAliasMapper, ImportData, ImportSource, Module, Modules } from "./values";
+import type { ImportAliasMapper, ImportSource, Module, Modules } from "./values";
 
 interface Params {
 	fileEntries: FileEntries;
@@ -11,7 +11,7 @@ interface Params {
 	importAliasMapper: ImportAliasMapper;
 }
 
-export type { Module, Modules, ImportSource, ImportAliasMapper, ImportData };
+export type { Module, Modules, ImportSource, ImportAliasMapper };
 
 export function collectModules({ fsNavCursor, fileEntries, importAliasMapper }: Params) {
 	const importSourceResolver = new ImportSourceResolver({ fsNavCursor, importAliasMapper });

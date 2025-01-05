@@ -72,7 +72,7 @@ export class ModuleFactory {
 					const { source } = ieItem;
 
 					if (source === null) {
-						module.unparsedDynamicImportsCount += 1;
+						module.unparsedDynamicImports += 1;
 						return;
 					}
 
@@ -98,12 +98,12 @@ export class ModuleFactory {
 		return {
 			path,
 			language,
-			content: content.split("\r\n").join("\n"),
+			content: content,
 			name: getName(path),
 			package: null,
 			imports: [],
 			exports: new Rec(),
-			unparsedDynamicImportsCount: 0,
+			unparsedDynamicImports: 0,
 			unresolvedFullImports: [],
 			unresolvedFullExports: [],
 			shadowedExportValues: [],

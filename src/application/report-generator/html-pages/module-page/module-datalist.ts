@@ -1,32 +1,35 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { ModulePageViewModel } from "../../page-view-models";
+import { a } from "../atoms/a";
 import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
-import { packageLink } from "../components/package-link";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
-
-export function moduleDatalist({ path }: Params, ctx: ComponentContext) {
-	const module = ctx.modules.get(path);
-
+export function moduleDatalist({
+	fullPath,
+	packageLinkData,
+	unparsedDynamicImports,
+	unresolvedFullImports,
+	unresolvedFullExports,
+	shadowedExportValues,
+}: ModulePageViewModel) {
 	return datalist({
 		items: [
-			{ label: "Full path", value: path },
-			{ label: "Package", value: module.package ? packageLink({ path: module.package }, ctx) : "" },
-			{ label: "Unparsed dynamic imports", value: String(module.unparsedDynamicImportsCount || "") },
+			{ label: "Full path", value: fullPath },
+			{
+				label: "Package",
+				value: packageLinkData ? a(packageLinkData) : "",
+			},
+			{ label: "Unparsed dynamic imports", value: String(unparsedDynamicImports || "") },
 			{
 				label: "Unresolved full imports",
-				value: list({ items: module.unresolvedFullImports.map(({ importPath }) => importPath) }),
+				value: list({ items: unresolvedFullImports }),
 			},
 			{
 				label: "Unresolved full exports",
-				value: list({ items: module.unresolvedFullExports.map(({ importPath }) => importPath) }),
+				value: list({ items: unresolvedFullExports }),
 			},
 			{
 				label: "Shadowed export values",
-				value: module.shadowedExportValues.join(", "),
+				value: shadowedExportValues.join(", "),
 			},
 		],
 	});

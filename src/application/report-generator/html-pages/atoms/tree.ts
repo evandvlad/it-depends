@@ -2,7 +2,7 @@ interface Params {
 	items: TreeItem[];
 }
 
-export interface TreeItem {
+interface TreeItem {
 	content: string;
 	children: TreeItem[];
 	open?: boolean;

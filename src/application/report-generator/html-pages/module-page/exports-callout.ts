@@ -1,36 +1,20 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { ModulePageViewModel } from "../../page-view-models";
+import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
-import { moduleLink } from "../components/module-link";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
-
-export function exportsCallout({ path }: Params, ctx: ComponentContext) {
-	const { exports } = ctx.modules.get(path);
-
-	const { count, items } = exports.reduce<{ count: number; items: string[] }>(
-		(acc, paths, value) => {
-			acc.count += paths.length;
-
-			acc.items.push(
-				details({
-					title: `${value} ${counter({ value: paths.length })}`,
-					content: list({ items: paths.map((p) => moduleLink({ path: p }, ctx)) }),
-				}),
-			);
-
-			return acc;
-		},
-		{ count: 0, items: [] },
+export function exportsCallout(pageViewModel: ModulePageViewModel) {
+	const items = pageViewModel.collectExportItems(({ value, moduleLinks }) =>
+		details({
+			title: `${value} ${counter({ value: moduleLinks.length })}`,
+			content: list({ items: moduleLinks.map((linkData) => a(linkData)) }),
+		}),
 	);
 
 	return callout({
-		title: `Exports ${counter({ value: count })}`,
+		title: `Exports ${counter({ value: pageViewModel.numOfExports })}`,
 		content: items.join(""),
 		color: "green",
 		open: true,

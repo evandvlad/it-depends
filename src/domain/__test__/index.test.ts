@@ -411,7 +411,7 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file2.ts",
 						name: "file2.ts",
-						unparsedDynamicImportsCount: 1,
+						unparsedDynamicImports: 1,
 					}),
 				]),
 			},
@@ -1079,8 +1079,8 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 1,
-					modulesCounter: Rec.fromObject({
+					packages: 1,
+					languages: Rec.fromObject({
 						typescript: 1,
 						javascript: 0,
 					}),
@@ -1114,12 +1114,12 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 1,
-					modulesCounter: Rec.fromObject({
+					packages: 1,
+					languages: Rec.fromObject({
 						typescript: 1,
 						javascript: 1,
 					}),
-					unparsedDynamicImportsCounter: Rec.fromObject({
+					unparsedDynamicImports: Rec.fromObject({
 						"/dir/file.jsx": 2,
 					}),
 					emptyExports: ["/dir/index.ts"],
@@ -1138,12 +1138,12 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 1,
-					modulesCounter: Rec.fromObject({
+					packages: 1,
+					languages: Rec.fromObject({
 						typescript: 1,
 						javascript: 0,
 					}),
-					unresolvedFullImportsCounter: Rec.fromObject({
+					unresolvedFullImports: Rec.fromObject({
 						"C:/dir/index.tsx": 2,
 					}),
 					emptyExports: ["C:/dir/index.tsx"],
@@ -1163,15 +1163,15 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 1,
-					modulesCounter: Rec.fromObject({
+					packages: 1,
+					languages: Rec.fromObject({
 						typescript: 2,
 						javascript: 0,
 					}),
-					unresolvedFullImportsCounter: Rec.fromObject({
+					unresolvedFullImports: Rec.fromObject({
 						"C:/dir/file.ts": 1,
 					}),
-					unresolvedFullExportsCounter: Rec.fromObject({
+					unresolvedFullExports: Rec.fromObject({
 						"C:/dir/file.ts": 1,
 					}),
 					emptyExports: ["C:/dir/index.tsx"],
@@ -1201,12 +1201,12 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 1,
-					modulesCounter: Rec.fromObject({
+					packages: 1,
+					languages: Rec.fromObject({
 						typescript: 0,
 						javascript: 3,
 					}),
-					shadowedExportValuesCounter: Rec.fromObject({
+					shadowedExportValues: Rec.fromObject({
 						"/dir/file2.js": 1,
 					}),
 					emptyExports: ["/dir/index.js"],
@@ -1230,8 +1230,8 @@ describe("domain", () => {
 					},
 				],
 				result: createSummary({
-					packagesCount: 2,
-					modulesCounter: Rec.fromObject({
+					packages: 2,
+					languages: Rec.fromObject({
 						typescript: 3,
 						javascript: 0,
 					}),

@@ -1,10 +1,13 @@
 import type { Modules, Packages, Summary } from "../../domain";
 import type { EventBusDispatcher } from "../../lib/event-bus";
 import type { FSNavCursor } from "../../lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "../../lib/fs-path";
+import { Rec } from "../../lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
+import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
 import { PathInformer } from "./path-informer";
 import { writeReport } from "./report-writer";
-import type { DispatcherRecord, ReportHtmlPagesContent, ReportSettings } from "./values";
+import type { DispatcherRecord, ReportSettings } from "./values";
 
 interface Params {
 	settings: ReportSettings;
@@ -22,17 +25,32 @@ export async function generateReport({ settings, dispatcher, summary, modules, p
 
 	dispatcher.dispatch("report-generation-started");
 
-	const ctx = { version: settings.version, pathInformer, summary, modules, packages, fsNavCursor };
+	const { version } = settings;
+	const htmlPages = new Rec<AbsoluteFsPath, string>();
 
-	const htmlPagesContent: ReportHtmlPagesContent = {
-		index: indexPage(ctx),
-		module: modules.mapValue(({ path }) => modulePage({ path }, ctx)),
-		package: packages.mapValue(({ path }) => packagePage({ path }, ctx)),
-	};
+	htmlPages.set(
+		pathInformer.indexHtmlPagePath,
+		indexPage(new IndexPageViewModel({ version, pathInformer, fsNavCursor, summary, modules, packages })),
+	);
+
+	modules.forEach(({ path }) => {
+		htmlPages.set(
+			pathInformer.getModuleHtmlPagePathByRealPath(path),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modules })),
+		);
+	});
+
+	packages.forEach(({ path }) => {
+		htmlPages.set(
+			pathInformer.getPackageHtmlPagePathByRealPath(path),
+			packagePage(new PackagePageViewModel({ version, path, pathInformer, fsNavCursor, packages })),
+		);
+	});
 
 	await writeReport({
-		pathInformer,
-		htmlPagesContent,
+		rootPath: pathInformer.rootPath,
+		assetsPath: pathInformer.assetsPath,
 		staticAssetsPath: settings.staticAssetsPath,
+		htmlPages,
 	});
 }

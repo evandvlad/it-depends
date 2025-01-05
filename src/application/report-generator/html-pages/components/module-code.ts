@@ -1,10 +1,5 @@
 import { encodeHTML } from "../../../../lib/code-encoder";
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
-
-interface Params {
-	path: AbsoluteFsPath;
-}
+import type { ModulePageViewModel } from "../../page-view-models";
 
 function moduleCodeLine({ num, line }: { num: number; line: string }) {
 	return `
@@ -15,10 +10,8 @@ function moduleCodeLine({ num, line }: { num: number; line: string }) {
 	`;
 }
 
-export function moduleCode({ path }: Params, { modules }: ComponentContext) {
-	const { content } = modules.get(path);
-
-	const code = content
+export function moduleCode(pageViewModel: ModulePageViewModel) {
+	const code = pageViewModel.code
 		.split("\n")
 		.map((line, i) => moduleCodeLine({ num: i + 1, line }))
 		.join("");

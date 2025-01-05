@@ -1,5 +1,4 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { IndexPageViewModel } from "../../page-view-models";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { container } from "../atoms/container";
@@ -7,47 +6,33 @@ import { counter } from "../atoms/counter";
 import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
-import { type TreeItem, tree } from "../atoms/tree";
-import { moduleLink } from "../components/module-link";
+import { tree } from "../atoms/tree";
 
-function collectTreeItems({ path }: { path: AbsoluteFsPath }, ctx: ComponentContext): TreeItem[] {
-	const { fsNavCursor, modules } = ctx;
-
-	return fsNavCursor.getNodeChildrenByPath(path).map(({ path, name }) => ({
-		content: modules.has(path)
-			? a({
-					href: ctx.pathInformer.getModuleHtmlPagePathByRealPath(path),
-					text: modules.get(path).name,
-				})
-			: name,
-		children: collectTreeItems({ path }, ctx),
-	}));
-}
-
-export function modulesCallout(ctx: ComponentContext) {
-	const count = ctx.summary.modulesCounter.reduce((acc, num) => acc + num, 0);
-	const items = ctx.modules.toValues().map(({ path }) => moduleLink({ path }, ctx));
-
-	const langDatalistContent = datalist({
-		borderColor: "white",
-		items: ctx.summary.modulesCounter.toEntries().map(([lang, value]) => ({ label: lang, value: value.toString() })),
-	});
-
-	const tabsContent = tabs({
-		items: [
-			{
-				label: "Modules tree",
-				content: tree({
-					items: collectTreeItems({ path: ctx.fsNavCursor.shortRootPath }, ctx),
-				}),
-			},
-			{ label: "Modules list", content: list({ items }) },
-		],
-	});
-
+export function modulesCallout(pageViewModel: IndexPageViewModel) {
 	return callout({
-		title: `Modules ${counter({ value: count })}`,
-		content: container({ items: [langDatalistContent, tabsContent] }),
+		title: `Modules ${counter({ value: pageViewModel.numOfModules })}`,
+		content: container({
+			items: [
+				datalist({
+					borderColor: "white",
+					items: pageViewModel.langCountList,
+				}),
+				tabs({
+					items: [
+						{
+							label: "Module tree",
+							content: tree({
+								items: pageViewModel.collectModuleTree(({ name, linkData }) => (linkData ? a(linkData) : name)),
+							}),
+						},
+						{
+							label: "Module list",
+							content: list({ items: pageViewModel.collectModuleList((linkData) => a(linkData)) }),
+						},
+					],
+				}),
+			],
+		}),
 		open: true,
 		color: "green",
 	});

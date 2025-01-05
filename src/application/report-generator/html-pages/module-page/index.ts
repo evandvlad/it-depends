@@ -1,5 +1,4 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { ModulePageViewModel } from "../../page-view-models";
 import { container } from "../atoms/container";
 import { frame } from "../atoms/frame";
 import { headerHeading } from "../components/header-heading";
@@ -9,12 +8,8 @@ import { exportsCallout } from "./exports-callout";
 import { importsCallout } from "./imports-callout";
 import { moduleDatalist } from "./module-datalist";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
-
-export function modulePage({ path }: Params, ctx: ComponentContext) {
-	const title = `Module: ${ctx.fsNavCursor.getShortPathByPath(path)}`;
+export function modulePage(pageViewModel: ModulePageViewModel) {
+	const title = `Module: ${pageViewModel.shortPath}`;
 
 	return layout(
 		{
@@ -24,17 +19,17 @@ export function modulePage({ path }: Params, ctx: ComponentContext) {
 				items: [
 					`<div style="flex: 1">
 						${container({
-							items: [moduleDatalist({ path }, ctx), importsCallout({ path }, ctx), exportsCallout({ path }, ctx)],
+							items: [moduleDatalist(pageViewModel), importsCallout(pageViewModel), exportsCallout(pageViewModel)],
 						})}
 					</div>`,
 					`<div style="max-width: 990px; min-width: 300px">
-						${frame({ content: moduleCode({ path }, ctx) })}
+						${frame({ content: moduleCode(pageViewModel) })}
 					</div>`,
 				],
 				direction: "horizontal",
 				gap: "20px",
 			}),
 		},
-		ctx,
+		pageViewModel,
 	);
 }
