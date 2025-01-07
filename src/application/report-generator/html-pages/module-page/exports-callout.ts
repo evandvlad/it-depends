@@ -29,6 +29,6 @@ export function exportsCallout(pageViewModel: ModulePageViewModel) {
 				{ label: "By values", content: itemsByValues.join("") },
 			],
 		}),
-		color: "green",
+		color: pageViewModel.numOfExports > 0 ? "green" : "yellow",
 	});
 }
