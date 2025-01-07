@@ -5,7 +5,6 @@ interface Item {
 
 interface Params {
 	items: Item[];
-	borderColor?: "white" | "gray";
 }
 
 function datalistItem({ label, value }: Item) {
@@ -17,9 +16,13 @@ function datalistItem({ label, value }: Item) {
 	`;
 }
 
-export function datalist({ items, borderColor = "gray" }: Params) {
+export function datalist({ items }: Params) {
+	if (items.length === 0) {
+		return "";
+	}
+
 	return `
-		<div class="datalist datalist--border-${borderColor}">
+		<div class="datalist">
 			${items.map((item) => datalistItem(item)).join("")}
 		</div>
 	`;

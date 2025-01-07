@@ -68,7 +68,7 @@
 .error-info {
 	font-family: var(--g-mono-font-style);
 	font-size: var(--g-small-font-size);
-	background-color: var(--g-white-color);
+	border: 1px solid var(--g-gray-color);
 	padding: 10px 15px;
 	overflow: auto;
 }
@@ -76,7 +76,6 @@
 .module-code {
 	font-family: var(--g-mono-font-style);
 	font-size: var(--g-small-font-size);
-	background-color: var(--g-white-color);
 	padding: 10px 15px;
 	overflow: auto;
 	

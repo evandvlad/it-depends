@@ -10,7 +10,7 @@ export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
 	);
 
 	return callout({
-		title: `Shadowed export values ${counter({ value: pageViewModel.numOfShadowedExportValues })}`,
+		title: `Shadowed export values ${counter({ value: pageViewModel.numOfShadowedExportValues, color: "white" })}`,
 		content: list({ items }),
 		color: pageViewModel.numOfShadowedExportValues > 0 ? "yellow" : "green",
 	});

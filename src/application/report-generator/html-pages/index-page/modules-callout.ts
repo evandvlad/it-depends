@@ -10,11 +10,10 @@ import { tree } from "../atoms/tree";
 
 export function modulesCallout(pageViewModel: IndexPageViewModel) {
 	return callout({
-		title: `Modules ${counter({ value: pageViewModel.numOfModules })}`,
+		title: `Modules ${counter({ value: pageViewModel.numOfModules, color: "white" })}`,
 		content: container({
 			items: [
 				datalist({
-					borderColor: "white",
 					items: pageViewModel.langCountList,
 				}),
 				tabs({

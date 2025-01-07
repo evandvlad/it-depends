@@ -10,7 +10,7 @@ export function unparsedDynamicImportsCallout(pageViewModel: IndexPageViewModel)
 	);
 
 	return callout({
-		title: `Unparsed dynamic imports ${counter({ value: pageViewModel.numOfUnparsedDynamicImports })}`,
+		title: `Unparsed dynamic imports ${counter({ value: pageViewModel.numOfUnparsedDynamicImports, color: "white" })}`,
 		content: list({ items }),
 		color: pageViewModel.numOfUnparsedDynamicImports > 0 ? "yellow" : "green",
 	});

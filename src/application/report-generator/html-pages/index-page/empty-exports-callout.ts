@@ -8,7 +8,7 @@ export function emptyExportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectEmptyExports((linkData) => a(linkData));
 
 	return callout({
-		title: `Empty exports ${counter({ value: items.length })}`,
+		title: `Empty exports ${counter({ value: items.length, color: "white" })}`,
 		content: list({ items }),
 		color: items.length > 0 ? "yellow" : "green",
 	});

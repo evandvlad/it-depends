@@ -13,7 +13,7 @@ export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
 	);
 
 	return callout({
-		title: `Out of scope imports ${counter({ value: pageViewModel.numOfOutOfScopeImports })}`,
+		title: `Out of scope imports ${counter({ value: pageViewModel.numOfOutOfScopeImports, color: "white" })}`,
 		content: items.join(""),
 		color: pageViewModel.numOfOutOfScopeImports > 0 ? "yellow" : "green",
 	});

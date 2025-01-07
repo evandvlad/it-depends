@@ -14,7 +14,7 @@ export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 	);
 
 	return callout({
-		title: `Incorrect imports ${counter({ value: pageViewModel.numOfIncorrectImports })}`,
+		title: `Incorrect imports ${counter({ value: pageViewModel.numOfIncorrectImports, color: "white" })}`,
 		content: items.join(""),
 		color: pageViewModel.numOfIncorrectImports > 0 ? "red" : "green",
 	});

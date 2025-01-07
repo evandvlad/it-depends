@@ -8,7 +8,7 @@ export function modulesCallout(pageViewModel: PackagePageViewModel) {
 	const items = pageViewModel.collectModuleLinks((linkData) => a(linkData));
 
 	return callout({
-		title: `Modules ${counter({ value: items.length })}`,
+		title: `Modules ${counter({ value: items.length, color: "white" })}`,
 		content: list({
 			items,
 		}),

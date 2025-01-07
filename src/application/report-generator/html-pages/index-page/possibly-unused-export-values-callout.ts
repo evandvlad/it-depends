@@ -13,7 +13,10 @@ export function possiblyUnusedExportValuesCallout(pageViewModel: IndexPageViewMo
 	);
 
 	return callout({
-		title: `Possibly unused export values ${counter({ value: pageViewModel.numOfPossiblyUnusedExportValues })}`,
+		title: `Possibly unused export values ${counter({
+			value: pageViewModel.numOfPossiblyUnusedExportValues,
+			color: "white",
+		})}`,
 		content: items.join(""),
 		color: pageViewModel.numOfPossiblyUnusedExportValues > 0 ? "yellow" : "green",
 	});

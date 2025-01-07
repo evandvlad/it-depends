@@ -7,6 +7,10 @@ let indexId = 0;
 export function tabs({ items }: Params) {
 	indexId += 1;
 
+	if (items.length === 0) {
+		return "";
+	}
+
 	const tabs = items.map(({ label, content }, index) => {
 		const name = `tabs-${indexId}`;
 		const id = `tabs-tab-${indexId}-${index}`;

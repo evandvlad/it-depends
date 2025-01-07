@@ -14,7 +14,7 @@ export function exportsCallout(pageViewModel: ModulePageViewModel) {
 	);
 
 	return callout({
-		title: `Exports ${counter({ value: pageViewModel.numOfExports })}`,
+		title: `Exports ${counter({ value: pageViewModel.numOfExports, color: "white" })}`,
 		content: items.join(""),
 		color: "green",
 		open: true,

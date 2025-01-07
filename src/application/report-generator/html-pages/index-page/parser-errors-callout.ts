@@ -14,7 +14,7 @@ export function parserErrorsCallout(pageViewModel: IndexPageViewModel) {
 	);
 
 	return callout({
-		title: `Parser errors ${counter({ value: errors.length })}`,
+		title: `Parser errors ${counter({ value: errors.length, color: "white" })}`,
 		content: errors.join(""),
 		color: errors.length > 0 ? "red" : "green",
 	});
