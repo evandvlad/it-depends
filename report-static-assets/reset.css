@@ -1,5 +1,6 @@
 * {
 	box-sizing: border-box;
+	overflow-wrap: anywhere;
 	margin: 0;
 	padding: 0;
 }

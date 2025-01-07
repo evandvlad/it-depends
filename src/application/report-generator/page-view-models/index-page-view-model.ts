@@ -19,7 +19,7 @@ export class IndexPageViewModel extends PageViewModel {
 	readonly numOfPackages;
 	readonly langCountList;
 	readonly numOfIncorrectImports;
-	readonly numOfPossiblyUnusedExportValues;
+	readonly numOfPossiblyUnusedExports;
 	readonly numOfOutOfScopeImports;
 	readonly numOfUnparsedDynamicImports;
 	readonly numOfUnresolvedFullIE;
@@ -50,7 +50,7 @@ export class IndexPageViewModel extends PageViewModel {
 		this.numOfIncorrectImports = summary.incorrectImports.reduce((acc, importSources) => acc + importSources.length, 0);
 		this.numOfOutOfScopeImports = summary.outOfScopeImports.reduce((acc, importPaths) => acc + importPaths.length, 0);
 
-		this.numOfPossiblyUnusedExportValues = summary.possiblyUnusedExportValues.reduce(
+		this.numOfPossiblyUnusedExports = summary.possiblyUnusedExportValues.reduce(
 			(acc, values) => acc + values.length,
 			0,
 		);
@@ -106,11 +106,14 @@ export class IndexPageViewModel extends PageViewModel {
 		});
 	}
 
-	collectPossiblyUnusedExportValues<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
+	collectPossiblyUnusedExports<T>(
+		handler: (params: { linkData: LinkData; values: string[]; isFullyUnused: boolean }) => T,
+	) {
 		return this.#summary.possiblyUnusedExportValues.toEntries().map(([path, values]) =>
 			handler({
 				values,
 				linkData: this.getModuleLinkData(path),
+				isFullyUnused: this.#modules.get(path).exports.size === values.length,
 			}),
 		);
 	}

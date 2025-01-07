@@ -1,6 +1,6 @@
 .layout {
 	--layout-indent: 20px;
-	--layout-min-width: 1280px;
+	--layout-min-width: 1440px;
 	--layout-max-width: 1920px;
 
 	display: flex;

@@ -36,7 +36,7 @@ export async function generateReport({ settings, dispatcher, summary, modules, p
 	modules.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
-			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modules })),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modules, summary })),
 		);
 	});
 

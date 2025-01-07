@@ -14,18 +14,7 @@ export function packagePage(pageViewModel: PackagePageViewModel) {
 			title,
 			header: headerHeading({ content: title }),
 			content: container({
-				items: [
-					`<div style="width: 50%">
-						${packageDatalist(pageViewModel)}
-					</div>`,
-					`<div style="width: 50%">
-						${container({
-							items: [modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
-						})}
-					</div>`,
-				],
-				direction: "horizontal",
-				gap: "20px",
+				items: [packageDatalist(pageViewModel), modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
 			}),
 		},
 		pageViewModel,

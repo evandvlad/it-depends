@@ -7,7 +7,7 @@ import { modulesCallout } from "./modules-callout";
 import { outOfScopeImportsCallout } from "./out-of-scope-imports-callout";
 import { packagesCallout } from "./packages-callout";
 import { parserErrorsCallout } from "./parser-errors-callout";
-import { possiblyUnusedExportValuesCallout } from "./possibly-unused-export-values-callout";
+import { possiblyUnusedExportsCallout } from "./possibly-unused-exports-callout";
 import { shadowedExportValuesCallout } from "./shadowed-export-values-callout";
 import { unparsedDynamicImportsCallout } from "./unparsed-dynamic-imports-callout";
 import { unresolvedFullIECallout } from "./unresolved-full-ie-callout";
@@ -27,7 +27,7 @@ export function indexPage(pageViewModel: IndexPageViewModel) {
 							items: [
 								parserErrorsCallout(pageViewModel),
 								incorrectImportsCallout(pageViewModel),
-								possiblyUnusedExportValuesCallout(pageViewModel),
+								possiblyUnusedExportsCallout(pageViewModel),
 								emptyExportsCallout(pageViewModel),
 								outOfScopeImportsCallout(pageViewModel),
 								unparsedDynamicImportsCallout(pageViewModel),

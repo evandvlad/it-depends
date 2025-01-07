@@ -22,7 +22,7 @@ export function modulePage(pageViewModel: ModulePageViewModel) {
 							items: [moduleDatalist(pageViewModel), importsCallout(pageViewModel), exportsCallout(pageViewModel)],
 						})}
 					</div>`,
-					`<div style="max-width: 990px; min-width: 300px">
+					`<div style="width: 990px">
 						${frame({ content: moduleCode(pageViewModel) })}
 					</div>`,
 				],

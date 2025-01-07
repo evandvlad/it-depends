@@ -3,33 +3,35 @@ import { a } from "../atoms/a";
 import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
 
-export function moduleDatalist({
-	fullPath,
-	packageLinkData,
-	unparsedDynamicImports,
-	unresolvedFullImports,
-	unresolvedFullExports,
-	shadowedExportValues,
-}: ModulePageViewModel) {
+export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({
 		items: [
-			{ label: "Full path", value: fullPath },
+			{ label: "Full path", value: pageViewModel.fullPath },
+			{ label: "Language", value: pageViewModel.language },
 			{
 				label: "Package",
-				value: packageLinkData ? a(packageLinkData) : "",
+				value: pageViewModel.packageLinkData ? a(pageViewModel.packageLinkData) : "",
 			},
-			{ label: "Unparsed dynamic imports", value: String(unparsedDynamicImports || "") },
+			{
+				label: "Incorrect imports",
+				value: list({ items: pageViewModel.collectIncorrectImportItems((linkData) => a(linkData)) }),
+			},
+			{
+				label: "Out of scope imports",
+				value: list({ items: pageViewModel.outOfScopeImports }),
+			},
+			{ label: "Unparsed dynamic imports", value: String(pageViewModel.unparsedDynamicImports || "") },
 			{
 				label: "Unresolved full imports",
-				value: list({ items: unresolvedFullImports }),
+				value: list({ items: pageViewModel.unresolvedFullImports }),
 			},
 			{
 				label: "Unresolved full exports",
-				value: list({ items: unresolvedFullExports }),
+				value: list({ items: pageViewModel.unresolvedFullExports }),
 			},
 			{
 				label: "Shadowed export values",
-				value: shadowedExportValues.join(", "),
+				value: pageViewModel.shadowedExportValues.join(", "),
 			},
 		],
 	});

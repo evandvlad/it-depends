@@ -26,6 +26,5 @@ export function packagesCallout(pageViewModel: IndexPageViewModel) {
 		title: `Packages ${counter({ value: pageViewModel.numOfPackages, color: "white" })}`,
 		content: pageViewModel.numOfPackages > 0 ? getTabs(pageViewModel) : "",
 		color: "green",
-		open: true,
 	});
 }

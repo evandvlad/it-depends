@@ -18,6 +18,5 @@ export function importsCallout(pageViewModel: ModulePageViewModel) {
 		title: `Imports ${counter({ value: pageViewModel.numOfImports, color: "white" })}`,
 		content: items.join(""),
 		color: "green",
-		open: true,
 	});
 }
