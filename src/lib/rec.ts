@@ -34,6 +34,10 @@ export class Rec<K extends PropertyKey, V> {
 		return this.#data[key]!;
 	}
 
+	getOrDefault(key: K, defaultValue: V) {
+		return this.has(key) ? this.get(key) : defaultValue;
+	}
+
 	forEach(callback: (value: V, key: K) => void) {
 		this.toEntries().forEach(([key, value]) => {
 			callback(value, key);

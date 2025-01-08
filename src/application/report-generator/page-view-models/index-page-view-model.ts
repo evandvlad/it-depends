@@ -90,7 +90,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 	collectIncorrectImports<T>(
 		handler: (params: {
-			moduleLinkData: LinkData;
+			linkData: LinkData;
 			importItems: Array<{ name: string; linkData: LinkData | null }>;
 		}) => T,
 	) {
@@ -102,7 +102,7 @@ export class IndexPageViewModel extends PageViewModel {
 					: null,
 			}));
 
-			return handler({ moduleLinkData: this.getModuleLinkData(path), importItems });
+			return handler({ linkData: this.getModuleLinkData(path), importItems });
 		});
 	}
 

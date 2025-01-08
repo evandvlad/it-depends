@@ -6,9 +6,9 @@ import { details } from "../atoms/details";
 import { list } from "../atoms/list";
 
 export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectIncorrectImports(({ moduleLinkData, importItems }) =>
+	const items = pageViewModel.collectIncorrectImports(({ linkData, importItems }) =>
 		details({
-			title: `${a(moduleLinkData)} ${counter({ value: importItems.length })}`,
+			title: `${a(linkData)} ${counter({ value: importItems.length })}`,
 			content: list({ items: importItems.map(({ name, linkData }) => (linkData ? a(linkData) : name)) }),
 		}),
 	);

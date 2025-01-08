@@ -58,7 +58,7 @@ export class ModulePageViewModel extends PageViewModel {
 		this.numOfImports = module.imports.reduce((acc, { values }) => acc + values.length, 0);
 		this.numOfExports = module.exports.reduce((acc, paths) => acc + paths.length, 0);
 
-		this.outOfScopeImports = summary.outOfScopeImports.has(path) ? summary.outOfScopeImports.get(path) : [];
+		this.outOfScopeImports = summary.outOfScopeImports.getOrDefault(path, []);
 	}
 
 	collectImportItems<T>(handler: (params: { name: string; moduleLink: LinkData | null; values: string[] }) => T) {
@@ -81,17 +81,15 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectExportItemsByModules<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
-		const rec = new Rec<AbsoluteFsPath, string[]>();
-
-		this.#module.exports.forEach((paths, value) => {
+		const rec = this.#module.exports.reduce((acc, paths, value) => {
 			paths.forEach((path) => {
-				if (!rec.has(path)) {
-					rec.set(path, []);
-				}
-
-				rec.get(path).push(value);
+				const values = acc.getOrDefault(path, []);
+				values.push(value);
+				acc.set(path, values);
 			});
-		});
+
+			return acc;
+		}, new Rec<AbsoluteFsPath, string[]>());
 
 		return rec.toEntries().map(([path, values]) =>
 			handler({
@@ -102,13 +100,7 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectIncorrectImportItems<T>(handler: (linkData: LinkData) => T) {
-		const { incorrectImports } = this.#summary;
-
-		if (!incorrectImports.has(this.fullPath)) {
-			return [];
-		}
-
-		return this.#summary.incorrectImports.get(this.fullPath).map(({ importPath, filePath }) =>
+		return this.#summary.incorrectImports.getOrDefault(this.fullPath, []).map(({ importPath, filePath }) =>
 			handler({
 				url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
 				content: importPath,
