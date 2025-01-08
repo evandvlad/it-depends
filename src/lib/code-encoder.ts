@@ -4,5 +4,7 @@ export function encodeHTML(code: string) {
 		.replaceAll("<", "&lt;")
 		.replaceAll(">", "&gt;")
 		.replaceAll('"', "&quot;")
-		.replaceAll("'", "&apos;");
+		.replaceAll("'", "&apos;")
+		.replaceAll("\t", "&nbsp;".repeat(4))
+		.replaceAll("\n", "&nbsp;");
 }

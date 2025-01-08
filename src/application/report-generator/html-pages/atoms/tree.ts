@@ -2,9 +2,10 @@ interface Params {
 	items: TreeItem[];
 }
 
-export interface TreeItem {
+interface TreeItem {
 	content: string;
 	children: TreeItem[];
+	title: string;
 	open?: boolean;
 }
 
@@ -14,14 +15,22 @@ export function tree({ items }: Params): string {
 	}
 
 	const content = items
-		.map(({ content, children, open }) => {
+		.map(({ content, children, title, open = false }) => {
 			if (children.length === 0) {
-				return `<div class="tree__item">${content}</div>`;
+				return `
+					<div class="tree__item">
+						<span title="${title}">
+							${content}
+						</span>
+					</div>
+				`;
 			}
 
 			return `
 				<details class="tree__subtree" ${open ? "open" : ""}>
-					<summary class="tree__subtree-item">${content}</summary>
+					<summary class="tree__subtree-item">
+						<span title="${title}">${content}</span>
+					</summary>
 					${tree({ items: children })}
 				</details>
 			`;

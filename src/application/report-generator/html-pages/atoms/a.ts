@@ -1,8 +1,8 @@
 interface Params {
-	text: string;
-	href: string;
+	url: string;
+	content: string;
 }
 
-export function a({ text, href }: Params) {
-	return `<a class="link" href="${href}">${text}</a>`;
+export function a({ content, url }: Params) {
+	return `<a class="link" href="${url}">${content}</a>`;
 }

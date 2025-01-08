@@ -10,7 +10,7 @@ export interface ImportSource {
 	filePath?: AbsoluteFsPath;
 }
 
-export interface ImportData {
+interface ImportData {
 	importSource: ImportSource;
 	values: string[];
 }
@@ -26,7 +26,7 @@ export interface Module {
 	unresolvedFullImports: ImportSource[];
 	unresolvedFullExports: ImportSource[];
 	shadowedExportValues: string[];
-	unparsedDynamicImportsCount: number;
+	unparsedDynamicImports: number;
 }
 
 export type Modules = Rec<AbsoluteFsPath, Module>;

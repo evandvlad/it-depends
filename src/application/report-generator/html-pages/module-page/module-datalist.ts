@@ -1,32 +1,37 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { ModulePageViewModel } from "../../page-view-models";
+import { a } from "../atoms/a";
 import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
-import { packageLink } from "../components/package-link";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
-
-export function moduleDatalist({ path }: Params, ctx: ComponentContext) {
-	const module = ctx.modules.get(path);
-
+export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({
 		items: [
-			{ label: "Full path", value: path },
-			{ label: "Package", value: module.package ? packageLink({ path: module.package }, ctx) : "" },
-			{ label: "Unparsed dynamic imports", value: String(module.unparsedDynamicImportsCount || "") },
+			{ label: "Full path", value: pageViewModel.fullPath },
+			{ label: "Language", value: pageViewModel.language },
+			{
+				label: "Package",
+				value: pageViewModel.packageLinkData ? a(pageViewModel.packageLinkData) : "",
+			},
+			{
+				label: "Incorrect imports",
+				value: list({ items: pageViewModel.collectIncorrectImportItems((linkData) => a(linkData)) }),
+			},
+			{
+				label: "Out of scope imports",
+				value: list({ items: pageViewModel.outOfScopeImports }),
+			},
+			{ label: "Unparsed dynamic imports", value: String(pageViewModel.unparsedDynamicImports || "") },
 			{
 				label: "Unresolved full imports",
-				value: list({ items: module.unresolvedFullImports.map(({ importPath }) => importPath) }),
+				value: list({ items: pageViewModel.unresolvedFullImports }),
 			},
 			{
 				label: "Unresolved full exports",
-				value: list({ items: module.unresolvedFullExports.map(({ importPath }) => importPath) }),
+				value: list({ items: pageViewModel.unresolvedFullExports }),
 			},
 			{
 				label: "Shadowed export values",
-				value: module.shadowedExportValues.join(", "),
+				value: pageViewModel.shadowedExportValues.join(", "),
 			},
 		],
 	});

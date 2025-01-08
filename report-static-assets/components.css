@@ -1,19 +1,27 @@
 .layout {
 	--layout-indent: 20px;
+	--layout-min-width: 1440px;
+	--layout-max-width: 1920px;
 
 	display: flex;
+	flex-direction: column;
 	height: 100%;
 	min-height: fit-content;
-	flex-direction: column;
-	min-width: 1280px;
 
 	.layout__header {
-		display: flex;
-		align-items: center;
 		background-color: var(--g-light-gray-color);
 		padding: 10px var(--layout-indent);
 		position: sticky;
 		top: 0;
+	}
+
+	.layout__header-content {
+		display: flex;
+		align-items: center;
+		min-width: var(--layout-min-width);
+		max-width: var(--layout-max-width);
+		padding: 0 var(--layout-indent);
+		margin: 0 auto;
 	}
 
 	.layout__header-link {
@@ -25,15 +33,27 @@
 
 	.layout__content {
 		flex: 1;
+		min-width: var(--layout-min-width);
+		max-width: var(--layout-max-width);
 		padding: var(--layout-indent);
+		margin: 0 auto;
+		width: 100%;
 	}
 
 	.layout__footer {
 		background-color: var(--g-light-gray-color);
 		padding: 10px var(--layout-indent);
-		color: var(--g-dark-gray-color);
 		position: sticky;
 		bottom: 0;
+	}
+	
+	.layout__footer-content {
+		font-size: var(--g-small-font-size);
+		color: var(--g-dark-gray-color);
+		min-width: var(--layout-min-width);
+		max-width: var(--layout-max-width);
+		padding: 0 var(--layout-indent);
+		margin: 0 auto;
 	}
 }
 
@@ -43,4 +63,41 @@
 	border-left: 2px solid var(--g-dark-gray-color);
 	padding-left: 15px;
 	margin-left: 15px;
+}
+
+.error-info {
+	font-family: var(--g-mono-font-style);
+	font-size: var(--g-small-font-size);
+	border: 1px solid var(--g-gray-color);
+	padding: 10px 15px;
+	overflow: auto;
+}
+
+.module-code {
+	font-family: var(--g-mono-font-style);
+	font-size: var(--g-small-font-size);
+	padding: 10px 15px;
+	overflow: auto;
+	
+
+	.module-code__content {
+		display: table;
+		table-layout: fixed;
+	}
+
+	.module-code__line {
+		display: table-row;
+	}
+
+	.module-code__line-gutter {
+		display: table-cell;
+		text-align: right;
+		padding-right: 20px;
+		color: var(--g-dark-gray-color);
+	}
+
+	.module-code__line-code {
+		display: table-cell;
+		white-space: nowrap;
+	}
 }

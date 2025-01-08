@@ -20,6 +20,7 @@ describe("rec", () => {
 		expect(rec.has("d")).toEqual(false);
 		expect(rec.get("a")).toEqual(1);
 		expect(rec.get("c")).toEqual(3);
+		expect(rec.getOrDefault("z", 999)).toEqual(999);
 
 		expect(rec.size).toEqual(3);
 		expect(rec.toKeys()).toEqual(["a", "b", "c"]);

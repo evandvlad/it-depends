@@ -1,20 +1,16 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { PackagePageViewModel } from "../../page-view-models";
+import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
-import { packageLink } from "../components/package-link";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
-
-export function packagesCallout({ path }: Params, ctx: ComponentContext) {
-	const { packages } = ctx.packages.get(path);
+export function packagesCallout(pageViewModel: PackagePageViewModel) {
+	const items = pageViewModel.collectChildPackageLinks((linkData) => a(linkData));
 
 	return callout({
-		title: `Packages: ${packages.length}`,
+		title: `Packages ${counter({ value: items.length, color: "white" })}`,
 		content: list({
-			items: packages.map((p) => packageLink({ path: p }, ctx)),
+			items,
 		}),
 		color: "green",
 		open: true,

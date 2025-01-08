@@ -1,15 +1,8 @@
 import type { EventBusDispatcher } from "../lib/event-bus";
 import { FSNavCursor } from "../lib/fs-nav-cursor";
-import { type DispatcherRecord, type FileItems, type ParserErrors, transformFileItems } from "./file-items-transformer";
-import {
-	type ImportAliasMapper,
-	type ImportData,
-	type ImportSource,
-	type Module,
-	type Modules,
-	collectModules,
-} from "./modules-collector";
-import { type ExtraPackageEntries, type Package, type Packages, PackagesCollector } from "./packages-collector";
+import { type DispatcherRecord, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
+import { type ImportAliasMapper, type Modules, collectModules } from "./modules-collector";
+import { type ExtraPackageEntries, type Packages, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
@@ -33,16 +26,12 @@ interface Result {
 export type {
 	FileItems,
 	DispatcherRecord,
-	Module,
 	Modules,
-	Package,
 	Packages,
 	Summary,
 	ImportAliasMapper,
-	ParserErrors,
-	ImportSource,
-	ImportData,
 	ExtraPackageEntries,
+	ImportPath,
 };
 
 export async function process({

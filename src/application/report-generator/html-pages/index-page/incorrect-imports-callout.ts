@@ -1,36 +1,21 @@
-import type { ComponentContext } from "../../values";
+import type { IndexPageViewModel } from "../../page-view-models";
 import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
-import { moduleLink } from "../components/module-link";
 
-export function incorrectImportsCallout(ctx: ComponentContext) {
-	const { count, items } = ctx.summary.incorrectImports.reduce<{ count: number; items: string[] }>(
-		(acc, importSources, path) => {
-			acc.count += importSources.length;
-
-			const items = importSources.map(({ importPath, filePath }) =>
-				filePath
-					? a({ href: ctx.pathInformer.getModuleHtmlPagePathByRealPath(filePath), text: importPath })
-					: importPath,
-			);
-
-			acc.items.push(
-				details({
-					title: `${moduleLink({ path }, ctx)} - ${importSources.length}`,
-					content: list({ items }),
-				}),
-			);
-
-			return acc;
-		},
-		{ count: 0, items: [] },
+export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
+	const items = pageViewModel.collectIncorrectImports(({ linkData, importItems }) =>
+		details({
+			title: `${a(linkData)} ${counter({ value: importItems.length })}`,
+			content: list({ items: importItems.map(({ name, linkData }) => (linkData ? a(linkData) : name)) }),
+		}),
 	);
 
 	return callout({
-		title: `Incorrect imports: ${count}`,
+		title: `Incorrect imports ${counter({ value: pageViewModel.numOfIncorrectImports, color: "white" })}`,
 		content: items.join(""),
-		color: count > 0 ? "red" : "green",
+		color: pageViewModel.numOfIncorrectImports > 0 ? "red" : "green",
 	});
 }

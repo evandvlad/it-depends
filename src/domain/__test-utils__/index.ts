@@ -30,7 +30,7 @@ export function createModule(parts: Record<string, unknown>) {
 		content: expect.any(String) as unknown as string,
 		imports: [],
 		exports: new Rec(),
-		unparsedDynamicImportsCount: 0,
+		unparsedDynamicImports: 0,
 		shadowedExportValues: [],
 		unresolvedFullImports: [],
 		unresolvedFullExports: [],
@@ -60,15 +60,15 @@ export function createPackages(packagesList: Package[]): Packages {
 
 export function createSummary(parts: Record<string, unknown>): Summary {
 	return {
-		packagesCount: 0,
-		modulesCounter: Rec.fromObject({
+		packages: 0,
+		languages: Rec.fromObject({
 			typescript: 0,
 			javascript: 0,
 		}),
-		unparsedDynamicImportsCounter: new Rec(),
-		unresolvedFullImportsCounter: new Rec(),
-		unresolvedFullExportsCounter: new Rec(),
-		shadowedExportValuesCounter: new Rec(),
+		unparsedDynamicImports: new Rec(),
+		unresolvedFullImports: new Rec(),
+		unresolvedFullExports: new Rec(),
+		shadowedExportValues: new Rec(),
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
 		possiblyUnusedExportValues: new Rec(),

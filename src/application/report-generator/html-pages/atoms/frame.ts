@@ -4,5 +4,9 @@ interface Params {
 }
 
 export function frame({ content, color = "green" }: Params) {
+	if (!content) {
+		return "";
+	}
+
 	return `<div class="frame frame--${color}">${content}</div>`;
 }

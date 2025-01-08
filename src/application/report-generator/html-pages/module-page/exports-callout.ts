@@ -1,38 +1,34 @@
-import type { AbsoluteFsPath } from "../../../../lib/fs-path";
-import type { ComponentContext } from "../../values";
+import type { ModulePageViewModel } from "../../page-view-models";
+import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
+import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
-import { moduleLink } from "../components/module-link";
+import { tabs } from "../atoms/tabs";
 
-interface Params {
-	path: AbsoluteFsPath;
-}
+export function exportsCallout(pageViewModel: ModulePageViewModel) {
+	const itemsByModules = pageViewModel.collectExportItemsByModules(({ linkData, values }) =>
+		details({
+			title: `${a(linkData)} ${counter({ value: values.length })}`,
+			content: values.join(", "),
+		}),
+	);
 
-export function exportsCallout({ path }: Params, ctx: ComponentContext) {
-	const { exports } = ctx.modules.get(path);
-
-	const { count, items } = exports.reduce<{ count: number; items: string[] }>(
-		(acc, paths, value) => {
-			acc.count += paths.length;
-
-			acc.items.push(
-				details({
-					title: `${value}: ${paths.length}`,
-					content: list({ items: paths.map((p) => moduleLink({ path: p }, ctx)) }),
-					open: true,
-				}),
-			);
-
-			return acc;
-		},
-		{ count: 0, items: [] },
+	const itemsByValues = pageViewModel.collectExportItemsByValues(({ value, linksData }) =>
+		details({
+			title: `${value} ${counter({ value: linksData.length })}`,
+			content: list({ items: linksData.map((linkData) => a(linkData)) }),
+		}),
 	);
 
 	return callout({
-		title: `Exports: ${count}`,
-		content: items.join(""),
-		color: "green",
-		open: true,
+		title: `Exports ${counter({ value: pageViewModel.numOfExports, color: "white" })}`,
+		content: tabs({
+			items: [
+				{ label: "By modules", content: itemsByModules.join("") },
+				{ label: "By values", content: itemsByValues.join("") },
+			],
+		}),
+		color: pageViewModel.numOfExports > 0 ? "green" : "yellow",
 	});
 }

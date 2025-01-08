@@ -3,7 +3,12 @@ import { encodeHTML } from "../code-encoder";
 
 describe("code-encoder", () => {
 	it("should encode to html correctly", () => {
-		const code = `<div>&'"</div>`;
-		expect(encodeHTML(code)).toEqual("&lt;div&gt;&amp;&apos;&quot;&lt;/div&gt;");
+		const code = `<div>
+			&'" 
+		</div>`;
+
+		expect(encodeHTML(code)).toEqual(
+			"&lt;div&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;&apos;&quot; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;",
+		);
 	});
 });
