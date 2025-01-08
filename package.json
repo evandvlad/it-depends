@@ -1,6 +1,6 @@
 {
   "name": "it-depends",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "it-depends",
   "main": "dist/index.js",
   "scripts": {
