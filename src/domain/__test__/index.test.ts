@@ -13,13 +13,13 @@ import {
 
 import { type ImportAliasMapper, process } from "..";
 
-const nullDispatcher = { dispatch() {} };
+const nullDispatcherPort = { dispatch() {} };
 const nullSettings = { importAliasMapper: () => null, extraPackageEntries: { fileNames: [], filePaths: [] } };
 
 describe("domain", () => {
 	it("should be error for empty file items", async () => {
 		await expect(
-			process({ fileItems: createFileItemsGenerator([]), dispatcher: nullDispatcher, settings: nullSettings }),
+			process({ fileItems: createFileItemsGenerator([]), dispatcherPort: nullDispatcherPort, settings: nullSettings }),
 		).rejects.toThrow(new AppError("File paths list is empty"));
 	});
 
@@ -809,7 +809,7 @@ describe("domain", () => {
 
 			const { modules } = await process({
 				fileItems: createFileItemsGenerator(fileItems),
-				dispatcher: {
+				dispatcherPort: {
 					dispatch: fn,
 				},
 				settings: { ...nullSettings, importAliasMapper: importAliasMapper as ImportAliasMapper },
@@ -1054,7 +1054,7 @@ describe("domain", () => {
 			const fileItems = filePaths.map((path) => ({ path, content: "" }));
 			const { packages: packs } = await process({
 				fileItems: createFileItemsGenerator(fileItems),
-				dispatcher: nullDispatcher,
+				dispatcherPort: nullDispatcherPort,
 				settings: {
 					...nullSettings,
 					extraPackageEntries: { fileNames: [], filePaths: [], ...extraPackageEntries },
@@ -1244,7 +1244,7 @@ describe("domain", () => {
 		])("$name", async ({ fileItems, result }) => {
 			const { summary } = await process({
 				fileItems: createFileItemsGenerator(fileItems),
-				dispatcher: nullDispatcher,
+				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
 			});
 
@@ -1597,7 +1597,7 @@ describe("domain", () => {
 			])("$name", async ({ fileItems, isCorrect }) => {
 				const { summary } = await process({
 					fileItems: createFileItemsGenerator(fileItems),
-					dispatcher: nullDispatcher,
+					dispatcherPort: nullDispatcherPort,
 					settings: nullSettings,
 				});
 

@@ -1,3 +1,4 @@
+import type { EventBusDispatcher } from "../../lib/event-bus";
 import type { AbsoluteFsPath } from "../../lib/fs-path";
 import type { Rec } from "../../lib/rec";
 import type { Language } from "../module-expert";
@@ -13,11 +14,11 @@ export interface FileItem {
 	content: string;
 }
 
-export type DispatcherRecord = {
+export type DispatcherPort = EventBusDispatcher<{
 	"file-item-processed": [{ path: AbsoluteFsPath }];
 	"file-item-processing-failed": [{ path: AbsoluteFsPath; error: Error }];
 	"all-file-items-processed": [];
-};
+}>;
 
 export type FileItems = AsyncGenerator<FileItem>;
 

@@ -1,5 +1,4 @@
 import type { Modules, Packages, Summary } from "../../domain";
-import type { EventBusDispatcher } from "../../lib/event-bus";
 import type { FSNavCursor } from "../../lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "../../lib/fs-path";
 import { Rec } from "../../lib/rec";
@@ -7,23 +6,32 @@ import { indexPage, modulePage, packagePage } from "./html-pages";
 import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
 import { PathInformer } from "./path-informer";
 import { writeReport } from "./report-writer";
-import type { DispatcherRecord, ReportSettings } from "./values";
+import type { DispatcherPort, FSysPort, ReportSettings } from "./values";
 
 interface Params {
 	settings: ReportSettings;
-	dispatcher: EventBusDispatcher<DispatcherRecord>;
+	dispatcherPort: DispatcherPort;
+	fSysPort: FSysPort;
 	summary: Summary;
 	modules: Modules;
 	packages: Packages;
 	fsNavCursor: FSNavCursor;
 }
 
-export type { ReportSettings, DispatcherRecord };
+export type { ReportSettings, DispatcherPort };
 
-export async function generateReport({ settings, dispatcher, summary, modules, packages, fsNavCursor }: Params) {
+export async function generateReport({
+	settings,
+	dispatcherPort,
+	fSysPort,
+	summary,
+	modules,
+	packages,
+	fsNavCursor,
+}: Params) {
 	const pathInformer = new PathInformer({ rootPath: settings.path, fsNavCursor });
 
-	dispatcher.dispatch("report-generation-started");
+	dispatcherPort.dispatch("report-generation-started");
 
 	const { version } = settings;
 	const htmlPages = new Rec<AbsoluteFsPath, string>();
@@ -48,11 +56,12 @@ export async function generateReport({ settings, dispatcher, summary, modules, p
 	});
 
 	await writeReport({
+		fSysPort,
+		htmlPages,
 		rootPath: pathInformer.rootPath,
 		assetsPath: pathInformer.assetsPath,
 		staticAssetsPath: settings.staticAssetsPath,
-		htmlPages,
 	});
 
-	dispatcher.dispatch("report-generation-completed");
+	dispatcherPort.dispatch("report-generation-completed");
 }

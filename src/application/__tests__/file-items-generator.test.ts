@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals";
 import { fs, vol } from "memfs";
+import { FSys } from "../../adapters/fsys";
 import type { AbsoluteFsPath } from "../../lib/fs-path";
 import { type PathFilter, createFileItemsGenerator } from "../file-items-generator";
 
@@ -14,7 +15,11 @@ async function loadAllFilesAndGetPathsImmediately({
 }) {
 	const entries: string[] = [];
 
-	for await (const entry of createFileItemsGenerator({ paths: paths as AbsoluteFsPath[], pathFilter })) {
+	for await (const entry of createFileItemsGenerator({
+		pathFilter,
+		paths: paths as AbsoluteFsPath[],
+		fSysPort: new FSys(),
+	})) {
 		entries.push(entry.path);
 	}
 

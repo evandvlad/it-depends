@@ -1,6 +1,5 @@
-import type { EventBusDispatcher } from "../lib/event-bus";
 import { FSNavCursor } from "../lib/fs-nav-cursor";
-import { type DispatcherRecord, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
+import { type DispatcherPort, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
 import { type ImportAliasMapper, type Modules, collectModules } from "./modules-collector";
 import { type ExtraPackageEntries, type Packages, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
@@ -12,7 +11,7 @@ interface Settings {
 
 interface Params {
 	fileItems: FileItems;
-	dispatcher: EventBusDispatcher<DispatcherRecord>;
+	dispatcherPort: DispatcherPort;
 	settings: Settings;
 }
 
@@ -25,7 +24,7 @@ interface Result {
 
 export type {
 	FileItems,
-	DispatcherRecord,
+	DispatcherPort,
 	Modules,
 	Packages,
 	Summary,
@@ -36,10 +35,10 @@ export type {
 
 export async function process({
 	fileItems,
-	dispatcher,
+	dispatcherPort,
 	settings: { importAliasMapper, extraPackageEntries },
 }: Params): Promise<Result> {
-	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcher });
+	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
 
 	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
 	const modules = collectModules({ fsNavCursor, fileEntries, importAliasMapper });

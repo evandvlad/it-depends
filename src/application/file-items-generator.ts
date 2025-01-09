@@ -1,15 +1,24 @@
-import { readFile, readdir, stat } from "node:fs/promises";
 import type { FileItems } from "../domain";
-import { type AbsoluteFsPath, joinPaths } from "../lib/fs-path";
+import type { AbsoluteFsPath } from "../lib/fs-path";
 
 export type PathFilter = (path: AbsoluteFsPath) => boolean;
 
+interface FSysPort {
+	getStatEntryType: (path: AbsoluteFsPath) => Promise<"file" | "dir" | "unknown">;
+	readFile: (path: AbsoluteFsPath) => Promise<string>;
+	readDir: (path: AbsoluteFsPath) => Promise<AbsoluteFsPath[]>;
+}
+
 interface Params {
 	paths: AbsoluteFsPath[];
+	fSysPort: FSysPort;
 	pathFilter: PathFilter;
 }
 
-async function* generateFileItems({ paths, pathFilter }: Params, loadedPaths: Set<AbsoluteFsPath>): FileItems {
+async function* generateFileItems(
+	{ paths, pathFilter, fSysPort }: Params,
+	loadedPaths: Set<AbsoluteFsPath>,
+): FileItems {
 	for (const path of paths) {
 		if (loadedPaths.has(path)) {
 			continue;
@@ -17,22 +26,21 @@ async function* generateFileItems({ paths, pathFilter }: Params, loadedPaths: Se
 
 		loadedPaths.add(path);
 
-		const statEntry = await stat(path);
+		const statEntryType = await fSysPort.getStatEntryType(path);
 
-		if (statEntry.isFile()) {
+		if (statEntryType === "file") {
 			if (!pathFilter(path)) {
 				continue;
 			}
 
-			const content = await readFile(path, "utf-8");
+			const content = await fSysPort.readFile(path);
 			yield { path, content };
 		}
 
-		if (statEntry.isDirectory()) {
-			const names = await readdir(path);
-			const subPaths = names.map((name) => joinPaths(path, name));
+		if (statEntryType === "dir") {
+			const subPaths = await fSysPort.readDir(path);
 
-			yield* generateFileItems({ paths: subPaths, pathFilter }, loadedPaths);
+			yield* generateFileItems({ paths: subPaths, pathFilter, fSysPort }, loadedPaths);
 		}
 	}
 }

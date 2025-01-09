@@ -1,7 +1,6 @@
 import { assert } from "../errors";
-import { type AbsoluteFsPath, getName } from "../fs-path";
+import { type AbsoluteFsPath, getBreadcrumbs, getName } from "../fs-path";
 import { Rec } from "../rec";
-import { getBreadcrumbs } from "./path-breadcrumbs";
 import type { Node, NodesMap } from "./values";
 
 export class NodesRegistry {
