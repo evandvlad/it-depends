@@ -13,16 +13,18 @@ import { unparsedDynamicImportsCallout } from "./unparsed-dynamic-imports-callou
 import { unresolvedFullIECallout } from "./unresolved-full-ie-callout";
 
 export function indexPage(pageViewModel: IndexPageViewModel) {
-	return layout(
-		{
-			content: container({
-				items: [
-					`<div style="width: 50%">
+	return layout({
+		assetsPath: pageViewModel.assetsPath,
+		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
+		version: pageViewModel.version,
+		content: container({
+			items: [
+				`<div style="width: 50%">
 						${container({
 							items: [modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
 						})}
 					</div>`,
-					`<div style="width: 50%">
+				`<div style="width: 50%">
 						${container({
 							items: [
 								parserErrorsCallout(pageViewModel),
@@ -36,11 +38,9 @@ export function indexPage(pageViewModel: IndexPageViewModel) {
 							],
 						})}
 					</div>`,
-				],
-				direction: "horizontal",
-				gap: "20px",
-			}),
-		},
-		pageViewModel,
-	);
+			],
+			direction: "horizontal",
+			gap: "20px",
+		}),
+	});
 }

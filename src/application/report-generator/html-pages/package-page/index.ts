@@ -9,14 +9,14 @@ import { packagesCallout } from "./packages-callout";
 export function packagePage(pageViewModel: PackagePageViewModel) {
 	const title = `Package: ${pageViewModel.shortPath}`;
 
-	return layout(
-		{
-			title,
-			header: headerHeading({ content: title }),
-			content: container({
-				items: [packageDatalist(pageViewModel), modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
-			}),
-		},
-		pageViewModel,
-	);
+	return layout({
+		title,
+		assetsPath: pageViewModel.assetsPath,
+		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
+		version: pageViewModel.version,
+		header: headerHeading({ content: title }),
+		content: container({
+			items: [packageDatalist(pageViewModel), modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
+		}),
+	});
 }
