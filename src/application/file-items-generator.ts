@@ -15,41 +15,55 @@ interface Params {
 	pathFilter: PathFilter;
 }
 
-async function* generateFileItems(
-	{ paths, pathFilter, fSysPort }: Params,
-	loadedPaths: Set<AbsoluteFsPath>,
-): FileItems {
-	for (const path of paths) {
-		if (loadedPaths.has(path)) {
-			continue;
-		}
+class FileItemsGenerator {
+	#paths;
+	#fSysPort;
+	#pathFilter;
+	#loadedPaths = new Set<AbsoluteFsPath>();
 
-		loadedPaths.add(path);
+	constructor({ paths, fSysPort, pathFilter }: Params) {
+		this.#paths = paths;
+		this.#fSysPort = fSysPort;
+		this.#pathFilter = pathFilter;
+	}
 
-		const statEntryType = await fSysPort.getStatEntryType(path);
+	// biome-ignore lint/suspicious/useAwait: <explanation>
+	async *generate() {
+		yield* this.#generateFileItems(this.#paths);
 
-		if (statEntryType === "file") {
-			if (!pathFilter(path)) {
+		this.#loadedPaths.clear();
+	}
+
+	async *#generateFileItems(paths: AbsoluteFsPath[]): FileItems {
+		for (const path of paths) {
+			if (this.#loadedPaths.has(path)) {
 				continue;
 			}
 
-			const content = await fSysPort.readFile(path);
-			yield { path, content };
-		}
+			this.#loadedPaths.add(path);
 
-		if (statEntryType === "dir") {
-			const subPaths = await fSysPort.readDir(path);
+			const statEntryType = await this.#fSysPort.getStatEntryType(path);
 
-			yield* generateFileItems({ paths: subPaths, pathFilter, fSysPort }, loadedPaths);
+			if (statEntryType === "file") {
+				if (!this.#pathFilter(path)) {
+					continue;
+				}
+
+				const content = await this.#fSysPort.readFile(path);
+				yield { path, content };
+			}
+
+			if (statEntryType === "dir") {
+				const subPaths = await this.#fSysPort.readDir(path);
+
+				yield* this.#generateFileItems(subPaths);
+			}
 		}
 	}
 }
 
 // biome-ignore lint/suspicious/useAwait: <explanation>
 export async function* createFileItemsGenerator(params: Params): FileItems {
-	const loadedPaths = new Set<AbsoluteFsPath>();
-
-	yield* generateFileItems(params, loadedPaths);
-
-	loadedPaths.clear();
+	const fileItemsGenerator = new FileItemsGenerator(params);
+	yield* fileItemsGenerator.generate();
 }
