@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { AppError } from "../../lib/errors";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
+import { AppError } from "~/lib/errors";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { createSettings } from "../settings-provider";
 
 const conf = { version: "999", reportStaticAssetsPath: "/assets" as AbsoluteFsPath };

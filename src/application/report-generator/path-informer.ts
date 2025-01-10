@@ -1,5 +1,5 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import { type AbsoluteFsPath, joinPaths } from "../../lib/fs-path";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
 
 interface Params {
 	rootPath: AbsoluteFsPath;

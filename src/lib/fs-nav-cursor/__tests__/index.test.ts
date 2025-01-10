@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
+import { AppError } from "~/lib/errors";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { FSNavCursor } from "..";
-import { AppError } from "../../errors";
-import type { AbsoluteFsPath } from "../../fs-path";
 
 describe("fs-nav-cursor", () => {
 	it("should throw error for empty file paths list", () => {

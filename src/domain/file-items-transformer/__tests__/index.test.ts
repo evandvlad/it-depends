@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { type FileItem, type ImportPath, transformFileItems } from "..";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
 import { createFileEntries, createFileItemsGenerator } from "../../__test-utils__";
 
 function createEmptyFileItem(path: string) {

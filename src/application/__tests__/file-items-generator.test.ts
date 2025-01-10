@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { type PathFilter, createFileItemsGenerator } from "../file-items-generator";
 
 const fsTestData = new Map([

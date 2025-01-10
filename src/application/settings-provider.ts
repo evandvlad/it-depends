@@ -1,8 +1,8 @@
-import type { ReportSettings } from "../application/report-generator";
-import type { ExtraPackageEntries, ImportAliasMapper } from "../domain";
-import { assert } from "../lib/errors";
-import { type AbsoluteFsPath, absoluteFsPath, isAbsolutePath, normalizePath } from "../lib/fs-path";
-import type { PathFilter } from "./file-items-generator";
+import type { PathFilter } from "~/application/file-items-generator";
+import type { ReportSettings } from "~/application/report-generator";
+import type { ExtraPackageEntries, ImportAliasMapper } from "~/domain";
+import { assert } from "~/lib/errors";
+import { type AbsoluteFsPath, absoluteFsPath, isAbsolutePath, normalizePath } from "~/lib/fs-path";
 
 function normalizePaths(paths: AbsoluteFsPath[]) {
 	return paths.map((path) => normalizePath(path));

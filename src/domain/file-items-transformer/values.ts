@@ -1,6 +1,6 @@
-import type { EventBusDispatcher } from "../../lib/event-bus";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import type { Rec } from "../../lib/rec";
+import type { EventBusDispatcher } from "~/lib/event-bus";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
 import type { Language } from "../module-expert";
 
 export type ImportPath = string & { __brand: "import-path" };

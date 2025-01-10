@@ -1,7 +1,7 @@
 import { expect } from "@jest/globals";
 
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import type { FileEntries, FileEntry, FileItem, FileItems } from "../file-items-transformer";
 import type { Module, Modules } from "../modules-collector";
 import type { Package, Packages } from "../packages-collector";

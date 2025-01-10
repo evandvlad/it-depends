@@ -1,6 +1,6 @@
-import { assert, assertNever } from "../../lib/errors";
-import { getName } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import { assert, assertNever } from "~/lib/errors";
+import { getName } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import { type FileEntry, ieValueAll } from "../file-items-transformer";
 import type { ImportSourceResolver } from "./import-source-resolver";
 import type { Module } from "./values";

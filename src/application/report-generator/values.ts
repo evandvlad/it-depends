@@ -1,5 +1,5 @@
-import type { EventBusDispatcher } from "../../lib/event-bus";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
+import type { EventBusDispatcher } from "~/lib/event-bus";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 
 export interface FSysPort {
 	makeDir: (path: AbsoluteFsPath) => Promise<void>;

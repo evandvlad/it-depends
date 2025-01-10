@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, shortFsPath } from "../fs-path";
+import { type AbsoluteFsPath, shortFsPath } from "~/lib/fs-path";
 import { NodesRegistry } from "./nodes-registry";
 
 export class FSNavCursor {

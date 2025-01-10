@@ -1,4 +1,4 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { FileEntries } from "../file-items-transformer";
 import { bindModules } from "./binder";
 import { ImportSourceResolver } from "./import-source-resolver";

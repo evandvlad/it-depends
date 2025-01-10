@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
-import { type AbsoluteFsPath, getParentPath, joinPaths } from "../lib/fs-path";
+import { type AbsoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
 
 type StatEntryType = "file" | "dir" | "unknown";
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { AppError } from "../../lib/errors";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import { AppError } from "~/lib/errors";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import {
 	createFileItemsGenerator,
 	createModule,

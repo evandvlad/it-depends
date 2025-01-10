@@ -1,4 +1,4 @@
-import { encodeHTML } from "../../../../lib/code-encoder";
+import { encodeHTML } from "~/lib/code-encoder";
 
 interface Params {
 	code: string;

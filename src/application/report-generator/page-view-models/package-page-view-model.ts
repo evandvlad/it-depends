@@ -1,6 +1,6 @@
-import type { Packages } from "../../../domain";
-import type { FSNavCursor } from "../../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
+import type { Packages } from "~/domain";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData } from "./values";

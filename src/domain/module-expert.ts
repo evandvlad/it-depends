@@ -1,4 +1,4 @@
-import type { AbsoluteFsPath } from "../lib/fs-path";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 
 const declarationFileExtName = ".d.ts";
 

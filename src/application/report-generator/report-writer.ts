@@ -1,6 +1,6 @@
-import { AppError } from "../../lib/errors";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import type { Rec } from "../../lib/rec";
+import { AppError } from "~/lib/errors";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
 import type { FSysPort } from "./values";
 
 interface Params {

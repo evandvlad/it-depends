@@ -1,5 +1,5 @@
-import type { AbsoluteFsPath } from "../fs-path";
-import type { Rec } from "../rec";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
 
 export interface Node {
 	parent: Node | null;

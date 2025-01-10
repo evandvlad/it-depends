@@ -1,17 +1,17 @@
-import { ConfLoader } from "./adapters/conf-loader";
-import { FSys } from "./adapters/fsys";
-import { type GlobalEventBusSubscriber, createGlobalEventBus } from "./adapters/global-event-bus";
-import { createFileItemsGenerator } from "./application/file-items-generator";
-import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "./application/report-generator";
-import { type Options, createSettings } from "./application/settings-provider";
+import { ConfLoader } from "~/adapters/conf-loader";
+import { FSys } from "~/adapters/fsys";
+import { type GlobalEventBusSubscriber, createGlobalEventBus } from "~/adapters/global-event-bus";
+import { createFileItemsGenerator } from "~/application/file-items-generator";
+import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
+import { type Options, createSettings } from "~/application/settings-provider";
 import {
 	type DispatcherPort as DomainDispatcherPort,
 	type Modules,
 	type Packages,
 	type Summary,
 	process,
-} from "./domain";
-import { AppError } from "./lib/errors";
+} from "~/domain";
+import { AppError } from "~/lib/errors";
 
 interface Result {
 	modules: Modules;

@@ -1,4 +1,4 @@
-import { FSNavCursor } from "../lib/fs-nav-cursor";
+import { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type DispatcherPort, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
 import { type ImportAliasMapper, type Modules, collectModules } from "./modules-collector";
 import { type ExtraPackageEntries, type Packages, PackagesCollector } from "./packages-collector";

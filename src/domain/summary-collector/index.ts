@@ -1,6 +1,6 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import type { ImportPath, ParserErrors } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 import type { ImportSource, Module, Modules } from "../modules-collector";

@@ -1,4 +1,4 @@
-import { Rec } from "../../lib/rec";
+import { Rec } from "~/lib/rec";
 import { getAcceptableFileExtNameByPath, getModuleDetailsByAcceptedFileExtName } from "../module-expert";
 import { parseCode } from "./parser";
 import {

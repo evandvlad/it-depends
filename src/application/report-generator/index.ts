@@ -1,7 +1,7 @@
-import type { Modules, Packages, Summary } from "../../domain";
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import type { Modules, Packages, Summary } from "~/domain";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
 import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
 import { PathInformer } from "./path-informer";

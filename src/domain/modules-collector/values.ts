@@ -1,5 +1,5 @@
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import type { Rec } from "../../lib/rec";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
 import type { ImportPath } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 

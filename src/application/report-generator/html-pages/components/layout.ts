@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, joinPaths } from "../../../../lib/fs-path";
+import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
 
 interface Params {
 	assetsPath: AbsoluteFsPath;

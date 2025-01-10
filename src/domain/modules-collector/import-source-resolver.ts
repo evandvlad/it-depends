@@ -1,5 +1,5 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths, normalizePath } from "../../lib/fs-path";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths, normalizePath } from "~/lib/fs-path";
 import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
 import type { ImportAliasMapper, ImportSource } from "./values";

@@ -1,5 +1,5 @@
-import type { FileItems } from "../domain";
-import type { AbsoluteFsPath } from "../lib/fs-path";
+import type { FileItems } from "~/domain";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 
 export type PathFilter = (path: AbsoluteFsPath) => boolean;
 
