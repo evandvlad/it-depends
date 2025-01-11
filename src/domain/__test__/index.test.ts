@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { AppError } from "~/lib/errors";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { type AbsoluteFsPath, absoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import {
 	createFileItemsGenerator,
@@ -9,9 +9,9 @@ import {
 	createPackage,
 	createPackagesCollection,
 	createSummary,
-} from "../__test-utils__";
+} from "../__test-utils__/domain-entity-factories";
 
-import { type ImportAliasMapper, process } from "..";
+import { type ImportAliasMapper, type ImportPath, process } from "..";
 
 const nullDispatcherPort = { dispatch() {} };
 const nullSettings = { importAliasMapper: () => null, extraPackageEntries: { fileNames: [], filePaths: [] } };
@@ -19,7 +19,11 @@ const nullSettings = { importAliasMapper: () => null, extraPackageEntries: { fil
 describe("domain", () => {
 	it("should be error for empty file items", async () => {
 		await expect(
-			process({ fileItems: createFileItemsGenerator([]), dispatcherPort: nullDispatcherPort, settings: nullSettings }),
+			process({
+				fileItems: createFileItemsGenerator([]),
+				dispatcherPort: nullDispatcherPort,
+				settings: nullSettings,
+			}),
 		).rejects.toThrow(new AppError("File paths list is empty"));
 	});
 
@@ -30,7 +34,7 @@ describe("domain", () => {
 				fileItems: [{ path: "C:/file.ts", content: `console.log("Hello world")` }],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: absoluteFsPath("C:/file.ts"),
 						name: "file.ts",
 					}),
 				]),
@@ -46,11 +50,11 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: absoluteFsPath("C:/file.ts"),
 						name: "file.ts",
 						imports: [
 							{
-								importSource: { importPath: "foo" },
+								importSource: { importPath: "foo" as ImportPath },
 								values: ["bar", "baz"],
 							},
 						],
@@ -76,22 +80,25 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "/file1.js",
+						path: absoluteFsPath("/file1.js"),
 						name: "file1.js",
 						language: "javascript",
 						exports: Rec.fromObject({
-							foo: ["/file2.jsx"],
-							bar: ["/file2.jsx"],
-							default: ["/file2.jsx"],
+							foo: [absoluteFsPath("/file2.jsx")],
+							bar: [absoluteFsPath("/file2.jsx")],
+							default: [absoluteFsPath("/file2.jsx")],
 						}),
 					}),
 					createModule({
-						path: "/file2.jsx",
+						path: absoluteFsPath("/file2.jsx"),
 						name: "file2.jsx",
 						language: "javascript",
 						imports: [
 							{
-								importSource: { filePath: "/file1.js", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("/file1.js"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["default", "foo", "bar"],
 							},
 						],
@@ -122,36 +129,36 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "/dir1/file1.ts",
+						path: absoluteFsPath("/dir1/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
-							foo: ["/file2.ts", "/dir2/dir3/file3.ts"],
-							bar: ["/dir2/dir3/file3.ts"],
+							foo: [absoluteFsPath("/file2.ts"), absoluteFsPath("/dir2/dir3/file3.ts")],
+							bar: [absoluteFsPath("/dir2/dir3/file3.ts")],
 							baz: [],
-							default: ["/file2.ts", "/dir2/dir3/file3.ts"],
+							default: [absoluteFsPath("/file2.ts"), absoluteFsPath("/dir2/dir3/file3.ts")],
 						}),
 					}),
 					createModule({
-						path: "/file2.ts",
+						path: absoluteFsPath("/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
 								importSource: {
-									filePath: "/dir1/file1.ts",
-									importPath: "../dir1/file1",
+									filePath: absoluteFsPath("/dir1/file1.ts"),
+									importPath: "../dir1/file1" as ImportPath,
 								},
 								values: ["foo", "default"],
 							},
 						],
 					}),
 					createModule({
-						path: "/dir2/dir3/file3.ts",
+						path: absoluteFsPath("/dir2/dir3/file3.ts"),
 						name: "file3.ts",
 						imports: [
 							{
 								importSource: {
-									filePath: "/dir1/file1.ts",
-									importPath: "../../dir1/file1",
+									filePath: absoluteFsPath("/dir1/file1.ts"),
+									importPath: "../../dir1/file1" as ImportPath,
 								},
 								values: ["default", "foo", "bar"],
 							},
@@ -177,20 +184,20 @@ describe("domain", () => {
 				},
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file1.tsx",
+						path: absoluteFsPath("C:/file1.tsx"),
 						name: "file1.tsx",
 						exports: Rec.fromObject({
-							default: ["C:/file2.tsx"],
+							default: [absoluteFsPath("C:/file2.tsx")],
 						}),
 					}),
 					createModule({
-						path: "C:/file2.tsx",
+						path: absoluteFsPath("C:/file2.tsx"),
 						name: "file2.tsx",
 						imports: [
 							{
 								importSource: {
-									filePath: "C:/file1.tsx",
-									importPath: "~/file1",
+									filePath: absoluteFsPath("C:/file1.tsx"),
+									importPath: "~/file1" as ImportPath,
 								},
 								values: ["default"],
 							},
@@ -209,11 +216,11 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: absoluteFsPath("C:/file.ts"),
 						name: "file.ts",
 						imports: [
 							{
-								importSource: { importPath: "../../../../out-of-scope" },
+								importSource: { importPath: "../../../../out-of-scope" as ImportPath },
 								values: ["qux", "quux"],
 							},
 						],
@@ -231,9 +238,9 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: absoluteFsPath("C:/file.ts"),
 						name: "file.ts",
-						unresolvedFullImports: [{ importPath: "../../../../out-of-scope" }],
+						unresolvedFullImports: [{ importPath: "../../../../out-of-scope" as ImportPath }],
 					}),
 				]),
 			},
@@ -252,20 +259,20 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/dir1/dir2/file1.ts",
+						path: absoluteFsPath("C:/dir1/dir2/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
 							default: [],
 						}),
 					}),
 					createModule({
-						path: "C:/dir1/dir2/file2.ts",
+						path: absoluteFsPath("C:/dir1/dir2/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
 								importSource: {
-									filePath: "C:/dir1/dir2/file1.ts",
-									importPath: "./file1",
+									filePath: absoluteFsPath("C:/dir1/dir2/file1.ts"),
+									importPath: "./file1" as ImportPath,
 								},
 								values: [],
 							},
@@ -288,18 +295,21 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "/file1.ts",
+						path: absoluteFsPath("/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
 							foo: [],
 						}),
 					}),
 					createModule({
-						path: "/file2.ts",
+						path: absoluteFsPath("/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "/file1.ts", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("/file1.ts"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: [],
 							},
 						],
@@ -321,19 +331,19 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/dir/index.jsx",
+						path: absoluteFsPath("C:/dir/index.jsx"),
 						name: "index.jsx",
-						package: "C:/dir",
+						package: absoluteFsPath("C:/dir"),
 						language: "javascript",
 					}),
 					createModule({
-						path: "C:/file.ts",
+						path: absoluteFsPath("C:/file.ts"),
 						name: "file.ts",
 						imports: [
 							{
 								importSource: {
-									filePath: "C:/dir/index.jsx",
-									importPath: "./dir",
+									filePath: absoluteFsPath("C:/dir/index.jsx"),
+									importPath: "./dir" as ImportPath,
 								},
 								values: [],
 							},
@@ -359,21 +369,24 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/dir/index.ts",
+						path: absoluteFsPath("C:/dir/index.ts"),
 						name: "index.ts",
-						package: "C:/dir",
+						package: absoluteFsPath("C:/dir"),
 						exports: Rec.fromObject({
-							foo: ["C:/dir/file.ts"],
-							bar: ["C:/dir/file.ts"],
+							foo: [absoluteFsPath("C:/dir/file.ts")],
+							bar: [absoluteFsPath("C:/dir/file.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/dir/file.ts",
+						path: absoluteFsPath("C:/dir/file.ts"),
 						name: "file.ts",
-						package: "C:/dir",
+						package: absoluteFsPath("C:/dir"),
 						imports: [
 							{
-								importSource: { filePath: "C:/dir/index.ts", importPath: "." },
+								importSource: {
+									filePath: absoluteFsPath("C:/dir/index.ts"),
+									importPath: "." as ImportPath,
+								},
 								values: ["foo", "bar"],
 							},
 						],
@@ -401,7 +414,7 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file1.ts",
+						path: absoluteFsPath("C:/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
 							foo: [],
@@ -409,7 +422,7 @@ describe("domain", () => {
 						}),
 					}),
 					createModule({
-						path: "C:/file2.ts",
+						path: absoluteFsPath("C:/file2.ts"),
 						name: "file2.ts",
 						unparsedDynamicImports: 1,
 					}),
@@ -440,36 +453,45 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file1.ts",
+						path: absoluteFsPath("C:/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
-							default: ["C:/dir/file3.ts"],
-							Bar: ["C:/file2.ts"],
+							default: [absoluteFsPath("C:/dir/file3.ts")],
+							Bar: [absoluteFsPath("C:/file2.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/file2.ts",
+						path: absoluteFsPath("C:/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/file1.ts", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file1.ts"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["Bar"],
 							},
 						],
 						exports: Rec.fromObject({
-							Baz: ["C:/dir/file3.ts"],
+							Baz: [absoluteFsPath("C:/dir/file3.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/dir/file3.ts",
+						path: absoluteFsPath("C:/dir/file3.ts"),
 						name: "file3.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/file2.ts", importPath: "../file2" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file2.ts"),
+									importPath: "../file2" as ImportPath,
+								},
 								values: ["Baz"],
 							},
 							{
-								importSource: { filePath: "C:/file1.ts", importPath: "../file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file1.ts"),
+									importPath: "../file1" as ImportPath,
+								},
 								values: ["default"],
 							},
 						],
@@ -498,34 +520,40 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file1.d.ts",
+						path: absoluteFsPath("C:/file1.d.ts"),
 						name: "file1.d.ts",
 						exports: Rec.fromObject({
-							Qux: ["C:/file2/index.ts"],
-							Quux: ["C:/file2/index.ts"],
+							Qux: [absoluteFsPath("C:/file2/index.ts")],
+							Quux: [absoluteFsPath("C:/file2/index.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/file2/index.ts",
+						path: absoluteFsPath("C:/file2/index.ts"),
 						name: "index.ts",
-						package: "C:/file2",
+						package: absoluteFsPath("C:/file2"),
 						imports: [
 							{
-								importSource: { filePath: "C:/file1.d.ts", importPath: "../file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file1.d.ts"),
+									importPath: "../file1" as ImportPath,
+								},
 								values: ["Qux", "Quux"],
 							},
 						],
 						exports: Rec.fromObject({
-							Qux: ["C:/file3.tsx"],
-							Quux: ["C:/file3.tsx"],
+							Qux: [absoluteFsPath("C:/file3.tsx")],
+							Quux: [absoluteFsPath("C:/file3.tsx")],
 						}),
 					}),
 					createModule({
-						path: "C:/file3.tsx",
+						path: absoluteFsPath("C:/file3.tsx"),
 						name: "file3.tsx",
 						imports: [
 							{
-								importSource: { filePath: "C:/file2/index.ts", importPath: "./file2" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file2/index.ts"),
+									importPath: "./file2" as ImportPath,
+								},
 								values: ["Qux", "Quux"],
 							},
 						],
@@ -557,34 +585,40 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/dir/file1.ts",
+						path: absoluteFsPath("C:/dir/file1.ts"),
 						name: "file1.ts",
 						exports: Rec.fromObject({
-							foo: ["C:/dir/file2.ts"],
-							bar: ["C:/dir/file2.ts"],
+							foo: [absoluteFsPath("C:/dir/file2.ts")],
+							bar: [absoluteFsPath("C:/dir/file2.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/dir/file2.ts",
+						path: absoluteFsPath("C:/dir/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/dir/file1.ts", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/dir/file1.ts"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["foo", "bar"],
 							},
 						],
 						exports: Rec.fromObject({
-							bar: ["C:/dir/file3.ts"],
-							foo: ["C:/dir/file3.ts"],
+							bar: [absoluteFsPath("C:/dir/file3.ts")],
+							foo: [absoluteFsPath("C:/dir/file3.ts")],
 						}),
 						shadowedExportValues: ["bar"],
 					}),
 					createModule({
-						path: "C:/dir/file3.ts",
+						path: absoluteFsPath("C:/dir/file3.ts"),
 						name: "file3.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/dir/file2.ts", importPath: "./file2" },
+								importSource: {
+									filePath: absoluteFsPath("C:/dir/file2.ts"),
+									importPath: "./file2" as ImportPath,
+								},
 								values: ["bar", "foo"],
 							},
 						],
@@ -606,17 +640,20 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "/file1.ts",
+						path: absoluteFsPath("/file1.ts"),
 						name: "file1.ts",
-						unresolvedFullExports: [{ importPath: "foo" }],
-						unresolvedFullImports: [{ importPath: "foo" }],
+						unresolvedFullExports: [{ importPath: "foo" as ImportPath }],
+						unresolvedFullImports: [{ importPath: "foo" as ImportPath }],
 					}),
 					createModule({
-						path: "/file2.ts",
+						path: absoluteFsPath("/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "/file1.ts", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("/file1.ts"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["bar"],
 							},
 						],
@@ -652,34 +689,40 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file4.ts",
+						path: absoluteFsPath("C:/file4.ts"),
 						name: "file4.ts",
-						unresolvedFullImports: [{ filePath: "C:/file3.ts", importPath: "./file3" }],
+						unresolvedFullImports: [{ filePath: absoluteFsPath("C:/file3.ts"), importPath: "./file3" as ImportPath }],
 					}),
 					createModule({
-						path: "C:/file3.ts",
+						path: absoluteFsPath("C:/file3.ts"),
 						name: "file3.ts",
-						unresolvedFullExports: [{ filePath: "C:/file2.ts", importPath: "./file2" }],
-						unresolvedFullImports: [{ filePath: "C:/file2.ts", importPath: "./file2" }],
+						unresolvedFullExports: [{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath }],
+						unresolvedFullImports: [{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath }],
 					}),
 					createModule({
-						path: "C:/file2.ts",
+						path: absoluteFsPath("C:/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/file1.tsx", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file1.tsx"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["foo", "default"],
 							},
 						],
-						unresolvedFullExports: [{ filePath: "C:/file1.tsx", importPath: "./file1" }, { importPath: "bar" }],
-						unresolvedFullImports: [{ importPath: "bar" }],
+						unresolvedFullExports: [
+							{ filePath: absoluteFsPath("C:/file1.tsx"), importPath: "./file1" as ImportPath },
+							{ importPath: "bar" as ImportPath },
+						],
+						unresolvedFullImports: [{ importPath: "bar" as ImportPath }],
 					}),
 					createModule({
-						path: "C:/file1.tsx",
+						path: absoluteFsPath("C:/file1.tsx"),
 						name: "file1.tsx",
 						exports: Rec.fromObject({
-							foo: ["C:/file2.ts"],
-							default: ["C:/file2.ts"],
+							foo: [absoluteFsPath("C:/file2.ts")],
+							default: [absoluteFsPath("C:/file2.ts")],
 						}),
 					}),
 				]),
@@ -708,33 +751,36 @@ describe("domain", () => {
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/dir/index.ts",
+						path: absoluteFsPath("C:/dir/index.ts"),
 						name: "index.ts",
-						package: "C:/dir",
+						package: absoluteFsPath("C:/dir"),
 						exports: Rec.fromObject({
-							Bar: ["C:/dir/dir2/file.ts"],
+							Bar: [absoluteFsPath("C:/dir/dir2/file.ts")],
 							default: [],
 						}),
 						imports: [
 							{
 								importSource: {
-									filePath: "C:/dir/dir2/file.ts",
-									importPath: "./dir2/file",
+									filePath: absoluteFsPath("C:/dir/dir2/file.ts"),
+									importPath: "./dir2/file" as ImportPath,
 								},
 								values: ["Foo"],
 							},
 						],
 					}),
 					createModule({
-						path: "C:/dir/dir2/file.ts",
+						path: absoluteFsPath("C:/dir/dir2/file.ts"),
 						name: "file.ts",
-						package: "C:/dir",
+						package: absoluteFsPath("C:/dir"),
 						exports: Rec.fromObject({
-							Foo: ["C:/dir/index.ts"],
+							Foo: [absoluteFsPath("C:/dir/index.ts")],
 						}),
 						imports: [
 							{
-								importSource: { filePath: "C:/dir/index.ts", importPath: ".." },
+								importSource: {
+									filePath: absoluteFsPath("C:/dir/index.ts"),
+									importPath: ".." as ImportPath,
+								},
 								values: ["Bar"],
 							},
 						],
@@ -768,35 +814,38 @@ describe("domain", () => {
 				},
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file1/index.ts",
+						path: absoluteFsPath("C:/file1/index.ts"),
 						name: "index.ts",
-						package: "C:/file1",
+						package: absoluteFsPath("C:/file1"),
 						exports: Rec.fromObject({
-							foo: ["C:/file2.ts"],
-							bar: ["C:/file2.ts"],
-							baz: ["C:/file2.ts"],
-							default: ["C:/file2.ts"],
+							foo: [absoluteFsPath("C:/file2.ts")],
+							bar: [absoluteFsPath("C:/file2.ts")],
+							baz: [absoluteFsPath("C:/file2.ts")],
+							default: [absoluteFsPath("C:/file2.ts")],
 						}),
 					}),
 					createModule({
-						path: "C:/file2.ts",
+						path: absoluteFsPath("C:/file2.ts"),
 						name: "file2.ts",
 						imports: [
 							{
-								importSource: { filePath: "C:/file1/index.ts", importPath: "./file1" },
+								importSource: {
+									filePath: absoluteFsPath("C:/file1/index.ts"),
+									importPath: "./file1" as ImportPath,
+								},
 								values: ["foo", "default"],
 							},
 							{
 								importSource: {
-									filePath: "C:/file1/index.ts",
-									importPath: "~/file1",
+									filePath: absoluteFsPath("C:/file1/index.ts"),
+									importPath: "~/file1" as ImportPath,
 								},
 								values: ["default"],
 							},
 							{
 								importSource: {
-									filePath: "C:/file1/index.ts",
-									importPath: "./file1/index",
+									filePath: absoluteFsPath("C:/file1/index.ts"),
+									importPath: "./file1/index" as ImportPath,
 								},
 								values: ["bar", "baz"],
 							},
@@ -833,10 +882,10 @@ describe("domain", () => {
 				filePaths: ["C:/dir/index.ts"],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "C:/dir",
+						path: absoluteFsPath("C:/dir"),
 						name: "dir",
-						entryPoint: "C:/dir/index.ts",
-						modules: ["C:/dir/index.ts"],
+						entryPoint: absoluteFsPath("C:/dir/index.ts"),
+						modules: [absoluteFsPath("C:/dir/index.ts")],
 					}),
 				]),
 			},
@@ -847,10 +896,10 @@ describe("domain", () => {
 				extraPackageEntries: { fileNames: ["index.entry"] },
 				packages: createPackagesCollection([
 					createPackage({
-						path: "/dir",
+						path: absoluteFsPath("/dir"),
 						name: "dir",
-						entryPoint: "/dir/index.entry.tsx",
-						modules: ["/dir/index.entry.tsx"],
+						entryPoint: absoluteFsPath("/dir/index.entry.tsx"),
+						modules: [absoluteFsPath("/dir/index.entry.tsx")],
 					}),
 				]),
 			},
@@ -861,10 +910,10 @@ describe("domain", () => {
 				extraPackageEntries: { filePaths: ["C:/dir/main.js" as AbsoluteFsPath] },
 				packages: createPackagesCollection([
 					createPackage({
-						path: "C:/dir",
+						path: absoluteFsPath("C:/dir"),
 						name: "dir",
-						entryPoint: "C:/dir/main.js",
-						modules: ["C:/dir/main.js"],
+						entryPoint: absoluteFsPath("C:/dir/main.js"),
+						modules: [absoluteFsPath("C:/dir/main.js")],
 					}),
 				]),
 			},
@@ -874,10 +923,14 @@ describe("domain", () => {
 				filePaths: ["/dir/file1.ts", "/dir/file2.js", "/dir/index.tsx"],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "/dir",
+						path: absoluteFsPath("/dir"),
 						name: "dir",
-						entryPoint: "/dir/index.tsx",
-						modules: ["/dir/file1.ts", "/dir/file2.js", "/dir/index.tsx"],
+						entryPoint: absoluteFsPath("/dir/index.tsx"),
+						modules: [
+							absoluteFsPath("/dir/file1.ts"),
+							absoluteFsPath("/dir/file2.js"),
+							absoluteFsPath("/dir/index.tsx"),
+						],
 					}),
 				]),
 			},
@@ -887,10 +940,14 @@ describe("domain", () => {
 				filePaths: ["/dir/index.d.ts", "/dir/index.ts", "/dir/index.js"],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "/dir",
+						path: absoluteFsPath("/dir"),
 						name: "dir",
-						entryPoint: "/dir/index.ts",
-						modules: ["/dir/index.d.ts", "/dir/index.ts", "/dir/index.js"],
+						entryPoint: absoluteFsPath("/dir/index.ts"),
+						modules: [
+							absoluteFsPath("/dir/index.d.ts"),
+							absoluteFsPath("/dir/index.ts"),
+							absoluteFsPath("/dir/index.js"),
+						],
 					}),
 				]),
 			},
@@ -906,15 +963,15 @@ describe("domain", () => {
 				],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "C:/dir",
+						path: absoluteFsPath("C:/dir"),
 						name: "dir",
-						entryPoint: "C:/dir/index.tsx",
+						entryPoint: absoluteFsPath("C:/dir/index.tsx"),
 						modules: [
-							"C:/dir/file1.ts",
-							"C:/dir/file2.js",
-							"C:/dir/index.tsx",
-							"C:/dir/dir2/file.d.ts",
-							"C:/dir/dir2/dir3/file.jsx",
+							absoluteFsPath("C:/dir/file1.ts"),
+							absoluteFsPath("C:/dir/file2.js"),
+							absoluteFsPath("C:/dir/index.tsx"),
+							absoluteFsPath("C:/dir/dir2/file.d.ts"),
+							absoluteFsPath("C:/dir/dir2/dir3/file.jsx"),
 						],
 					}),
 				]),
@@ -931,25 +988,25 @@ describe("domain", () => {
 				],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "/dir",
+						path: absoluteFsPath("/dir"),
 						name: "dir",
-						entryPoint: "/dir/index.ts",
-						modules: ["/dir/index.ts"],
-						packages: ["/dir/dir1", "/dir/dir2"],
+						entryPoint: absoluteFsPath("/dir/index.ts"),
+						modules: [absoluteFsPath("/dir/index.ts")],
+						packages: [absoluteFsPath("/dir/dir1"), absoluteFsPath("/dir/dir2")],
 					}),
 					createPackage({
-						path: "/dir/dir1",
+						path: absoluteFsPath("/dir/dir1"),
 						name: "dir1",
-						parent: "/dir",
-						entryPoint: "/dir/dir1/index.js",
-						modules: ["/dir/dir1/file.tsx", "/dir/dir1/index.js"],
+						parent: absoluteFsPath("/dir"),
+						entryPoint: absoluteFsPath("/dir/dir1/index.js"),
+						modules: [absoluteFsPath("/dir/dir1/file.tsx"), absoluteFsPath("/dir/dir1/index.js")],
 					}),
 					createPackage({
-						path: "/dir/dir2",
+						path: absoluteFsPath("/dir/dir2"),
 						name: "dir2",
-						parent: "/dir",
-						entryPoint: "/dir/dir2/index.ts",
-						modules: ["/dir/dir2/file.jsx", "/dir/dir2/index.ts"],
+						parent: absoluteFsPath("/dir"),
+						entryPoint: absoluteFsPath("/dir/dir2/index.ts"),
+						modules: [absoluteFsPath("/dir/dir2/file.jsx"), absoluteFsPath("/dir/dir2/index.ts")],
 					}),
 				]),
 			},
@@ -965,26 +1022,26 @@ describe("domain", () => {
 				],
 				packages: createPackagesCollection([
 					createPackage({
-						path: "C:/dir",
+						path: absoluteFsPath("C:/dir"),
 						name: "dir",
-						entryPoint: "C:/dir/index.ts",
-						modules: ["C:/dir/index.ts"],
-						packages: ["C:/dir/dir1"],
+						entryPoint: absoluteFsPath("C:/dir/index.ts"),
+						modules: [absoluteFsPath("C:/dir/index.ts")],
+						packages: [absoluteFsPath("C:/dir/dir1")],
 					}),
 					createPackage({
-						path: "C:/dir/dir1",
+						path: absoluteFsPath("C:/dir/dir1"),
 						name: "dir1",
-						parent: "C:/dir",
-						entryPoint: "C:/dir/dir1/index.js",
-						modules: ["C:/dir/dir1/index.js", "C:/dir/dir1/file.tsx"],
-						packages: ["C:/dir/dir1/dir2"],
+						parent: absoluteFsPath("C:/dir"),
+						entryPoint: absoluteFsPath("C:/dir/dir1/index.js"),
+						modules: [absoluteFsPath("C:/dir/dir1/index.js"), absoluteFsPath("C:/dir/dir1/file.tsx")],
+						packages: [absoluteFsPath("C:/dir/dir1/dir2")],
 					}),
 					createPackage({
-						path: "C:/dir/dir1/dir2",
+						path: absoluteFsPath("C:/dir/dir1/dir2"),
 						name: "dir2",
-						parent: "C:/dir/dir1",
-						entryPoint: "C:/dir/dir1/dir2/index.ts",
-						modules: ["C:/dir/dir1/dir2/index.ts", "C:/dir/dir1/dir2/file.jsx"],
+						parent: absoluteFsPath("C:/dir/dir1"),
+						entryPoint: absoluteFsPath("C:/dir/dir1/dir2/index.ts"),
+						modules: [absoluteFsPath("C:/dir/dir1/dir2/index.ts"), absoluteFsPath("C:/dir/dir1/dir2/file.jsx")],
 					}),
 				]),
 			},
@@ -1006,47 +1063,51 @@ describe("domain", () => {
 				extraPackageEntries: { filePaths: ["/dir/main.ts" as AbsoluteFsPath] },
 				packages: createPackagesCollection([
 					createPackage({
-						path: "/dir",
+						path: absoluteFsPath("/dir"),
 						name: "dir",
-						entryPoint: "/dir/main.ts",
-						modules: ["/dir/index.ts", "/dir/main.ts"],
-						packages: ["/dir/dir1", "/dir/dir2"],
+						entryPoint: absoluteFsPath("/dir/main.ts"),
+						modules: [absoluteFsPath("/dir/index.ts"), absoluteFsPath("/dir/main.ts")],
+						packages: [absoluteFsPath("/dir/dir1"), absoluteFsPath("/dir/dir2")],
 					}),
 					createPackage({
-						path: "/dir/dir1",
+						path: absoluteFsPath("/dir/dir1"),
 						name: "dir1",
-						parent: "/dir",
-						entryPoint: "/dir/dir1/index.js",
-						modules: ["/dir/dir1/index.js", "/dir/dir1/file.tsx"],
-						packages: ["/dir/dir1/dir1", "/dir/dir1/dir2", "/dir/dir1/dir3"],
+						parent: absoluteFsPath("/dir"),
+						entryPoint: absoluteFsPath("/dir/dir1/index.js"),
+						modules: [absoluteFsPath("/dir/dir1/index.js"), absoluteFsPath("/dir/dir1/file.tsx")],
+						packages: [
+							absoluteFsPath("/dir/dir1/dir1"),
+							absoluteFsPath("/dir/dir1/dir2"),
+							absoluteFsPath("/dir/dir1/dir3"),
+						],
 					}),
 					createPackage({
-						path: "/dir/dir1/dir1",
+						path: absoluteFsPath("/dir/dir1/dir1"),
 						name: "dir1",
-						parent: "/dir/dir1",
-						entryPoint: "/dir/dir1/dir1/index.ts",
-						modules: ["/dir/dir1/dir1/index.ts", "/dir/dir1/dir1/file.jsx"],
+						parent: absoluteFsPath("/dir/dir1"),
+						entryPoint: absoluteFsPath("/dir/dir1/dir1/index.ts"),
+						modules: [absoluteFsPath("/dir/dir1/dir1/index.ts"), absoluteFsPath("/dir/dir1/dir1/file.jsx")],
 					}),
 					createPackage({
-						path: "/dir/dir1/dir2",
+						path: absoluteFsPath("/dir/dir1/dir2"),
 						name: "dir2",
-						parent: "/dir/dir1",
-						entryPoint: "/dir/dir1/dir2/index.tsx",
-						modules: ["/dir/dir1/dir2/index.tsx"],
+						parent: absoluteFsPath("/dir/dir1"),
+						entryPoint: absoluteFsPath("/dir/dir1/dir2/index.tsx"),
+						modules: [absoluteFsPath("/dir/dir1/dir2/index.tsx")],
 					}),
 					createPackage({
-						path: "/dir/dir1/dir3",
+						path: absoluteFsPath("/dir/dir1/dir3"),
 						name: "dir3",
-						parent: "/dir/dir1",
-						entryPoint: "/dir/dir1/dir3/index.jsx",
-						modules: ["/dir/dir1/dir3/index.jsx"],
+						parent: absoluteFsPath("/dir/dir1"),
+						entryPoint: absoluteFsPath("/dir/dir1/dir3/index.jsx"),
+						modules: [absoluteFsPath("/dir/dir1/dir3/index.jsx")],
 					}),
 					createPackage({
-						path: "/dir/dir2",
+						path: absoluteFsPath("/dir/dir2"),
 						name: "dir2",
-						parent: "/dir",
-						entryPoint: "/dir/dir2/index.js",
-						modules: ["/dir/dir2/index.d.ts", "/dir/dir2/index.js"],
+						parent: absoluteFsPath("/dir"),
+						entryPoint: absoluteFsPath("/dir/dir2/index.js"),
+						modules: [absoluteFsPath("/dir/dir2/index.d.ts"), absoluteFsPath("/dir/dir2/index.js")],
 					}),
 				]),
 			},
@@ -1084,12 +1145,8 @@ describe("domain", () => {
 						typescript: 1,
 						javascript: 0,
 					}),
-					outOfScopeImports: Rec.fromObject({
-						"C:/dir/index.ts": ["foo"],
-					}),
-					possiblyUnusedExportValues: Rec.fromObject({
-						"C:/dir/index.ts": ["foo"],
-					}),
+					outOfScopeImports: Rec.fromEntries([[absoluteFsPath("C:/dir/index.ts"), ["foo"] as ImportPath[]]]),
+					possiblyUnusedExportValues: Rec.fromEntries([[absoluteFsPath("C:/dir/index.ts"), ["foo"] as ImportPath[]]]),
 				}),
 			},
 
@@ -1119,10 +1176,8 @@ describe("domain", () => {
 						typescript: 1,
 						javascript: 1,
 					}),
-					unparsedDynamicImports: Rec.fromObject({
-						"/dir/file.jsx": 2,
-					}),
-					emptyExports: ["/dir/index.ts"],
+					unparsedDynamicImports: Rec.fromEntries([[absoluteFsPath("/dir/file.jsx"), 2]]),
+					emptyExports: [absoluteFsPath("/dir/index.ts")],
 				}),
 			},
 
@@ -1143,10 +1198,8 @@ describe("domain", () => {
 						typescript: 1,
 						javascript: 0,
 					}),
-					unresolvedFullImports: Rec.fromObject({
-						"C:/dir/index.tsx": 2,
-					}),
-					emptyExports: ["C:/dir/index.tsx"],
+					unresolvedFullImports: Rec.fromEntries([[absoluteFsPath("C:/dir/index.tsx"), 2]]),
+					emptyExports: [absoluteFsPath("C:/dir/index.tsx")],
 				}),
 			},
 
@@ -1168,13 +1221,9 @@ describe("domain", () => {
 						typescript: 2,
 						javascript: 0,
 					}),
-					unresolvedFullImports: Rec.fromObject({
-						"C:/dir/file.ts": 1,
-					}),
-					unresolvedFullExports: Rec.fromObject({
-						"C:/dir/file.ts": 1,
-					}),
-					emptyExports: ["C:/dir/index.tsx"],
+					unresolvedFullImports: Rec.fromEntries([[absoluteFsPath("C:/dir/file.ts"), 1]]),
+					unresolvedFullExports: Rec.fromEntries([[absoluteFsPath("C:/dir/file.ts"), 1]]),
+					emptyExports: [absoluteFsPath("C:/dir/index.tsx")],
 				}),
 			},
 
@@ -1206,10 +1255,8 @@ describe("domain", () => {
 						typescript: 0,
 						javascript: 3,
 					}),
-					shadowedExportValues: Rec.fromObject({
-						"/dir/file2.js": 1,
-					}),
-					emptyExports: ["/dir/index.js"],
+					shadowedExportValues: Rec.fromEntries([[absoluteFsPath("/dir/file2.js"), 1]]),
+					emptyExports: [absoluteFsPath("/dir/index.js")],
 				}),
 			},
 
@@ -1235,10 +1282,13 @@ describe("domain", () => {
 						typescript: 3,
 						javascript: 0,
 					}),
-					emptyExports: ["/dir1/index.ts", "/dir2/index.ts"],
-					incorrectImports: Rec.fromObject({
-						"/dir2/index.ts": [{ filePath: "/dir1/file.ts", importPath: "../dir1/file" }],
-					}),
+					emptyExports: [absoluteFsPath("/dir1/index.ts"), absoluteFsPath("/dir2/index.ts")],
+					incorrectImports: Rec.fromEntries([
+						[
+							absoluteFsPath("/dir2/index.ts"),
+							[{ filePath: absoluteFsPath("/dir1/file.ts"), importPath: "../dir1/file" as ImportPath }],
+						],
+					]),
 				}),
 			},
 		])("$name", async ({ fileItems, result }) => {
