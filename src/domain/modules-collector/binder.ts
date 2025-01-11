@@ -1,5 +1,5 @@
 import type { AbsoluteFsPath } from "~/lib/fs-path";
-import type { ImportSource, Module, Modules } from "./values";
+import type { ImportSource, Module, ModulesCollection } from "./values";
 
 class ResolvedMarks {
 	#resolvedItems: ImportSource[] = [];
@@ -46,7 +46,7 @@ function createFullExportsResolver() {
 		return module.unresolvedFullExports.some((importSource) => isImportSourceInScope(importSource));
 	}
 
-	return function tryResolveFullExports(module: Module, modules: Modules) {
+	return function tryResolveFullExports(module: Module, modulesCollection: ModulesCollection) {
 		const { path, unresolvedFullExports } = module;
 
 		if (enteredFilePaths.has(path)) {
@@ -62,10 +62,10 @@ function createFullExportsResolver() {
 		const resolvedMarks = new ResolvedMarks();
 
 		getImportSourcesInScope(unresolvedFullExports).forEach((importSource) => {
-			const sourceModule = modules.get(importSource.filePath!);
+			const sourceModule = modulesCollection.get(importSource.filePath!);
 
 			if (hasFullExportsForResolving(sourceModule)) {
-				tryResolveFullExports(sourceModule, modules);
+				tryResolveFullExports(sourceModule, modulesCollection);
 			}
 
 			if (!canProcessExportValues({ currentModule: module, sourceModule })) {
@@ -90,7 +90,7 @@ function createFullExportsResolver() {
 	};
 }
 
-function tryResolveFullImports(module: Module, modules: Modules) {
+function tryResolveFullImports(module: Module, modulesCollection: ModulesCollection) {
 	const { unresolvedFullImports } = module;
 
 	if (unresolvedFullImports.length === 0) {
@@ -100,7 +100,7 @@ function tryResolveFullImports(module: Module, modules: Modules) {
 	const resolvedMarks = new ResolvedMarks();
 
 	getImportSourcesInScope(unresolvedFullImports).forEach((importSource) => {
-		const sourceModule = modules.get(importSource.filePath!);
+		const sourceModule = modulesCollection.get(importSource.filePath!);
 
 		if (sourceModule.unresolvedFullExports.length > 0) {
 			return;
@@ -117,12 +117,12 @@ function tryResolveFullImports(module: Module, modules: Modules) {
 	resolvedMarks.removeResolved(unresolvedFullImports);
 }
 
-function bindExportValues({ path, imports }: Module, modules: Modules) {
+function bindExportValues({ path, imports }: Module, modulesCollection: ModulesCollection) {
 	imports
 		.filter(({ importSource }) => isImportSourceInScope(importSource))
 		.forEach(({ importSource, values }) => {
 			const importedFilePath = importSource.filePath!;
-			const { exports } = modules.get(importedFilePath);
+			const { exports } = modulesCollection.get(importedFilePath);
 
 			values
 				.filter((value) => exports.has(value) && !exports.get(value).includes(path))
@@ -132,14 +132,14 @@ function bindExportValues({ path, imports }: Module, modules: Modules) {
 		});
 }
 
-export function bindModules(modules: Modules): Modules {
+export function bindModules(modulesCollection: ModulesCollection): ModulesCollection {
 	const tryResolveFullExports = createFullExportsResolver();
 
-	modules.forEach((module) => {
-		tryResolveFullExports(module, modules);
-		tryResolveFullImports(module, modules);
-		bindExportValues(module, modules);
+	modulesCollection.forEach((module) => {
+		tryResolveFullExports(module, modulesCollection);
+		tryResolveFullImports(module, modulesCollection);
+		bindExportValues(module, modulesCollection);
 	});
 
-	return modules;
+	return modulesCollection;
 }

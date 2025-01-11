@@ -29,4 +29,4 @@ export interface Module {
 	unparsedDynamicImports: number;
 }
 
-export type Modules = Rec<AbsoluteFsPath, Module>;
+export type ModulesCollection = Rec<AbsoluteFsPath, Module>;

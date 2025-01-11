@@ -2,10 +2,10 @@ import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type AbsoluteFsPath, getName } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./module-expert";
-import type { Modules } from "./modules-collector";
+import type { ModulesCollection } from "./modules-collector";
 
 interface Params {
-	modules: Modules;
+	modulesCollection: ModulesCollection;
 	fsNavCursor: FSNavCursor;
 	extraPackageEntries: ExtraPackageEntries;
 }
@@ -24,26 +24,26 @@ export interface Package {
 	packages: AbsoluteFsPath[];
 }
 
-export type Packages = Rec<AbsoluteFsPath, Package>;
+export type PackagesCollection = Rec<AbsoluteFsPath, Package>;
 
 export class PackagesCollector {
-	#modules;
+	#modulesCollection;
 	#fsNavCursor;
 	#extraPackageEntries;
 
-	constructor({ modules, fsNavCursor, extraPackageEntries }: Params) {
-		this.#modules = modules;
+	constructor({ modulesCollection, fsNavCursor, extraPackageEntries }: Params) {
+		this.#modulesCollection = modulesCollection;
 		this.#fsNavCursor = fsNavCursor;
 		this.#extraPackageEntries = extraPackageEntries;
 	}
 
 	collect() {
-		const packages: Packages = new Rec();
-		this.#collectPackages(packages, this.#fsNavCursor.rootPath);
-		return this.#fillPackages(packages);
+		const packagesCollection: PackagesCollection = new Rec();
+		this.#collectPackages(packagesCollection, this.#fsNavCursor.rootPath);
+		return this.#fillPackages(packagesCollection);
 	}
 
-	#collectPackages(packages: Packages, parentPath: AbsoluteFsPath) {
+	#collectPackages(packagesCollection: PackagesCollection, parentPath: AbsoluteFsPath) {
 		const nodes = this.#fsNavCursor.getNodeChildrenByPath(parentPath);
 
 		const filePaths = nodes.filter(({ isFile }) => isFile).map(({ path }) => path);
@@ -51,37 +51,37 @@ export class PackagesCollector {
 
 		if (packageEntryPoint) {
 			const pack = this.#createPackage({ path: parentPath, entryPoint: packageEntryPoint });
-			packages.set(pack.path, pack);
+			packagesCollection.set(pack.path, pack);
 		}
 
 		nodes
 			.filter(({ isFile }) => !isFile)
 			.forEach(({ path }) => {
-				this.#collectPackages(packages, path);
+				this.#collectPackages(packagesCollection, path);
 			});
 	}
 
-	#fillPackages(packages: Packages) {
-		packages.forEach((pack) => {
-			this.#fillPackage(packages, pack, pack.path);
+	#fillPackages(packagesCollection: PackagesCollection) {
+		packagesCollection.forEach((pack) => {
+			this.#fillPackage(packagesCollection, pack, pack.path);
 		});
 
-		return packages;
+		return packagesCollection;
 	}
 
-	#fillPackage(packages: Packages, pack: Package, currentPath: AbsoluteFsPath) {
+	#fillPackage(packagesCollection: PackagesCollection, pack: Package, currentPath: AbsoluteFsPath) {
 		const subPaths: AbsoluteFsPath[] = [];
 
 		this.#fsNavCursor.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
 			if (isFile) {
 				pack.modules.push(path);
-				this.#modules.get(path).package = pack.path;
+				this.#modulesCollection.get(path).package = pack.path;
 				return;
 			}
 
-			if (packages.has(path)) {
+			if (packagesCollection.has(path)) {
 				pack.packages.push(path);
-				packages.get(path).parent = pack.path;
+				packagesCollection.get(path).parent = pack.path;
 				return;
 			}
 
@@ -89,7 +89,7 @@ export class PackagesCollector {
 		});
 
 		subPaths.forEach((subPath) => {
-			this.#fillPackage(packages, pack, subPath);
+			this.#fillPackage(packagesCollection, pack, subPath);
 		});
 	}
 

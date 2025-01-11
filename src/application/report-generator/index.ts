@@ -1,4 +1,4 @@
-import type { Modules, Packages, Summary } from "~/domain";
+import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
 import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
@@ -13,9 +13,9 @@ interface Params {
 	dispatcherPort: DispatcherPort;
 	fSysPort: FSysPort;
 	summary: Summary;
-	modules: Modules;
-	packages: Packages;
 	fsNavCursor: FSNavCursor;
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 }
 
 export type { ReportSettings, DispatcherPort };
@@ -25,9 +25,9 @@ export async function generateReport({
 	dispatcherPort,
 	fSysPort,
 	summary,
-	modules,
-	packages,
 	fsNavCursor,
+	modulesCollection,
+	packagesCollection,
 }: Params) {
 	const pathInformer = new PathInformer({ rootPath: settings.path, fsNavCursor });
 
@@ -38,20 +38,22 @@ export async function generateReport({
 
 	htmlPages.set(
 		pathInformer.indexHtmlPagePath,
-		indexPage(new IndexPageViewModel({ version, pathInformer, fsNavCursor, summary, modules, packages })),
+		indexPage(
+			new IndexPageViewModel({ version, pathInformer, fsNavCursor, summary, modulesCollection, packagesCollection }),
+		),
 	);
 
-	modules.forEach(({ path }) => {
+	modulesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
-			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modules, summary })),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modulesCollection, summary })),
 		);
 	});
 
-	packages.forEach(({ path }) => {
+	packagesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getPackageHtmlPagePathByRealPath(path),
-			packagePage(new PackagePageViewModel({ version, path, pathInformer, fsNavCursor, packages })),
+			packagePage(new PackagePageViewModel({ version, path, pathInformer, fsNavCursor, packagesCollection })),
 		);
 	});
 

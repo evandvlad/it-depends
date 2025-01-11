@@ -5,9 +5,9 @@ import { Rec } from "~/lib/rec";
 import {
 	createFileItemsGenerator,
 	createModule,
-	createModules,
+	createModulesCollection,
 	createPackage,
-	createPackages,
+	createPackagesCollection,
 	createSummary,
 } from "../__test-utils__";
 
@@ -28,7 +28,7 @@ describe("domain", () => {
 			{
 				name: "should be single module without imports/exports",
 				fileItems: [{ path: "C:/file.ts", content: `console.log("Hello world")` }],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file.ts",
 						name: "file.ts",
@@ -44,7 +44,7 @@ describe("domain", () => {
 						content: `import { bar, baz } from "foo";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file.ts",
 						name: "file.ts",
@@ -74,7 +74,7 @@ describe("domain", () => {
 						content: `import baz, { foo, bar } from "./file1";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "/file1.js",
 						name: "file1.js",
@@ -120,7 +120,7 @@ describe("domain", () => {
 						content: `import qux, { foo, bar } from "../../dir1/file1";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "/dir1/file1.ts",
 						name: "file1.ts",
@@ -175,7 +175,7 @@ describe("domain", () => {
 				importAliasMapper(importPath: string) {
 					return importPath === "~/file1" ? "C:/file1" : null;
 				},
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file1.tsx",
 						name: "file1.tsx",
@@ -207,7 +207,7 @@ describe("domain", () => {
 						content: `import { qux, quux } from "../../../../out-of-scope";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file.ts",
 						name: "file.ts",
@@ -229,7 +229,7 @@ describe("domain", () => {
 						content: `import * as foo from "../../../../out-of-scope";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file.ts",
 						name: "file.ts",
@@ -250,7 +250,7 @@ describe("domain", () => {
 						content: `import "./file1";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/dir1/dir2/file1.ts",
 						name: "file1.ts",
@@ -286,7 +286,7 @@ describe("domain", () => {
 						content: `import {} from "./file1";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "/file1.ts",
 						name: "file1.ts",
@@ -319,7 +319,7 @@ describe("domain", () => {
 						content: `import * as all from "./dir";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/dir/index.jsx",
 						name: "index.jsx",
@@ -357,7 +357,7 @@ describe("domain", () => {
 						content: `const data = await import(".");`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/dir/index.ts",
 						name: "index.ts",
@@ -399,7 +399,7 @@ describe("domain", () => {
 							`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file1.ts",
 						name: "file1.ts",
@@ -438,7 +438,7 @@ describe("domain", () => {
 							`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file1.ts",
 						name: "file1.ts",
@@ -496,7 +496,7 @@ describe("domain", () => {
 						content: `import * as all from "./file2"`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file1.d.ts",
 						name: "file1.d.ts",
@@ -555,7 +555,7 @@ describe("domain", () => {
 						content: `import * as all from "./file2";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/dir/file1.ts",
 						name: "file1.ts",
@@ -604,7 +604,7 @@ describe("domain", () => {
 						content: `import { bar } from "./file1";`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "/file1.ts",
 						name: "file1.ts",
@@ -650,7 +650,7 @@ describe("domain", () => {
 							`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file4.ts",
 						name: "file4.ts",
@@ -706,7 +706,7 @@ describe("domain", () => {
 							`,
 					},
 				],
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/dir/index.ts",
 						name: "index.ts",
@@ -766,7 +766,7 @@ describe("domain", () => {
 				importAliasMapper(importPath: string) {
 					return importPath === "~/file1" ? "C:/file1" : null;
 				},
-				result: createModules([
+				result: createModulesCollection([
 					createModule({
 						path: "C:/file1/index.ts",
 						name: "index.ts",
@@ -807,7 +807,7 @@ describe("domain", () => {
 		])("$name", async ({ fileItems, importAliasMapper = () => null, result }) => {
 			const fn = jest.fn();
 
-			const { modules } = await process({
+			const { modulesCollection } = await process({
 				fileItems: createFileItemsGenerator(fileItems),
 				dispatcherPort: {
 					dispatch: fn,
@@ -815,8 +815,8 @@ describe("domain", () => {
 				settings: { ...nullSettings, importAliasMapper: importAliasMapper as ImportAliasMapper },
 			});
 
-			expect(modules).toEqual(result);
-			expect(fn).toHaveBeenCalledTimes(modules.size + 1);
+			expect(modulesCollection).toEqual(result);
+			expect(fn).toHaveBeenCalledTimes(modulesCollection.size + 1);
 		});
 	});
 
@@ -825,13 +825,13 @@ describe("domain", () => {
 			{
 				name: "should be modules without package",
 				filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx"],
-				packages: createPackages([]),
+				packages: createPackagesCollection([]),
 			},
 
 			{
 				name: "should be single package with standard entry point",
 				filePaths: ["C:/dir/index.ts"],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "C:/dir",
 						name: "dir",
@@ -845,7 +845,7 @@ describe("domain", () => {
 				name: "should be single package with custom entry point",
 				filePaths: ["/dir/index.entry.tsx"],
 				extraPackageEntries: { fileNames: ["index.entry"] },
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "/dir",
 						name: "dir",
@@ -859,7 +859,7 @@ describe("domain", () => {
 				name: "should be single package with custom entry point mapping",
 				filePaths: ["C:/dir/main.js"],
 				extraPackageEntries: { filePaths: ["C:/dir/main.js" as AbsoluteFsPath] },
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "C:/dir",
 						name: "dir",
@@ -872,7 +872,7 @@ describe("domain", () => {
 			{
 				name: "should be single package with several flat modules",
 				filePaths: ["/dir/file1.ts", "/dir/file2.js", "/dir/index.tsx"],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "/dir",
 						name: "dir",
@@ -885,7 +885,7 @@ describe("domain", () => {
 			{
 				name: "should be correct resolution package's entry point",
 				filePaths: ["/dir/index.d.ts", "/dir/index.ts", "/dir/index.js"],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "/dir",
 						name: "dir",
@@ -904,7 +904,7 @@ describe("domain", () => {
 					"C:/dir/index.tsx",
 					"C:/dir/dir2/dir3/file.jsx",
 				],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "C:/dir",
 						name: "dir",
@@ -929,7 +929,7 @@ describe("domain", () => {
 					"/dir/dir2/file.jsx",
 					"/dir/dir2/index.ts",
 				],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "/dir",
 						name: "dir",
@@ -963,7 +963,7 @@ describe("domain", () => {
 					"C:/dir/dir1/file.tsx",
 					"C:/dir/index.ts",
 				],
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "C:/dir",
 						name: "dir",
@@ -1004,7 +1004,7 @@ describe("domain", () => {
 					"/dir/main.ts",
 				],
 				extraPackageEntries: { filePaths: ["/dir/main.ts" as AbsoluteFsPath] },
-				packages: createPackages([
+				packages: createPackagesCollection([
 					createPackage({
 						path: "/dir",
 						name: "dir",
@@ -1052,7 +1052,7 @@ describe("domain", () => {
 			},
 		])("$name", async ({ filePaths, packages, extraPackageEntries = {} }) => {
 			const fileItems = filePaths.map((path) => ({ path, content: "" }));
-			const { packages: packs } = await process({
+			const { packagesCollection } = await process({
 				fileItems: createFileItemsGenerator(fileItems),
 				dispatcherPort: nullDispatcherPort,
 				settings: {
@@ -1061,7 +1061,7 @@ describe("domain", () => {
 				},
 			});
 
-			expect(packs).toEqual(packages);
+			expect(packagesCollection).toEqual(packages);
 		});
 	});
 

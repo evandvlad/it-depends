@@ -1,4 +1,4 @@
-import type { ImportPath, Modules, Packages, Summary } from "~/domain";
+import type { ImportPath, ModulesCollection, PackagesCollection, Summary } from "~/domain";
 import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { PathInformer } from "../path-informer";
@@ -10,8 +10,8 @@ interface Params {
 	fsNavCursor: FSNavCursor;
 	pathInformer: PathInformer;
 	summary: Summary;
-	modules: Modules;
-	packages: Packages;
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 }
 
 export class IndexPageViewModel extends PageViewModel {
@@ -25,17 +25,17 @@ export class IndexPageViewModel extends PageViewModel {
 	readonly numOfUnresolvedFullIE;
 	readonly numOfShadowedExportValues;
 
-	#modules;
-	#packages;
+	#modulesCollection;
+	#packagesCollection;
 	#summary;
 	#fsNavCursor;
 	#pathInformer;
 
-	constructor({ version, pathInformer, fsNavCursor, summary, modules, packages }: Params) {
+	constructor({ version, pathInformer, fsNavCursor, summary, modulesCollection, packagesCollection }: Params) {
 		super({ version, pathInformer, fsNavCursor });
 
-		this.#modules = modules;
-		this.#packages = packages;
+		this.#modulesCollection = modulesCollection;
+		this.#packagesCollection = packagesCollection;
 		this.#summary = summary;
 		this.#fsNavCursor = fsNavCursor;
 		this.#pathInformer = pathInformer;
@@ -64,7 +64,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectModuleList<T>(handler: (linkData: LinkData) => T) {
-		return this.#modules.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
+		return this.#modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
 	}
 
 	collectModuleTree<T>(handler: (item: LinkTreeItem) => T) {
@@ -72,7 +72,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectPackageList<T>(handler: (linkData: LinkData) => T) {
-		return this.#packages.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
+		return this.#packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
 	}
 
 	collectPackageTree<T>(handler: (item: LinkTreeItem) => T) {
@@ -113,7 +113,7 @@ export class IndexPageViewModel extends PageViewModel {
 			handler({
 				values,
 				linkData: this.getModuleLinkData(path),
-				isFullyUnused: this.#modules.get(path).exports.size === values.length,
+				isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
 			}),
 		);
 	}
@@ -170,9 +170,9 @@ export class IndexPageViewModel extends PageViewModel {
 	#collectModuleTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return this.#fsNavCursor.getNodeChildrenByPath(path).map(({ path, name }) => {
 			const content = handler(
-				this.#modules.has(path)
+				this.#modulesCollection.has(path)
 					? {
-							name: this.#modules.get(path).name,
+							name: this.#modulesCollection.get(path).name,
 							linkData: {
 								...this.getModuleLinkData(path),
 								content: name,
@@ -191,7 +191,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 	#collectPackageTree<T>(paths: AbsoluteFsPath[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
-			const pack = this.#packages.get(path);
+			const pack = this.#packagesCollection.get(path);
 
 			return {
 				content: handler({
@@ -211,7 +211,7 @@ export class IndexPageViewModel extends PageViewModel {
 	#findRootPackages(path: AbsoluteFsPath): AbsoluteFsPath[] {
 		const node = this.#fsNavCursor.getNodeByPath(path);
 
-		if (this.#packages.has(node.path)) {
+		if (this.#packagesCollection.has(node.path)) {
 			return [node.path];
 		}
 

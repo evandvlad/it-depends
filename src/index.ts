@@ -6,16 +6,16 @@ import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } 
 import { type Options, createSettings } from "~/application/settings-provider";
 import {
 	type DispatcherPort as DomainDispatcherPort,
-	type Modules,
-	type Packages,
+	type ModulesCollection,
+	type PackagesCollection,
 	type Summary,
 	process,
 } from "~/domain";
 import { AppError } from "~/lib/errors";
 
 interface Result {
-	modules: Modules;
-	packages: Packages;
+	modules: ModulesCollection;
+	packages: PackagesCollection;
 	summary: Summary;
 }
 
@@ -47,7 +47,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			pathFilter: settings.pathFilter,
 		});
 
-		const { modules, packages, summary, fsNavCursor } = await process({
+		const { modulesCollection, packagesCollection, summary, fsNavCursor } = await process({
 			fileItems,
 			settings,
 			dispatcherPort: this.#eventBus as DomainDispatcherPort,
@@ -56,15 +56,15 @@ export class ItDepends implements GlobalEventBusSubscriber {
 		if (settings.report) {
 			await generateReport({
 				fSysPort,
-				modules,
-				packages,
 				summary,
 				fsNavCursor,
+				modulesCollection,
+				packagesCollection,
 				settings: settings.report,
 				dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
 			});
 		}
 
-		return { modules, packages, summary };
+		return { modules: modulesCollection, packages: packagesCollection, summary };
 	};
 }

@@ -1,7 +1,7 @@
 import { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type DispatcherPort, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
-import { type ImportAliasMapper, type Modules, collectModules } from "./modules-collector";
-import { type ExtraPackageEntries, type Packages, PackagesCollector } from "./packages-collector";
+import { type ImportAliasMapper, type ModulesCollection, collectModules } from "./modules-collector";
+import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
@@ -16,8 +16,8 @@ interface Params {
 }
 
 interface Result {
-	modules: Modules;
-	packages: Packages;
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 	summary: Summary;
 	fsNavCursor: FSNavCursor;
 }
@@ -25,8 +25,8 @@ interface Result {
 export type {
 	FileItems,
 	DispatcherPort,
-	Modules,
-	Packages,
+	ModulesCollection,
+	PackagesCollection,
 	Summary,
 	ImportAliasMapper,
 	ExtraPackageEntries,
@@ -41,17 +41,17 @@ export async function process({
 	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
 
 	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
-	const modules = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
+	const modulesCollection = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
 
 	const packagesCollector = new PackagesCollector({
 		fsNavCursor,
-		modules,
+		modulesCollection,
 		extraPackageEntries,
 	});
-	const packages = packagesCollector.collect();
+	const packagesCollection = packagesCollector.collect();
 
-	const summaryCollector = new SummaryCollector({ fsNavCursor, modules, packages, parserErrors });
+	const summaryCollector = new SummaryCollector({ fsNavCursor, modulesCollection, packagesCollection, parserErrors });
 	const summary = summaryCollector.collect();
 
-	return { modules, packages, summary, fsNavCursor };
+	return { modulesCollection, packagesCollection, summary, fsNavCursor };
 }

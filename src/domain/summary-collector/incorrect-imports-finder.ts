@@ -1,20 +1,20 @@
 import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { ImportSource, Module } from "../modules-collector";
-import type { Package, Packages } from "../packages-collector";
+import type { Package, PackagesCollection } from "../packages-collector";
 
 interface Params {
-	packages: Packages;
+	packagesCollection: PackagesCollection;
 	fsNavCursor: FSNavCursor;
 }
 
 export class IncorrectImportsFinder {
-	#packages;
+	#packagesCollection;
 	#fsNavCursor;
 
-	constructor({ fsNavCursor, packages }: Params) {
+	constructor({ fsNavCursor, packagesCollection }: Params) {
 		this.#fsNavCursor = fsNavCursor;
-		this.#packages = packages;
+		this.#packagesCollection = packagesCollection;
 	}
 
 	find({ path, imports, unresolvedFullImports }: Module): ImportSource[] {
@@ -60,7 +60,7 @@ export class IncorrectImportsFinder {
 				return true;
 			}
 
-			movingPackage = movingPackage.parent ? this.#packages.get(movingPackage.parent) : null;
+			movingPackage = movingPackage.parent ? this.#packagesCollection.get(movingPackage.parent) : null;
 		}
 
 		return false;
@@ -72,8 +72,8 @@ export class IncorrectImportsFinder {
 		while (parentNode) {
 			const { path } = parentNode;
 
-			if (this.#packages.has(path)) {
-				return this.#packages.get(path);
+			if (this.#packagesCollection.has(path)) {
+				return this.#packagesCollection.get(path);
 			}
 
 			parentNode = parentNode.parent;
