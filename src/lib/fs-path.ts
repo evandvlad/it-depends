@@ -6,7 +6,7 @@ export type AbsoluteFsPath = string & { __brand: "absolute-fs-path" };
 
 type FsPath = ShortFsPath | AbsoluteFsPath;
 
-const delimiter = "/";
+export const delimiter = "/";
 
 export function shortFsPath(path: string) {
 	return path as ShortFsPath;

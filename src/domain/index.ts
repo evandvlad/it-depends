@@ -1,5 +1,11 @@
 import { FSNavCursor } from "~/lib/fs-nav-cursor";
-import { type DispatcherPort, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
+import {
+	type DispatcherPort,
+	type FileItem,
+	type FileItems,
+	type ImportPath,
+	transformFileItems,
+} from "./file-items-transformer";
 import { type ImportAliasMapper, type ModulesCollection, collectModules } from "./modules-collector";
 import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
@@ -15,7 +21,7 @@ interface Params {
 	settings: Settings;
 }
 
-interface Result {
+export interface Result {
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 	summary: Summary;
@@ -23,6 +29,7 @@ interface Result {
 }
 
 export type {
+	FileItem,
 	FileItems,
 	DispatcherPort,
 	ModulesCollection,

@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, shortFsPath } from "~/lib/fs-path";
+import { type AbsoluteFsPath, delimiter, shortFsPath } from "~/lib/fs-path";
 import { NodesRegistry } from "./nodes-registry";
 
 export class FSNavCursor {
@@ -23,9 +23,10 @@ export class FSNavCursor {
 			return shortFsPath(path);
 		}
 
-		const basePathLengthWithEndedSlash = this.#shortRootNode.parent.path.length + 1;
+		const rootPath = this.#shortRootNode.parent.path;
+		const basePathLength = rootPath === delimiter ? rootPath.length : rootPath.length + 1;
 
-		return shortFsPath(path.slice(basePathLengthWithEndedSlash) || path);
+		return shortFsPath(path.slice(basePathLength) || path);
 	}
 
 	hasNodeByPath(path: AbsoluteFsPath) {

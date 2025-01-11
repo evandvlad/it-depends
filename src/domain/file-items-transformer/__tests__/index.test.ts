@@ -1,7 +1,8 @@
 import { describe, expect, it, jest } from "@jest/globals";
+import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { type FileItem, type ImportPath, transformFileItems } from "..";
-import { createFileEntries, createFileItemsGenerator } from "../../__test-utils__/domain-entity-factories";
+import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
 
 function createEmptyFileItem(path: string) {
 	return { path, content: "" } as FileItem;

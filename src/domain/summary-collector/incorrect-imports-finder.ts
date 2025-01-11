@@ -20,17 +20,17 @@ export class IncorrectImportsFinder {
 	find({ path, imports, unresolvedFullImports }: Module): ImportSource[] {
 		const pack = this.#findPackageByFilePath(path);
 
-		if (!pack) {
-			return [];
-		}
-
 		return imports
 			.map(({ importSource }) => importSource)
 			.concat(unresolvedFullImports)
-			.filter((importSource) => !this.#isCorrectImport(pack, importSource));
+			.filter((importSource) =>
+				pack
+					? !this.#isCorrectImportFromPackage(pack, importSource)
+					: !this.#isCorrectImportWithoutPackage(importSource),
+			);
 	}
 
-	#isCorrectImport(pack: Package, importSource: ImportSource) {
+	#isCorrectImportFromPackage(pack: Package, importSource: ImportSource) {
 		const { filePath } = importSource;
 
 		if (filePath === undefined) {
@@ -64,6 +64,20 @@ export class IncorrectImportsFinder {
 		}
 
 		return false;
+	}
+
+	#isCorrectImportWithoutPackage(importSource: ImportSource) {
+		const { filePath } = importSource;
+
+		if (filePath !== undefined) {
+			const importPackage = this.#findPackageByFilePath(filePath);
+
+			if (importPackage) {
+				return importPackage.entryPoint === filePath;
+			}
+		}
+
+		return true;
 	}
 
 	#findPackageByFilePath(filePath: AbsoluteFsPath): Package | null {

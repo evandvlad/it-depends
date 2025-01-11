@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from "@jest/globals";
+import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
 import { AppError } from "~/lib/errors";
 import { type AbsoluteFsPath, absoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import {
-	createFileItemsGenerator,
 	createModule,
 	createModulesCollection,
 	createPackage,
@@ -1639,6 +1639,25 @@ describe("domain", () => {
 						},
 						{
 							path: "/dir1/dir2/dir3/index.ts",
+							content: `export const foo = "foo";`,
+						},
+					],
+					isCorrect: false,
+				},
+
+				{
+					name: "should be incorrect for import from root file",
+					fileItems: [
+						{
+							path: "/src/main.ts",
+							content: `import { foo } from "./lib/a/a";`,
+						},
+						{
+							path: "/src/lib/a/index.ts",
+							content: `export { foo } from "./a";`,
+						},
+						{
+							path: "/src/lib/a/a.ts",
 							content: `export const foo = "foo";`,
 						},
 					],

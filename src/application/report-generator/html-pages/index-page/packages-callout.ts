@@ -10,12 +10,12 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 	return tabs({
 		items: [
 			{
-				label: "Package tree",
-				content: tree({ items: pageViewModel.collectPackageTree(({ linkData }) => a(linkData!)) }),
+				label: "Packages tree",
+				content: tree({ items: pageViewModel.collectPackagesTree(({ linkData }) => a(linkData!)) }),
 			},
 			{
-				label: "Package list",
-				content: list({ items: pageViewModel.collectPackageList((linkData) => a(linkData)) }),
+				label: "Packages list",
+				content: list({ items: pageViewModel.collectPackagesList((linkData) => a(linkData)) }),
 			},
 		],
 	});

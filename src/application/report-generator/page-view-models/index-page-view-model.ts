@@ -63,20 +63,20 @@ export class IndexPageViewModel extends PageViewModel {
 		this.numOfShadowedExportValues = summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
 	}
 
-	collectModuleList<T>(handler: (linkData: LinkData) => T) {
+	collectModulesList<T>(handler: (linkData: LinkData) => T) {
 		return this.#modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
 	}
 
-	collectModuleTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectModuleTree(this.#fsNavCursor.shortRootPath, handler);
+	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
+		return this.#collectModulesTree(this.#fsNavCursor.shortRootPath, handler);
 	}
 
-	collectPackageList<T>(handler: (linkData: LinkData) => T) {
+	collectPackagesList<T>(handler: (linkData: LinkData) => T) {
 		return this.#packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
 	}
 
-	collectPackageTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectPackageTree(this.#findRootPackages(this.#fsNavCursor.shortRootPath), handler);
+	collectPackagesTree<T>(handler: (item: LinkTreeItem) => T) {
+		return this.#collectPackagesTree(this.#findRootPackages(this.#fsNavCursor.shortRootPath), handler);
 	}
 
 	collectParserErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
@@ -167,7 +167,7 @@ export class IndexPageViewModel extends PageViewModel {
 		);
 	}
 
-	#collectModuleTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectModulesTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return this.#fsNavCursor.getNodeChildrenByPath(path).map(({ path, name }) => {
 			const content = handler(
 				this.#modulesCollection.has(path)
@@ -184,12 +184,12 @@ export class IndexPageViewModel extends PageViewModel {
 			return {
 				content,
 				title: this.#fsNavCursor.getShortPathByPath(path),
-				children: this.#collectModuleTree<T>(path, handler),
+				children: this.#collectModulesTree<T>(path, handler),
 			};
 		});
 	}
 
-	#collectPackageTree<T>(paths: AbsoluteFsPath[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectPackagesTree<T>(paths: AbsoluteFsPath[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
 			const pack = this.#packagesCollection.get(path);
 
@@ -203,7 +203,7 @@ export class IndexPageViewModel extends PageViewModel {
 					},
 				}),
 				title: this.#fsNavCursor.getShortPathByPath(path),
-				children: this.#collectPackageTree<T>(pack.packages, handler),
+				children: this.#collectPackagesTree<T>(pack.packages, handler),
 			};
 		});
 	}

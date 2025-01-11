@@ -120,7 +120,7 @@ describe("fs-nav-cursor", () => {
 		expect(fsNavCursor.shortRootPath).toEqual(shortRootPath);
 	});
 
-	it("should get short path by absolute path", () => {
+	it("should get short path by absolute windows path", () => {
 		const fsNavCursor = new FSNavCursor([
 			"C:/tmp/proj/src/index.ts",
 			"C:/tmp/proj/src/dir/file.js",
@@ -130,5 +130,11 @@ describe("fs-nav-cursor", () => {
 		expect(fsNavCursor.getShortPathByPath("C:/tmp/proj/src/dir" as AbsoluteFsPath)).toEqual("src/dir");
 		expect(fsNavCursor.getShortPathByPath("C:/tmp" as AbsoluteFsPath)).toEqual("C:/tmp");
 		expect(fsNavCursor.getShortPathByPath("D:/index.ts" as AbsoluteFsPath)).toEqual("D:/index.ts");
+	});
+
+	it("should get short path by absolute unix path", () => {
+		const fsNavCursor = new FSNavCursor(["/src/index.ts", "/src/dir/file.js"] as AbsoluteFsPath[]);
+
+		expect(fsNavCursor.getShortPathByPath("/src/index.ts" as AbsoluteFsPath)).toEqual("src/index.ts");
 	});
 });
