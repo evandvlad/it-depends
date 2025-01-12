@@ -4,8 +4,6 @@ import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { PathInformer } from "../../path-informer";
 import { IndexPageViewModel } from "../index-page-view-model";
 
-const rootPath = "/report" as AbsoluteFsPath;
-
 async function createPageViewModelParams() {
 	const { modulesCollection, packagesCollection, fsNavCursor, summary } = await processFileItems([
 		{
@@ -46,7 +44,7 @@ async function createPageViewModelParams() {
 		packagesCollection,
 		fsNavCursor,
 		summary,
-		pathInformer: new PathInformer({ rootPath, fsNavCursor }),
+		pathInformer: new PathInformer({ rootPath: "/report" as AbsoluteFsPath, fsNavCursor }),
 	};
 }
 
@@ -56,8 +54,8 @@ describe("index-page-view-model", () => {
 		const pageViewModel = new IndexPageViewModel(params);
 
 		expect(pageViewModel.version).toEqual(params.version);
-		expect(pageViewModel.assetsPath).toEqual(`${rootPath}/assets`);
-		expect(pageViewModel.indexHtmlPagePath).toEqual(`${rootPath}/content/index.html`);
+		expect(pageViewModel.assetsPath).toEqual("/report/assets");
+		expect(pageViewModel.indexHtmlPagePath).toEqual("/report/content/index.html");
 	});
 
 	it("should get counters correctly", async () => {

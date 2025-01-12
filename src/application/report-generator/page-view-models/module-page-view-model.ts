@@ -48,7 +48,7 @@ export class ModulePageViewModel extends PageViewModel {
 		this.unparsedDynamicImports = this.#module.unparsedDynamicImports;
 		this.shadowedExportValues = this.#module.shadowedExportValues;
 
-		this.code = this.#module.content.split("\r\n").join("\n");
+		this.code = this.#module.content;
 
 		this.unresolvedFullImports = this.#module.unresolvedFullImports.map(({ importPath }) => importPath);
 		this.unresolvedFullExports = this.#module.unresolvedFullExports.map(({ importPath }) => importPath);
@@ -59,11 +59,11 @@ export class ModulePageViewModel extends PageViewModel {
 		this.outOfScopeImports = summary.outOfScopeImports.getOrDefault(path, []);
 	}
 
-	collectImportItems<T>(handler: (params: { name: string; moduleLink: LinkData | null; values: string[] }) => T) {
+	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
 		return this.#module.imports.map(({ importSource, values }) =>
 			handler({
 				name: importSource.importPath,
-				moduleLink: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
+				linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
 				values,
 			}),
 		);

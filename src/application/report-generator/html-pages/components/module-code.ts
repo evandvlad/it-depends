@@ -15,6 +15,7 @@ function moduleCodeLine({ num, line }: { num: number; line: string }) {
 
 export function moduleCode({ code }: Params) {
 	const content = code
+		.replaceAll("\r\n", "\n")
 		.split("\n")
 		.map((line, i) => moduleCodeLine({ num: i + 1, line }))
 		.join("");
