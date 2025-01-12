@@ -14,9 +14,9 @@ import {
 import { AppError } from "~/lib/errors";
 
 interface Result {
-	modules: ModulesCollection;
-	packages: PackagesCollection;
 	summary: Summary;
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 }
 
 export { AppError };
@@ -65,6 +65,6 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			});
 		}
 
-		return { modules: modulesCollection, packages: packagesCollection, summary };
+		return { modulesCollection, packagesCollection, summary };
 	};
 }
