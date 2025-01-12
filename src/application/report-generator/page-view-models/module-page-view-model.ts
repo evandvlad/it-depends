@@ -1,7 +1,7 @@
-import type { Modules, Summary } from "../../../domain";
-import type { FSNavCursor } from "../../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
-import { Rec } from "../../../lib/rec";
+import type { ModulesCollection, Summary } from "~/domain";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData } from "./values";
@@ -11,7 +11,7 @@ interface Params {
 	path: AbsoluteFsPath;
 	fsNavCursor: FSNavCursor;
 	pathInformer: PathInformer;
-	modules: Modules;
+	modulesCollection: ModulesCollection;
 	summary: Summary;
 }
 
@@ -33,39 +33,37 @@ export class ModulePageViewModel extends PageViewModel {
 	#pathInformer;
 	#module;
 
-	constructor({ version, path, pathInformer, fsNavCursor, modules, summary }: Params) {
+	constructor({ version, path, pathInformer, fsNavCursor, modulesCollection, summary }: Params) {
 		super({ version, pathInformer, fsNavCursor });
 
 		this.#summary = summary;
 		this.#pathInformer = pathInformer;
-		this.#module = modules.get(path);
+		this.#module = modulesCollection.get(path);
 
 		this.fullPath = path;
 		this.shortPath = fsNavCursor.getShortPathByPath(path);
 		this.language = this.#module.language;
 
-		const module = modules.get(path);
+		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;
+		this.unparsedDynamicImports = this.#module.unparsedDynamicImports;
+		this.shadowedExportValues = this.#module.shadowedExportValues;
 
-		this.packageLinkData = module.package ? this.getPackageLinkData(module.package) : null;
-		this.unparsedDynamicImports = module.unparsedDynamicImports;
-		this.shadowedExportValues = module.shadowedExportValues;
+		this.code = this.#module.content;
 
-		this.code = module.content.split("\r\n").join("\n");
+		this.unresolvedFullImports = this.#module.unresolvedFullImports.map(({ importPath }) => importPath);
+		this.unresolvedFullExports = this.#module.unresolvedFullExports.map(({ importPath }) => importPath);
 
-		this.unresolvedFullImports = module.unresolvedFullImports.map(({ importPath }) => importPath);
-		this.unresolvedFullExports = module.unresolvedFullExports.map(({ importPath }) => importPath);
-
-		this.numOfImports = module.imports.reduce((acc, { values }) => acc + values.length, 0);
-		this.numOfExports = module.exports.reduce((acc, paths) => acc + paths.length, 0);
+		this.numOfImports = this.#module.imports.reduce((acc, { values }) => acc + values.length, 0);
+		this.numOfExports = this.#module.exports.reduce((acc, paths) => acc + paths.length, 0);
 
 		this.outOfScopeImports = summary.outOfScopeImports.getOrDefault(path, []);
 	}
 
-	collectImportItems<T>(handler: (params: { name: string; moduleLink: LinkData | null; values: string[] }) => T) {
+	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
 		return this.#module.imports.map(({ importSource, values }) =>
 			handler({
 				name: importSource.importPath,
-				moduleLink: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
+				linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
 				values,
 			}),
 		);

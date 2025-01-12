@@ -1,5 +1,5 @@
-import type { FSNavCursor } from "../../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { PathInformer } from "../path-informer";
 import type { LinkData } from "./values";
 

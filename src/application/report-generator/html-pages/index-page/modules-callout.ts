@@ -19,14 +19,14 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 				tabs({
 					items: [
 						{
-							label: "Module tree",
+							label: "Modules tree",
 							content: tree({
-								items: pageViewModel.collectModuleTree(({ name, linkData }) => (linkData ? a(linkData) : name)),
+								items: pageViewModel.collectModulesTree(({ name, linkData }) => (linkData ? a(linkData) : name)),
 							}),
 						},
 						{
-							label: "Module list",
-							content: list({ items: pageViewModel.collectModuleList((linkData) => a(linkData)) }),
+							label: "Modules list",
+							content: list({ items: pageViewModel.collectModulesList((linkData) => a(linkData)) }),
 						},
 					],
 				}),

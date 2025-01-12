@@ -1,6 +1,6 @@
-import type { Packages } from "../../../domain";
-import type { FSNavCursor } from "../../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
+import type { PackagesCollection } from "~/domain";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData } from "./values";
@@ -10,7 +10,7 @@ interface Params {
 	path: AbsoluteFsPath;
 	fsNavCursor: FSNavCursor;
 	pathInformer: PathInformer;
-	packages: Packages;
+	packagesCollection: PackagesCollection;
 }
 
 export class PackagePageViewModel extends PageViewModel {
@@ -21,10 +21,10 @@ export class PackagePageViewModel extends PageViewModel {
 
 	#package;
 
-	constructor({ version, path, pathInformer, fsNavCursor, packages }: Params) {
+	constructor({ version, path, pathInformer, fsNavCursor, packagesCollection }: Params) {
 		super({ version, pathInformer, fsNavCursor });
 
-		this.#package = packages.get(path);
+		this.#package = packagesCollection.get(path);
 
 		this.fullPath = path;
 		this.shortPath = fsNavCursor.getShortPathByPath(path);

@@ -1,4 +1,4 @@
-import { assert } from "./errors";
+import { assert } from "~/lib/errors";
 
 export class Rec<K extends PropertyKey, V> {
 	#data: Record<K, V> = Object.create({});

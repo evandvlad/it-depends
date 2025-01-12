@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { FSNavCursor } from "../../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
+import { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { ImportPath } from "../../file-items-transformer";
 import { ImportSourceResolver } from "../import-source-resolver";
 import type { ImportAliasMapper } from "../values";

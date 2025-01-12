@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { assert, AppError, assertNever } from "../errors";
+import { assert, AppError, assertNever } from "~/lib/errors";
 
 describe("errors", () => {
 	describe("ModuleError", () => {

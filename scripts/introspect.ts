@@ -4,9 +4,13 @@ const { ItDepends, AppError } = require("..");
 async function main() {
 	try {
 		let processedFiles = 0;
+		const srcPath = path.resolve(__dirname, "../src");
 
 		const itDepends = new ItDepends({
-			paths: [path.resolve(__dirname, "../src")],
+			paths: [srcPath],
+			importAliasMapper(path: string) {
+				return path.startsWith("~/") ? `${srcPath}${path.slice(1)}` : null;
+			},
 			report: {
 				path: path.resolve(__dirname, "../report"),
 			},

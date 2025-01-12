@@ -1,31 +1,25 @@
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
-import { AppError } from "../../lib/errors";
-import { type AbsoluteFsPath, getParentPath } from "../../lib/fs-path";
-import type { Rec } from "../../lib/rec";
+import { AppError } from "~/lib/errors";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
+import type { FSysPort } from "./values";
 
 interface Params {
+	fSysPort: FSysPort;
 	rootPath: AbsoluteFsPath;
 	assetsPath: AbsoluteFsPath;
-	staticAssetsPath: string;
+	staticAssetsPath: AbsoluteFsPath;
 	htmlPages: Rec<AbsoluteFsPath, string>;
 }
 
-async function writeHtmlPage({ path, html }: { path: AbsoluteFsPath; html: string }) {
-	const parentPath = getParentPath(path);
-
-	await mkdir(parentPath, { recursive: true });
-	await writeFile(path, html);
-}
-
-export async function writeReport({ rootPath, assetsPath, staticAssetsPath, htmlPages }: Params) {
+export async function writeReport({ fSysPort, rootPath, assetsPath, staticAssetsPath, htmlPages }: Params) {
 	try {
-		await rm(rootPath, { recursive: true, force: true });
-		await mkdir(rootPath);
+		await fSysPort.removeDir(rootPath);
+		await fSysPort.makeDir(rootPath);
 	} catch (e) {
 		throw new AppError(`Can't create directory by path: ${rootPath}`, { cause: e as Error });
 	}
 
-	await cp(staticAssetsPath, assetsPath, { recursive: true });
+	await fSysPort.copy(staticAssetsPath, assetsPath);
 
-	await Promise.all(htmlPages.toEntries().map(([path, html]) => writeHtmlPage({ path, html })));
+	await Promise.all(htmlPages.toEntries().map(([path, html]) => fSysPort.writeFile(path, html)));
 }

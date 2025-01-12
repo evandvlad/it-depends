@@ -1,9 +1,8 @@
-import type { EventBusDispatcher } from "../../lib/event-bus";
-import { Rec } from "../../lib/rec";
+import { Rec } from "~/lib/rec";
 import { getAcceptableFileExtNameByPath, getModuleDetailsByAcceptedFileExtName } from "../module-expert";
 import { parseCode } from "./parser";
 import {
-	type DispatcherRecord,
+	type DispatcherPort,
 	type FileEntries,
 	type FileEntry,
 	type FileItem,
@@ -15,21 +14,21 @@ import {
 
 interface Params {
 	fileItems: FileItems;
-	dispatcher: EventBusDispatcher<DispatcherRecord>;
+	dispatcherPort: DispatcherPort;
 }
 
 export {
+	ieValueAll,
 	type FileEntries,
 	type FileEntry,
 	type FileItem,
-	ieValueAll,
 	type ParserErrors,
 	type FileItems,
-	type DispatcherRecord,
 	type ImportPath,
+	type DispatcherPort,
 };
 
-export async function transformFileItems({ fileItems, dispatcher }: Params) {
+export async function transformFileItems({ fileItems, dispatcherPort }: Params) {
 	const fileEntries: FileEntries = new Rec();
 	const parserErrors: ParserErrors = new Rec();
 
@@ -50,15 +49,15 @@ export async function transformFileItems({ fileItems, dispatcher }: Params) {
 				ieItems: parseCode({ content, language, allowedJSXSyntax }),
 			});
 
-			dispatcher.dispatch("file-item-processed", { path });
+			dispatcherPort.dispatch("file-item-processed", { path });
 		} catch (e) {
 			const error = e as Error;
 			parserErrors.set(path, error);
-			dispatcher.dispatch("file-item-processing-failed", { path, error });
+			dispatcherPort.dispatch("file-item-processing-failed", { path, error });
 		}
 	}
 
-	dispatcher.dispatch("all-file-items-processed");
+	dispatcherPort.dispatch("all-file-items-processed");
 
 	return { fileEntries, parserErrors };
 }

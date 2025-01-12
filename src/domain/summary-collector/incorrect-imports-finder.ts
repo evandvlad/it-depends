@@ -1,36 +1,36 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { ImportSource, Module } from "../modules-collector";
-import type { Package, Packages } from "../packages-collector";
+import type { Package, PackagesCollection } from "../packages-collector";
 
 interface Params {
-	packages: Packages;
+	packagesCollection: PackagesCollection;
 	fsNavCursor: FSNavCursor;
 }
 
 export class IncorrectImportsFinder {
-	#packages;
+	#packagesCollection;
 	#fsNavCursor;
 
-	constructor({ fsNavCursor, packages }: Params) {
+	constructor({ fsNavCursor, packagesCollection }: Params) {
 		this.#fsNavCursor = fsNavCursor;
-		this.#packages = packages;
+		this.#packagesCollection = packagesCollection;
 	}
 
 	find({ path, imports, unresolvedFullImports }: Module): ImportSource[] {
 		const pack = this.#findPackageByFilePath(path);
 
-		if (!pack) {
-			return [];
-		}
-
 		return imports
 			.map(({ importSource }) => importSource)
 			.concat(unresolvedFullImports)
-			.filter((importSource) => !this.#isCorrectImport(pack, importSource));
+			.filter((importSource) =>
+				pack
+					? !this.#isCorrectImportFromPackage(pack, importSource)
+					: !this.#isCorrectImportWithoutPackage(importSource),
+			);
 	}
 
-	#isCorrectImport(pack: Package, importSource: ImportSource) {
+	#isCorrectImportFromPackage(pack: Package, importSource: ImportSource) {
 		const { filePath } = importSource;
 
 		if (filePath === undefined) {
@@ -60,10 +60,24 @@ export class IncorrectImportsFinder {
 				return true;
 			}
 
-			movingPackage = movingPackage.parent ? this.#packages.get(movingPackage.parent) : null;
+			movingPackage = movingPackage.parent ? this.#packagesCollection.get(movingPackage.parent) : null;
 		}
 
 		return false;
+	}
+
+	#isCorrectImportWithoutPackage(importSource: ImportSource) {
+		const { filePath } = importSource;
+
+		if (filePath !== undefined) {
+			const importPackage = this.#findPackageByFilePath(filePath);
+
+			if (importPackage) {
+				return importPackage.entryPoint === filePath && importPackage.parent === null;
+			}
+		}
+
+		return true;
 	}
 
 	#findPackageByFilePath(filePath: AbsoluteFsPath): Package | null {
@@ -72,8 +86,8 @@ export class IncorrectImportsFinder {
 		while (parentNode) {
 			const { path } = parentNode;
 
-			if (this.#packages.has(path)) {
-				return this.#packages.get(path);
+			if (this.#packagesCollection.has(path)) {
+				return this.#packagesCollection.get(path);
 			}
 
 			parentNode = parentNode.parent;

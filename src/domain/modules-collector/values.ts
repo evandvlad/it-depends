@@ -1,5 +1,5 @@
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import type { Rec } from "../../lib/rec";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Rec } from "~/lib/rec";
 import type { ImportPath } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 
@@ -29,4 +29,4 @@ export interface Module {
 	unparsedDynamicImports: number;
 }
 
-export type Modules = Rec<AbsoluteFsPath, Module>;
+export type ModulesCollection = Rec<AbsoluteFsPath, Module>;

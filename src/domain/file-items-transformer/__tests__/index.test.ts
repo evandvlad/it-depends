@@ -1,13 +1,14 @@
 import { describe, expect, it, jest } from "@jest/globals";
+import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { type FileItem, type ImportPath, transformFileItems } from "..";
-import type { AbsoluteFsPath } from "../../../lib/fs-path";
-import { createFileEntries, createFileItemsGenerator } from "../../__test-utils__";
+import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
 
 function createEmptyFileItem(path: string) {
 	return { path, content: "" } as FileItem;
 }
 
-const nullDispatcher = { dispatch() {} };
+const nullDispatcherPort = { dispatch() {} };
 
 describe("file-items-transformer", () => {
 	it.each([
@@ -140,7 +141,7 @@ describe("file-items-transformer", () => {
 	])("$name", async ({ fileItems, result }) => {
 		const { fileEntries } = await transformFileItems({
 			fileItems: createFileItemsGenerator(fileItems),
-			dispatcher: nullDispatcher,
+			dispatcherPort: nullDispatcherPort,
 		});
 
 		expect(fileEntries).toEqual(result);
@@ -184,14 +185,14 @@ describe("file-items-transformer", () => {
 	])("$name", async ({ fileItem, errorMessage }) => {
 		const { parserErrors } = await transformFileItems({
 			fileItems: createFileItemsGenerator([fileItem]),
-			dispatcher: nullDispatcher,
+			dispatcherPort: nullDispatcherPort,
 		});
 
 		expect(parserErrors.get(fileItem.path as AbsoluteFsPath).message).toEqual(errorMessage);
 	});
 
 	it("should dispatch all events", async () => {
-		const dispatcher = { dispatch: jest.fn() };
+		const dispatcherPort = { dispatch: jest.fn() };
 
 		await transformFileItems({
 			fileItems: createFileItemsGenerator([
@@ -208,10 +209,10 @@ describe("file-items-transformer", () => {
 					content: "incorrect content",
 				},
 			]),
-			dispatcher,
+			dispatcherPort,
 		});
 
-		expect(dispatcher.dispatch.mock.calls).toEqual([
+		expect(dispatcherPort.dispatch.mock.calls).toEqual([
 			["file-item-processed", { path: "/tmp/file1.ts" }],
 			["file-item-processing-failed", { path: "/tmp/file3.js", error: expect.any(Error) }],
 			["all-file-items-processed"],

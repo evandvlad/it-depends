@@ -1,8 +1,13 @@
-import type { EventBusDispatcher } from "../lib/event-bus";
-import { FSNavCursor } from "../lib/fs-nav-cursor";
-import { type DispatcherRecord, type FileItems, type ImportPath, transformFileItems } from "./file-items-transformer";
-import { type ImportAliasMapper, type Modules, collectModules } from "./modules-collector";
-import { type ExtraPackageEntries, type Packages, PackagesCollector } from "./packages-collector";
+import { FSNavCursor } from "~/lib/fs-nav-cursor";
+import {
+	type DispatcherPort,
+	type FileItem,
+	type FileItems,
+	type ImportPath,
+	transformFileItems,
+} from "./file-items-transformer";
+import { type ImportAliasMapper, type ModulesCollection, collectModules } from "./modules-collector";
+import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
@@ -12,22 +17,23 @@ interface Settings {
 
 interface Params {
 	fileItems: FileItems;
-	dispatcher: EventBusDispatcher<DispatcherRecord>;
+	dispatcherPort: DispatcherPort;
 	settings: Settings;
 }
 
-interface Result {
-	modules: Modules;
-	packages: Packages;
+export interface Result {
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 	summary: Summary;
 	fsNavCursor: FSNavCursor;
 }
 
 export type {
+	FileItem,
 	FileItems,
-	DispatcherRecord,
-	Modules,
-	Packages,
+	DispatcherPort,
+	ModulesCollection,
+	PackagesCollection,
 	Summary,
 	ImportAliasMapper,
 	ExtraPackageEntries,
@@ -36,23 +42,23 @@ export type {
 
 export async function process({
 	fileItems,
-	dispatcher,
+	dispatcherPort,
 	settings: { importAliasMapper, extraPackageEntries },
 }: Params): Promise<Result> {
-	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcher });
+	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
 
 	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
-	const modules = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
+	const modulesCollection = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
 
 	const packagesCollector = new PackagesCollector({
 		fsNavCursor,
-		modules,
+		modulesCollection,
 		extraPackageEntries,
 	});
-	const packages = packagesCollector.collect();
+	const packagesCollection = packagesCollector.collect();
 
-	const summaryCollector = new SummaryCollector({ fsNavCursor, modules, packages, parserErrors });
+	const summaryCollector = new SummaryCollector({ fsNavCursor, modulesCollection, packagesCollection, parserErrors });
 	const summary = summaryCollector.collect();
 
-	return { modules, packages, summary, fsNavCursor };
+	return { modulesCollection, packagesCollection, summary, fsNavCursor };
 }

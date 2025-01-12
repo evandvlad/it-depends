@@ -1,5 +1,8 @@
-import { encodeHTML } from "../../../../lib/code-encoder";
-import type { ModulePageViewModel } from "../../page-view-models";
+import { encodeHTML } from "~/lib/code-encoder";
+
+interface Params {
+	code: string;
+}
 
 function moduleCodeLine({ num, line }: { num: number; line: string }) {
 	return `
@@ -10,15 +13,16 @@ function moduleCodeLine({ num, line }: { num: number; line: string }) {
 	`;
 }
 
-export function moduleCode(pageViewModel: ModulePageViewModel) {
-	const code = pageViewModel.code
+export function moduleCode({ code }: Params) {
+	const content = code
+		.replaceAll("\r\n", "\n")
 		.split("\n")
 		.map((line, i) => moduleCodeLine({ num: i + 1, line }))
 		.join("");
 
 	return `
 		<div class="module-code">
-			<div class="module-code__content">${code}</div>
+			<div class="module-code__content">${content}</div>
 		</div>
 	`;
 }

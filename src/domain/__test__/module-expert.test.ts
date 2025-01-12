@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { getAcceptableFileExtNameByPath } from "../module-expert";
 
 describe("module-expert", () => {

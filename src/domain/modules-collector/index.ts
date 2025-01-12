@@ -1,9 +1,9 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { FileEntries } from "../file-items-transformer";
 import { bindModules } from "./binder";
 import { ImportSourceResolver } from "./import-source-resolver";
 import { ModuleFactory } from "./module-factory";
-import type { ImportAliasMapper, ImportSource, Module, Modules } from "./values";
+import type { ImportAliasMapper, ImportSource, Module, ModulesCollection } from "./values";
 
 interface Params {
 	fileEntries: FileEntries;
@@ -11,12 +11,12 @@ interface Params {
 	importAliasMapper: ImportAliasMapper;
 }
 
-export type { Module, Modules, ImportSource, ImportAliasMapper };
+export type { Module, ModulesCollection, ImportSource, ImportAliasMapper };
 
 export function collectModules({ fsNavCursor, fileEntries, importAliasMapper }: Params) {
 	const importSourceResolver = new ImportSourceResolver({ fsNavCursor, importAliasMapper });
 	const moduleFactory = new ModuleFactory(importSourceResolver);
-	const modules = fileEntries.mapValue((entry) => moduleFactory.create(entry));
+	const modulesCollection = fileEntries.mapValue((entry) => moduleFactory.create(entry));
 
-	return bindModules(modules);
+	return bindModules(modulesCollection);
 }

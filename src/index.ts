@@ -1,30 +1,27 @@
-import { createFileItemsGenerator } from "./application/file-items-generator";
+import { ConfLoader } from "~/adapters/conf-loader";
+import { FSys } from "~/adapters/fsys";
+import { type GlobalEventBusSubscriber, createGlobalEventBus } from "~/adapters/global-event-bus";
+import { createFileItemsGenerator } from "~/application/file-items-generator";
+import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
+import { type Options, createSettings } from "~/application/settings-provider";
 import {
-	type DispatcherRecord as ReportGeneratorDispatcherRecord,
-	generateReport,
-} from "./application/report-generator";
-import { type Options, createSettings } from "./application/settings-provider";
-import {
-	type DispatcherRecord as DomainDispatcherRecord,
-	type Modules,
-	type Packages,
+	type DispatcherPort as DomainDispatcherPort,
+	type ModulesCollection,
+	type PackagesCollection,
 	type Summary,
 	process,
-} from "./domain";
-import { AppError } from "./lib/errors";
-import { EventBus, type EventBusDispatcher, type EventBusSubscriber } from "./lib/event-bus";
-
-type EventBusRecord = DomainDispatcherRecord & ReportGeneratorDispatcherRecord;
+} from "~/domain";
+import { AppError } from "~/lib/errors";
 
 interface Result {
-	modules: Modules;
-	packages: Packages;
+	modules: ModulesCollection;
+	packages: PackagesCollection;
 	summary: Summary;
 }
 
 export { AppError };
 
-export class ItDepends implements EventBusSubscriber<EventBusRecord> {
+export class ItDepends implements GlobalEventBusSubscriber {
 	on;
 
 	#options;
@@ -33,33 +30,41 @@ export class ItDepends implements EventBusSubscriber<EventBusRecord> {
 	constructor(options: Options) {
 		this.#options = options;
 
-		this.#eventBus = new EventBus<EventBusRecord>();
+		this.#eventBus = createGlobalEventBus();
 
 		this.on = this.#eventBus.on;
 	}
 
 	run = async (): Promise<Result> => {
-		const settings = await createSettings(this.#options);
+		const fSysPort = new FSys();
+		const confLoaderPort = new ConfLoader(__dirname);
 
-		const fileItems = createFileItemsGenerator(settings);
+		const settings = await createSettings({ options: this.#options, confLoaderPort });
 
-		const { modules, packages, summary, fsNavCursor } = await process({
+		const fileItems = createFileItemsGenerator({
+			fSysPort,
+			paths: settings.paths,
+			pathFilter: settings.pathFilter,
+		});
+
+		const { modulesCollection, packagesCollection, summary, fsNavCursor } = await process({
 			fileItems,
 			settings,
-			dispatcher: this.#eventBus as EventBusDispatcher<DomainDispatcherRecord>,
+			dispatcherPort: this.#eventBus as DomainDispatcherPort,
 		});
 
 		if (settings.report) {
 			await generateReport({
-				modules,
-				packages,
+				fSysPort,
 				summary,
 				fsNavCursor,
+				modulesCollection,
+				packagesCollection,
 				settings: settings.report,
-				dispatcher: this.#eventBus as EventBusDispatcher<ReportGeneratorDispatcherRecord>,
+				dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
 			});
 		}
 
-		return { modules, packages, summary };
+		return { modules: modulesCollection, packages: packagesCollection, summary };
 	};
 }

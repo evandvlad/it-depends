@@ -1,16 +1,16 @@
-import type { FSNavCursor } from "../../lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
+import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import type { ImportPath, ParserErrors } from "../file-items-transformer";
 import type { Language } from "../module-expert";
-import type { ImportSource, Module, Modules } from "../modules-collector";
-import type { Packages } from "../packages-collector";
+import type { ImportSource, Module, ModulesCollection } from "../modules-collector";
+import type { PackagesCollection } from "../packages-collector";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {
-	packages: Packages;
 	fsNavCursor: FSNavCursor;
-	modules: Modules;
+	modulesCollection: ModulesCollection;
+	packagesCollection: PackagesCollection;
 	parserErrors: ParserErrors;
 }
 
@@ -29,8 +29,8 @@ export interface Summary {
 }
 
 export class SummaryCollector {
-	#packages;
-	#modules;
+	#packagesCollection;
+	#modulesCollection;
 	#incorrectImportsFinder;
 
 	#summary: Summary = {
@@ -50,17 +50,17 @@ export class SummaryCollector {
 		parserErrors: new Rec(),
 	};
 
-	constructor({ fsNavCursor, packages, modules, parserErrors }: Params) {
-		this.#packages = packages;
-		this.#modules = modules;
-		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fsNavCursor, packages });
+	constructor({ fsNavCursor, packagesCollection, modulesCollection, parserErrors }: Params) {
+		this.#packagesCollection = packagesCollection;
+		this.#modulesCollection = modulesCollection;
+		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fsNavCursor, packagesCollection });
 		this.#summary.parserErrors = parserErrors;
 	}
 
 	collect() {
-		this.#summary.packages = this.#packages.size;
+		this.#summary.packages = this.#packagesCollection.size;
 
-		this.#modules.forEach((module) => {
+		this.#modulesCollection.forEach((module) => {
 			this.#handleModule(module);
 		});
 

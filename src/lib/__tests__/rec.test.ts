@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { AppError } from "../errors";
-import { Rec } from "../rec";
+import { AppError } from "~/lib/errors";
+import { Rec } from "~/lib/rec";
 
 describe("rec", () => {
 	it("should be error if value with key wasn't found in rec", () => {

@@ -5,8 +5,8 @@ import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 
 export function importsCallout(pageViewModel: ModulePageViewModel) {
-	const items = pageViewModel.collectImportItems(({ name, moduleLink, values }) => {
-		const label = moduleLink ? a(moduleLink) : name;
+	const items = pageViewModel.collectImportItems(({ name, linkData, values }) => {
+		const label = linkData ? a(linkData) : name;
 
 		return details({
 			title: `${label} ${counter({ value: values.length })}`,

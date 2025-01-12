@@ -6,8 +6,8 @@ import { list } from "../atoms/list";
 export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({
 		items: [
-			{ label: "Full path", value: pageViewModel.fullPath },
 			{ label: "Language", value: pageViewModel.language },
+			{ label: "Full path", value: pageViewModel.fullPath },
 			{
 				label: "Package",
 				value: pageViewModel.packageLinkData ? a(pageViewModel.packageLinkData) : "",

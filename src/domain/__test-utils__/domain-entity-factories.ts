@@ -1,27 +1,21 @@
 import { expect } from "@jest/globals";
 
-import type { AbsoluteFsPath } from "../../lib/fs-path";
-import { Rec } from "../../lib/rec";
-import type { FileEntries, FileEntry, FileItem, FileItems } from "../file-items-transformer";
-import type { Module, Modules } from "../modules-collector";
-import type { Package, Packages } from "../packages-collector";
+import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
+import type { FileEntries, FileEntry } from "../file-items-transformer";
+import type { Module, ModulesCollection } from "../modules-collector";
+import type { Package, PackagesCollection } from "../packages-collector";
 import type { Summary } from "../summary-collector";
 
-export async function* createFileItemsGenerator(
-	fileItems: Array<Omit<FileItem, "path"> & { path: string }>,
-): FileItems {
-	for await (const fileItem of fileItems) {
-		yield Promise.resolve(fileItem as FileItem);
-	}
-}
+type FileEntriesListTestInput = Array<Omit<FileEntry, "path"> & { path: string }>;
 
-export function createFileEntries(fileEntriesList: Array<Omit<FileEntry, "path"> & { path: string }>): FileEntries {
+export function createFileEntries(fileEntriesList: FileEntriesListTestInput): FileEntries {
 	return Rec.fromEntries(
 		fileEntriesList.map((fileEntry) => [fileEntry.path as AbsoluteFsPath, fileEntry as FileEntry]),
 	);
 }
 
-export function createModule(parts: Record<string, unknown>) {
+export function createModule(parts: Partial<Module>) {
 	return {
 		path: "",
 		name: "",
@@ -38,11 +32,11 @@ export function createModule(parts: Record<string, unknown>) {
 	} as unknown as Module;
 }
 
-export function createModules(modulesList: Module[]): Modules {
+export function createModulesCollection(modulesList: Module[]): ModulesCollection {
 	return Rec.fromEntries(modulesList.map((module) => [module.path, module]));
 }
 
-export function createPackage(parts: Record<string, unknown>) {
+export function createPackage(parts: Partial<Package>) {
 	return {
 		path: "",
 		name: "",
@@ -54,11 +48,11 @@ export function createPackage(parts: Record<string, unknown>) {
 	} as unknown as Package;
 }
 
-export function createPackages(packagesList: Package[]): Packages {
+export function createPackagesCollection(packagesList: Package[]): PackagesCollection {
 	return Rec.fromEntries(packagesList.map((pack) => [pack.path, pack]));
 }
 
-export function createSummary(parts: Record<string, unknown>): Summary {
+export function createSummary(parts: Partial<Summary>): Summary {
 	return {
 		packages: 0,
 		languages: Rec.fromObject({
