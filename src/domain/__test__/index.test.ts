@@ -1646,7 +1646,7 @@ describe("domain", () => {
 				},
 
 				{
-					name: "should be incorrect for import from root file",
+					name: "should be incorrect for import to module without package from module with package",
 					fileItems: [
 						{
 							path: "/src/main.ts",
@@ -1659,6 +1659,55 @@ describe("domain", () => {
 						{
 							path: "/src/lib/a/a.ts",
 							content: `export const foo = "foo";`,
+						},
+					],
+					isCorrect: false,
+				},
+
+				{
+					name: "should be incorrect for import to module without package from modules with nested package and from entry point",
+					fileItems: [
+						{
+							path: "/src/main.ts",
+							content: `import { bar } from "./lib/a/b";`,
+						},
+						{
+							path: "/src/lib/a/index.ts",
+							content: `export { foo } from "./a";`,
+						},
+						{
+							path: "/src/lib/a/a.ts",
+							content: `export const foo = "foo";`,
+						},
+						{
+							path: "/src/lib/a/b/index.ts",
+							content: `export const bar = "bar";`,
+						},
+					],
+					isCorrect: false,
+				},
+				{
+					name: "should be incorrect for import to module without package from modules with nested package and not from entry point",
+					fileItems: [
+						{
+							path: "/src/main.ts",
+							content: `import { baz } from "./lib/a/b/c";`,
+						},
+						{
+							path: "/src/lib/a/index.ts",
+							content: `export { foo } from "./a";`,
+						},
+						{
+							path: "/src/lib/a/a.ts",
+							content: `export const foo = "foo";`,
+						},
+						{
+							path: "/src/lib/a/b/index.ts",
+							content: `export const bar = "bar";`,
+						},
+						{
+							path: "/src/lib/a/b/c.ts",
+							content: `export const baz = "baz";`,
 						},
 					],
 					isCorrect: false,

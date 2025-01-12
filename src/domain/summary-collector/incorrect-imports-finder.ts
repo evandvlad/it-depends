@@ -73,7 +73,7 @@ export class IncorrectImportsFinder {
 			const importPackage = this.#findPackageByFilePath(filePath);
 
 			if (importPackage) {
-				return importPackage.entryPoint === filePath;
+				return importPackage.entryPoint === filePath && importPackage.parent === null;
 			}
 		}
 
