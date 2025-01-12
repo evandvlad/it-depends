@@ -39,7 +39,6 @@
 		padding: var(--layout-indent);
 		margin: 0 auto;
 		width: 100%;
-		min-width: fit-content;
 	}
 
 	.layout__footer {

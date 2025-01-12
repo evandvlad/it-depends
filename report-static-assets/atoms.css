@@ -169,11 +169,12 @@
 
 	.datalist__item-label {
 		flex-shrink: 0;
-		margin-right: 10px;
+		margin-right: 25px;
 	}
 
 	.datalist__item-value {
 		text-align: right;
+		overflow-wrap: anywhere;
 	}
 }
 
