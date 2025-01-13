@@ -3,7 +3,7 @@ import type { Rec } from "~/lib/rec";
 import type { ImportPath } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 
-export type ImportAliasMapper = (path: ImportPath) => AbsoluteFsPath | null;
+export type Aliases = Rec<string, AbsoluteFsPath>;
 
 export interface ImportSource {
 	importPath: ImportPath;

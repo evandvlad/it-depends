@@ -1,4 +1,5 @@
 import { type FileItem, type FileItems, type Result, process } from "~/domain";
+import { Rec } from "~/lib/rec";
 
 type FileItemsTestInput = Array<Omit<FileItem, "path"> & { path: string }>;
 
@@ -15,9 +16,7 @@ export function processFileItems(fileItems: FileItemsTestInput): Promise<Result>
 			dispatch() {},
 		},
 		settings: {
-			importAliasMapper() {
-				return null;
-			},
+			aliases: new Rec(),
 			extraPackageEntries: { fileNames: [], filePaths: [] },
 		},
 	});

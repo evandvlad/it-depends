@@ -1,9 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 import { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { Rec } from "~/lib/rec";
 import type { ImportPath } from "../../file-items-transformer";
 import { ImportSourceResolver } from "../import-source-resolver";
-import type { ImportAliasMapper } from "../values";
 
 describe("import-source-resolver", () => {
 	it.each([
@@ -30,8 +30,8 @@ describe("import-source-resolver", () => {
 		{
 			name: "should be out of scope alias import",
 			filePaths: ["/dir/index.ts", "/dir2/file.tsx"],
-			importAliasMapper(path: string) {
-				return path.startsWith("~/dir2") ? path.replace(/^~\/dir2/, "/dir2") : null;
+			aliases: {
+				"~/dir2": "/dir2",
 			},
 			filePath: "/dir/index.ts",
 			importPath: "~/dir2/foo",
@@ -43,8 +43,8 @@ describe("import-source-resolver", () => {
 		{
 			name: "should be resolved imported module by alias",
 			filePaths: ["C:/dir/file1.tsx", "C:/dir/file2.jsx"],
-			importAliasMapper(path: string) {
-				return path.startsWith("~/") ? path.replace(/^~\//, "C:/dir/") : null;
+			aliases: {
+				"~": "C:/dir",
 			},
 			filePath: "C:/dir/file1.tsx",
 			importPath: "~/file2",
@@ -302,11 +302,11 @@ describe("import-source-resolver", () => {
 				importPath: "./file2",
 			},
 		},
-	])("$name", ({ filePaths, importAliasMapper = () => null, filePath, importPath, result }) => {
+	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
 		const fsNavCursor = new FSNavCursor(filePaths as AbsoluteFsPath[]);
 		const importSourceResolver = new ImportSourceResolver({
 			fsNavCursor,
-			importAliasMapper: importAliasMapper as ImportAliasMapper,
+			aliases: Rec.fromObject(aliases as Record<string, AbsoluteFsPath>),
 		});
 
 		expect(

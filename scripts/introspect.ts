@@ -8,8 +8,8 @@ async function main() {
 
 		const itDepends = new ItDepends({
 			paths: [srcPath],
-			importAliasMapper(path: string) {
-				return path.startsWith("~/") ? `${srcPath}${path.slice(1)}` : null;
+			aliases: {
+				"~": srcPath,
 			},
 			report: {
 				path: path.resolve(__dirname, "../report"),

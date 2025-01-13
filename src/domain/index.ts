@@ -6,12 +6,12 @@ import {
 	type ImportPath,
 	transformFileItems,
 } from "./file-items-transformer";
-import { type ImportAliasMapper, type ModulesCollection, collectModules } from "./modules-collector";
+import { type Aliases, type ModulesCollection, collectModules } from "./modules-collector";
 import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
-	importAliasMapper: ImportAliasMapper;
+	aliases: Aliases;
 	extraPackageEntries: ExtraPackageEntries;
 }
 
@@ -29,13 +29,13 @@ export interface Result {
 }
 
 export type {
+	Aliases,
 	FileItem,
 	FileItems,
 	DispatcherPort,
 	ModulesCollection,
 	PackagesCollection,
 	Summary,
-	ImportAliasMapper,
 	ExtraPackageEntries,
 	ImportPath,
 };
@@ -43,12 +43,12 @@ export type {
 export async function process({
 	fileItems,
 	dispatcherPort,
-	settings: { importAliasMapper, extraPackageEntries },
+	settings: { aliases, extraPackageEntries },
 }: Params): Promise<Result> {
 	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
 
 	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
-	const modulesCollection = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
+	const modulesCollection = collectModules({ fsNavCursor, fileEntries, aliases });
 
 	const packagesCollector = new PackagesCollector({
 		fsNavCursor,

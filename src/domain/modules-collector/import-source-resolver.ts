@@ -1,21 +1,21 @@
 import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths, normalizePath } from "~/lib/fs-path";
+import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
-import type { ImportAliasMapper, ImportSource } from "./values";
+import type { Aliases, ImportSource } from "./values";
 
 interface Params {
 	fsNavCursor: FSNavCursor;
-	importAliasMapper: ImportAliasMapper;
+	aliases: Aliases;
 }
 
 export class ImportSourceResolver {
 	#fsNavCursor;
-	#importAliasMapper;
+	#aliases;
 
-	constructor({ fsNavCursor, importAliasMapper }: Params) {
+	constructor({ fsNavCursor, aliases }: Params) {
 		this.#fsNavCursor = fsNavCursor;
-		this.#importAliasMapper = importAliasMapper;
+		this.#aliases = aliases;
 	}
 
 	resolve({ filePath, importPath }: { filePath: AbsoluteFsPath; importPath: ImportPath }) {
@@ -23,8 +23,7 @@ export class ImportSourceResolver {
 			importPath,
 		};
 
-		const isRelative = this.#isRelativeImport(importPath);
-		const resolvedFilePath = this.#resolvePath(filePath, importPath, isRelative);
+		const resolvedFilePath = this.#resolvePath(filePath, importPath);
 
 		if (resolvedFilePath) {
 			importSource.filePath = resolvedFilePath;
@@ -37,25 +36,35 @@ export class ImportSourceResolver {
 		return path === "." || path === ".." || path.startsWith("./") || path.startsWith("../");
 	}
 
-	#resolvePath(filePath: AbsoluteFsPath, importPath: ImportPath, isRelative: boolean) {
-		const absoluteImportPath = isRelative
-			? this.#calcAbsoluteImportPath(filePath, importPath)
-			: this.#importAliasMapper(importPath);
+	#resolvePath(filePath: AbsoluteFsPath, importPath: ImportPath) {
+		const absoluteImportPath = this.#calcAbsoluteImportPath(filePath, importPath);
 
 		if (!absoluteImportPath) {
 			return null;
 		}
 
-		const normalizedPath = normalizePath(absoluteImportPath);
-
-		const candidates = this.#getImportResolutionFSPaths(normalizedPath);
+		const candidates = this.#getImportResolutionFSPaths(absoluteImportPath);
 
 		return candidates.find((importPathCandidate) => this.#fsNavCursor.hasNodeByPath(importPathCandidate)) ?? null;
 	}
 
 	#calcAbsoluteImportPath(filePath: AbsoluteFsPath, importPath: ImportPath) {
-		const dirPath = getParentPath(filePath);
-		return joinPaths(dirPath, importPath);
+		const isRelativeImport = this.#isRelativeImport(importPath);
+
+		if (isRelativeImport) {
+			const dirPath = getParentPath(filePath);
+			return joinPaths(dirPath, importPath);
+		}
+
+		for (const [name, path] of this.#aliases.toEntries()) {
+			const prefix = `${name}/`;
+
+			if (importPath.startsWith(prefix)) {
+				return joinPaths(path, importPath.slice(prefix.length));
+			}
+		}
+
+		return null;
 	}
 
 	#getImportResolutionFSPaths(absoluteImportPath: AbsoluteFsPath) {

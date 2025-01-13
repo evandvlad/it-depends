@@ -1,7 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import { AppError } from "~/lib/errors";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
-import { createSettings } from "../settings-provider";
+import { Rec } from "~/lib/rec";
+import { createSettings } from "..";
 
 const conf = { version: "999", reportStaticAssetsPath: "/assets" as AbsoluteFsPath };
 
@@ -30,6 +31,15 @@ describe("settings-provider", () => {
 		).rejects.toThrow(new AppError("All paths should be absolute"));
 	});
 
+	it("should be error if not all paths in aliases are absolute", async () => {
+		await expect(
+			createSettings({
+				options: { paths: ["/src", "/src/dir"], aliases: { "@root": "/src", "@components": "./dir" } },
+				confLoaderPort,
+			}),
+		).rejects.toThrow(new AppError("All paths for aliases should be absolute"));
+	});
+
 	it("should be error if not all some extra package entry paths are absolute", async () => {
 		await expect(
 			createSettings({
@@ -52,6 +62,7 @@ describe("settings-provider", () => {
 		const settings = await createSettings({
 			options: {
 				paths: ["/src/dir1", "/src\\dir2"],
+				aliases: { "@1": "/src\\dir1", "@2": "/src/dir2" },
 				extraPackageEntries: { filePaths: ["/src\\dir3//index.ts"] },
 				report: { path: "/report" },
 			},
@@ -59,6 +70,12 @@ describe("settings-provider", () => {
 		});
 
 		expect(settings.paths).toEqual(["/src/dir1", "/src/dir2"]);
+
+		expect(settings.aliases.toEntries()).toEqual([
+			["@1", "/src/dir1"],
+			["@2", "/src/dir2"],
+		]);
+
 		expect(settings.extraPackageEntries.filePaths).toEqual(["/src/dir3/index.ts"]);
 		expect(settings.report?.path).toEqual("/report");
 	});
@@ -72,7 +89,7 @@ describe("settings-provider", () => {
 		expect(settings).toEqual({
 			paths: ["/src"],
 			pathFilter: expect.any(Function),
-			importAliasMapper: expect.any(Function),
+			aliases: new Rec(),
 			extraPackageEntries: { fileNames: [], filePaths: [] },
 			report: null,
 		});
@@ -84,8 +101,8 @@ describe("settings-provider", () => {
 			pathFilter() {
 				return true;
 			},
-			importAliasMapper() {
-				return null;
+			aliases: {
+				"@": "/src",
 			},
 			extraPackageEntries: { fileNames: ["entry.index"], filePaths: ["/src/main.js"] },
 			report: { path: "/report" },
@@ -99,7 +116,7 @@ describe("settings-provider", () => {
 		expect(settings).toEqual({
 			paths: ["/src"],
 			pathFilter: options.pathFilter,
-			importAliasMapper: options.importAliasMapper,
+			aliases: Rec.fromObject({ "@": "/src" }),
 			extraPackageEntries: options.extraPackageEntries,
 			report: {
 				version: conf.version,

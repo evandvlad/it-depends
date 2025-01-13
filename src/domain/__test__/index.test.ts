@@ -11,10 +11,14 @@ import {
 	createSummary,
 } from "../__test-utils__/domain-entity-factories";
 
-import { type ImportAliasMapper, type ImportPath, process } from "..";
+import { type ImportPath, process } from "..";
 
 const nullDispatcherPort = { dispatch() {} };
-const nullSettings = { importAliasMapper: () => null, extraPackageEntries: { fileNames: [], filePaths: [] } };
+
+const nullSettings = {
+	aliases: new Rec<string, AbsoluteFsPath>(),
+	extraPackageEntries: { fileNames: [], filePaths: [] },
+};
 
 describe("domain", () => {
 	it("should be error for empty file items", async () => {
@@ -168,7 +172,7 @@ describe("domain", () => {
 			},
 
 			{
-				name: "should be processed with alias import mapping",
+				name: "should be processed with aliases",
 				fileItems: [
 					{
 						path: "C:/file1.tsx",
@@ -179,8 +183,8 @@ describe("domain", () => {
 						content: `import foo from "~/file1";`,
 					},
 				],
-				importAliasMapper(importPath: string) {
-					return importPath === "~/file1" ? "C:/file1" : null;
+				aliases: {
+					"~": "C:/",
 				},
 				result: createModulesCollection([
 					createModule({
@@ -691,13 +695,19 @@ describe("domain", () => {
 					createModule({
 						path: absoluteFsPath("C:/file4.ts"),
 						name: "file4.ts",
-						unresolvedFullImports: [{ filePath: absoluteFsPath("C:/file3.ts"), importPath: "./file3" as ImportPath }],
+						unresolvedFullImports: [
+							{ filePath: absoluteFsPath("C:/file3.ts"), importPath: "./file3" as ImportPath },
+						],
 					}),
 					createModule({
 						path: absoluteFsPath("C:/file3.ts"),
 						name: "file3.ts",
-						unresolvedFullExports: [{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath }],
-						unresolvedFullImports: [{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath }],
+						unresolvedFullExports: [
+							{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath },
+						],
+						unresolvedFullImports: [
+							{ filePath: absoluteFsPath("C:/file2.ts"), importPath: "./file2" as ImportPath },
+						],
 					}),
 					createModule({
 						path: absoluteFsPath("C:/file2.ts"),
@@ -809,8 +819,8 @@ describe("domain", () => {
 							`,
 					},
 				],
-				importAliasMapper(importPath: string) {
-					return importPath === "~/file1" ? "C:/file1" : null;
+				aliases: {
+					"~": "C:/",
 				},
 				result: createModulesCollection([
 					createModule({
@@ -853,7 +863,7 @@ describe("domain", () => {
 					}),
 				]),
 			},
-		])("$name", async ({ fileItems, importAliasMapper = () => null, result }) => {
+		])("$name", async ({ fileItems, aliases = {}, result }) => {
 			const fn = jest.fn();
 
 			const { modulesCollection } = await process({
@@ -861,7 +871,7 @@ describe("domain", () => {
 				dispatcherPort: {
 					dispatch: fn,
 				},
-				settings: { ...nullSettings, importAliasMapper: importAliasMapper as ImportAliasMapper },
+				settings: { ...nullSettings, aliases: Rec.fromObject(aliases as Record<string, AbsoluteFsPath>) },
 			});
 
 			expect(modulesCollection).toEqual(result);
@@ -1041,7 +1051,10 @@ describe("domain", () => {
 						name: "dir2",
 						parent: absoluteFsPath("C:/dir/dir1"),
 						entryPoint: absoluteFsPath("C:/dir/dir1/dir2/index.ts"),
-						modules: [absoluteFsPath("C:/dir/dir1/dir2/index.ts"), absoluteFsPath("C:/dir/dir1/dir2/file.jsx")],
+						modules: [
+							absoluteFsPath("C:/dir/dir1/dir2/index.ts"),
+							absoluteFsPath("C:/dir/dir1/dir2/file.jsx"),
+						],
 					}),
 				]),
 			},
@@ -1146,7 +1159,9 @@ describe("domain", () => {
 						javascript: 0,
 					}),
 					outOfScopeImports: Rec.fromEntries([[absoluteFsPath("C:/dir/index.ts"), ["foo"] as ImportPath[]]]),
-					possiblyUnusedExportValues: Rec.fromEntries([[absoluteFsPath("C:/dir/index.ts"), ["foo"] as ImportPath[]]]),
+					possiblyUnusedExportValues: Rec.fromEntries([
+						[absoluteFsPath("C:/dir/index.ts"), ["foo"] as ImportPath[]],
+					]),
 				}),
 			},
 
