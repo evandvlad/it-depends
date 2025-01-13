@@ -5,14 +5,15 @@ import { card } from "../atoms/card";
 import { container } from "../atoms/container";
 import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
+import { counterLine } from "../components/counter-line";
 
 function getCalloutContent(pageViewModel: IndexPageViewModel) {
-	const importItems = pageViewModel.collectUnresolvedFullImports(
-		({ linkData, num }) => `${a(linkData)} ${counter({ value: num })}`,
+	const importItems = pageViewModel.collectUnresolvedFullImports(({ linkData, num }) =>
+		counterLine({ content: a(linkData), count: num }),
 	);
 
-	const exportItems = pageViewModel.collectUnresolvedFullExports(
-		({ linkData, num }) => `${a(linkData)} ${counter({ value: num })}`,
+	const exportItems = pageViewModel.collectUnresolvedFullExports(({ linkData, num }) =>
+		counterLine({ content: a(linkData), count: num }),
 	);
 
 	return container({

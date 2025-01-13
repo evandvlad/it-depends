@@ -5,19 +5,26 @@ import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
+import { counterLine } from "../components/counter-line";
 
 export function exportsCallout(pageViewModel: ModulePageViewModel) {
 	const itemsByModules = pageViewModel.collectExportItemsByModules(({ linkData, values }) =>
-		details({
-			title: `${a(linkData)} ${counter({ value: values.length })}`,
-			content: values.join(", "),
+		counterLine({
+			content: details({
+				title: a(linkData),
+				content: values.join(", "),
+			}),
+			count: values.length,
 		}),
 	);
 
 	const itemsByValues = pageViewModel.collectExportItemsByValues(({ value, linksData }) =>
-		details({
-			title: `${value} ${counter({ value: linksData.length })}`,
-			content: list({ items: linksData.map((linkData) => a(linkData)) }),
+		counterLine({
+			content: details({
+				title: value,
+				content: list({ items: linksData.map((linkData) => a(linkData)) }),
+			}),
+			count: linksData.length,
 		}),
 	);
 

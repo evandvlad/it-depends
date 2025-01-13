@@ -3,14 +3,18 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
+import { counterLine } from "../components/counter-line";
 
 export function importsCallout(pageViewModel: ModulePageViewModel) {
 	const items = pageViewModel.collectImportItems(({ name, linkData, values }) => {
-		const label = linkData ? a(linkData) : name;
+		const title = linkData ? a(linkData) : name;
 
-		return details({
-			title: `${label} ${counter({ value: values.length })}`,
-			content: values.join(", "),
+		return counterLine({
+			content: details({
+				title,
+				content: values.join(", "),
+			}),
+			count: values.length,
 		});
 	});
 

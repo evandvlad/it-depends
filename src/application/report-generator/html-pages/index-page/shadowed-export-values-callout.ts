@@ -3,10 +3,11 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
+import { counterLine } from "../components/counter-line";
 
 export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectShadowedExportValues(
-		({ linkData, num }) => `${a(linkData)} ${counter({ value: num })}`,
+	const items = pageViewModel.collectShadowedExportValues(({ linkData, num }) =>
+		counterLine({ content: a(linkData), count: num }),
 	);
 
 	return callout({

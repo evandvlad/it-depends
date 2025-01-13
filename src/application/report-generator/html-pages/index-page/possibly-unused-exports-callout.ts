@@ -4,15 +4,19 @@ import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
 import { tabs } from "../atoms/tabs";
+import { counterLine } from "../components/counter-line";
 
 export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) {
 	const fullyUnusedItems: string[] = [];
 	const partiallyUnusedItems: string[] = [];
 
 	pageViewModel.collectPossiblyUnusedExports(({ linkData, values, isFullyUnused }) => {
-		const content = details({
-			title: `${a(linkData)} ${counter({ value: values.length })}`,
-			content: values.join(", "),
+		const content = counterLine({
+			content: details({
+				title: a(linkData),
+				content: values.join(", "),
+			}),
+			count: values.length,
 		});
 
 		if (isFullyUnused) {
