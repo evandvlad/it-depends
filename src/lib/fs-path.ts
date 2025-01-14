@@ -8,6 +8,16 @@ type FsPath = ShortFsPath | AbsoluteFsPath;
 
 export const delimiter = "/";
 
+function splitPath<T extends FsPath>(path: T) {
+	const parts = path.split(delimiter);
+
+	if (!parts[0]) {
+		parts[0] = delimiter;
+	}
+
+	return parts.filter(Boolean);
+}
+
 export function shortFsPath(path: string) {
 	return path as ShortFsPath;
 }
@@ -17,7 +27,13 @@ export function absoluteFsPath(path: string) {
 }
 
 export function normalizePath<T extends FsPath>(path: T) {
-	return path.replaceAll("\\", delimiter).replace(/\/{2,}/g, delimiter) as T;
+	const escapedPath = path.replaceAll("\\", delimiter).replace(/\/{2,}/g, delimiter);
+
+	if (escapedPath === delimiter || !escapedPath.endsWith(delimiter)) {
+		return escapedPath as T;
+	}
+
+	return escapedPath.slice(0, -1) as T;
 }
 
 export function joinPaths(path: AbsoluteFsPath, subPath: string): AbsoluteFsPath {
@@ -33,24 +49,17 @@ export function getParentPath(path: AbsoluteFsPath): AbsoluteFsPath {
 }
 
 export function getName(path: FsPath) {
-	return normalizePath(path).split(delimiter).at(-1)!;
+	return splitPath(path).at(-1)!;
 }
 
 export function getBreadcrumbs(path: AbsoluteFsPath) {
-	const preparedPath = path.endsWith(delimiter) ? path.slice(0, -1) : path;
-	const parts = preparedPath.split(delimiter);
-
-	return parts.reduce<AbsoluteFsPath[]>((acc, part) => {
+	return splitPath(path).reduce<AbsoluteFsPath[]>((acc, part) => {
 		if (acc.length === 0) {
-			const rootPart = part === "" ? delimiter : part;
-			acc.push(absoluteFsPath(rootPart));
+			acc.push(absoluteFsPath(part));
 			return acc;
 		}
 
-		const prevPath = acc.at(-1)!;
-		const delim = prevPath === delimiter ? "" : delimiter;
-
-		acc.push(absoluteFsPath(`${prevPath}${delim}${part}`));
+		acc.push(joinPaths(acc.at(-1)!, part));
 
 		return acc;
 	}, []);

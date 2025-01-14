@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
+import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths, delimiter } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
@@ -33,7 +33,7 @@ export class ImportSourceResolver {
 	}
 
 	#isRelativeImport(path: ImportPath) {
-		return path === "." || path === ".." || path.startsWith("./") || path.startsWith("../");
+		return path === "." || path === ".." || path.startsWith(`.${delimiter}`) || path.startsWith(`..${delimiter}`);
 	}
 
 	#resolvePath(filePath: AbsoluteFsPath, importPath: ImportPath) {
@@ -57,7 +57,11 @@ export class ImportSourceResolver {
 		}
 
 		for (const [name, path] of this.#aliases.toEntries()) {
-			const prefix = `${name}/`;
+			if (importPath === name) {
+				return path;
+			}
+
+			const prefix = `${name}${delimiter}`;
 
 			if (importPath.startsWith(prefix)) {
 				return joinPaths(path, importPath.slice(prefix.length));

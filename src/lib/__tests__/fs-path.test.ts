@@ -84,9 +84,14 @@ describe("fs-path", () => {
 	describe("getName", () => {
 		it.each([
 			{
-				name: "should be empty for root",
+				name: "should be correct for unix root",
 				path: "/",
-				result: "",
+				result: "/",
+			},
+			{
+				name: "should be correct for windows root",
+				path: "C:",
+				result: "C:",
 			},
 			{
 				name: "should be dir for path to folder",

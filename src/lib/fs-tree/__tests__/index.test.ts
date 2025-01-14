@@ -68,7 +68,7 @@ describe("fs-tree", () => {
 			name: "shouldn't be file node for linux root node",
 			filePaths: ["/dir/file.ts"],
 			path: "/",
-			entryName: "",
+			entryName: "/",
 			isFile: false,
 		},
 	])("$name", ({ filePaths, path, entryName, isFile }) => {
