@@ -1,6 +1,6 @@
 import type { PackagesCollection } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData } from "./values";
@@ -8,7 +8,7 @@ import type { LinkData } from "./values";
 interface Params {
 	version: string;
 	path: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	pathInformer: PathInformer;
 	packagesCollection: PackagesCollection;
 }
@@ -21,13 +21,13 @@ export class PackagePageViewModel extends PageViewModel {
 
 	#package;
 
-	constructor({ version, path, pathInformer, fsNavCursor, packagesCollection }: Params) {
-		super({ version, pathInformer, fsNavCursor });
+	constructor({ version, path, pathInformer, fSTree, packagesCollection }: Params) {
+		super({ version, pathInformer, fSTree });
 
 		this.#package = packagesCollection.get(path);
 
 		this.fullPath = path;
-		this.shortPath = fsNavCursor.getShortPathByPath(path);
+		this.shortPath = fSTree.getShortPathByPath(path);
 		this.entryPointLinkData = this.getModuleLinkData(this.#package.entryPoint);
 		this.parentPackageLinkData = this.#package.parent ? this.getPackageLinkData(this.#package.parent) : null;
 	}

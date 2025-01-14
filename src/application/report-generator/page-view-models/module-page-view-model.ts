@@ -1,6 +1,6 @@
 import type { ModulesCollection, Summary } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
@@ -9,7 +9,7 @@ import type { LinkData } from "./values";
 interface Params {
 	version: string;
 	path: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	pathInformer: PathInformer;
 	modulesCollection: ModulesCollection;
 	summary: Summary;
@@ -33,15 +33,15 @@ export class ModulePageViewModel extends PageViewModel {
 	#pathInformer;
 	#module;
 
-	constructor({ version, path, pathInformer, fsNavCursor, modulesCollection, summary }: Params) {
-		super({ version, pathInformer, fsNavCursor });
+	constructor({ version, path, pathInformer, fSTree, modulesCollection, summary }: Params) {
+		super({ version, pathInformer, fSTree });
 
 		this.#summary = summary;
 		this.#pathInformer = pathInformer;
 		this.#module = modulesCollection.get(path);
 
 		this.fullPath = path;
-		this.shortPath = fsNavCursor.getShortPathByPath(path);
+		this.shortPath = fSTree.getShortPathByPath(path);
 		this.language = this.#module.language;
 
 		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;

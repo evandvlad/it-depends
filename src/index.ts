@@ -47,7 +47,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			pathFilter: settings.pathFilter,
 		});
 
-		const { modulesCollection, packagesCollection, summary, fsNavCursor } = await process({
+		const { modulesCollection, packagesCollection, summary, fSTree } = await process({
 			fileItems,
 			settings,
 			dispatcherPort: this.#eventBus as DomainDispatcherPort,
@@ -57,7 +57,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			await generateReport({
 				fSysPort,
 				summary,
-				fsNavCursor,
+				fSTree,
 				modulesCollection,
 				packagesCollection,
 				settings: settings.report,

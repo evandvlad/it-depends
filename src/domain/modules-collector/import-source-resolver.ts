@@ -1,20 +1,20 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
 import type { Aliases, ImportSource } from "./values";
 
 interface Params {
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	aliases: Aliases;
 }
 
 export class ImportSourceResolver {
-	#fsNavCursor;
+	#fSTree;
 	#aliases;
 
-	constructor({ fsNavCursor, aliases }: Params) {
-		this.#fsNavCursor = fsNavCursor;
+	constructor({ fSTree, aliases }: Params) {
+		this.#fSTree = fSTree;
 		this.#aliases = aliases;
 	}
 
@@ -45,7 +45,7 @@ export class ImportSourceResolver {
 
 		const candidates = this.#getImportResolutionFSPaths(absoluteImportPath);
 
-		return candidates.find((importPathCandidate) => this.#fsNavCursor.hasNodeByPath(importPathCandidate)) ?? null;
+		return candidates.find((importPathCandidate) => this.#fSTree.hasNodeByPath(importPathCandidate)) ?? null;
 	}
 
 	#calcAbsoluteImportPath(filePath: AbsoluteFsPath, importPath: ImportPath) {

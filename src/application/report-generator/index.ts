@@ -1,6 +1,6 @@
 import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
 import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
@@ -13,7 +13,7 @@ interface Params {
 	dispatcherPort: DispatcherPort;
 	fSysPort: FSysPort;
 	summary: Summary;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 }
@@ -25,11 +25,11 @@ export async function generateReport({
 	dispatcherPort,
 	fSysPort,
 	summary,
-	fsNavCursor,
+	fSTree,
 	modulesCollection,
 	packagesCollection,
 }: Params) {
-	const pathInformer = new PathInformer({ rootPath: settings.path, fsNavCursor });
+	const pathInformer = new PathInformer({ rootPath: settings.path, fSTree });
 
 	dispatcherPort.dispatch("report-generation-started");
 
@@ -39,21 +39,21 @@ export async function generateReport({
 	htmlPages.set(
 		pathInformer.indexHtmlPagePath,
 		indexPage(
-			new IndexPageViewModel({ version, pathInformer, fsNavCursor, summary, modulesCollection, packagesCollection }),
+			new IndexPageViewModel({ version, pathInformer, fSTree, summary, modulesCollection, packagesCollection }),
 		),
 	);
 
 	modulesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
-			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modulesCollection, summary })),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, fSTree, modulesCollection, summary })),
 		);
 	});
 
 	packagesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getPackageHtmlPagePathByRealPath(path),
-			packagePage(new PackagePageViewModel({ version, path, pathInformer, fsNavCursor, packagesCollection })),
+			packagePage(new PackagePageViewModel({ version, path, pathInformer, fSTree, packagesCollection })),
 		);
 	});
 

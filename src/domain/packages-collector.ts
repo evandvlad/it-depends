@@ -1,12 +1,12 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type AbsoluteFsPath, getName } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./module-expert";
 import type { ModulesCollection } from "./modules-collector";
 
 interface Params {
+	fSTree: FSTree;
 	modulesCollection: ModulesCollection;
-	fsNavCursor: FSNavCursor;
 	extraPackageEntries: ExtraPackageEntries;
 }
 
@@ -27,24 +27,24 @@ export interface Package {
 export type PackagesCollection = Rec<AbsoluteFsPath, Package>;
 
 export class PackagesCollector {
+	#fSTree;
 	#modulesCollection;
-	#fsNavCursor;
 	#extraPackageEntries;
 
-	constructor({ modulesCollection, fsNavCursor, extraPackageEntries }: Params) {
+	constructor({ fSTree, modulesCollection, extraPackageEntries }: Params) {
+		this.#fSTree = fSTree;
 		this.#modulesCollection = modulesCollection;
-		this.#fsNavCursor = fsNavCursor;
 		this.#extraPackageEntries = extraPackageEntries;
 	}
 
 	collect() {
 		const packagesCollection: PackagesCollection = new Rec();
-		this.#collectPackages(packagesCollection, this.#fsNavCursor.rootPath);
+		this.#collectPackages(packagesCollection, this.#fSTree.rootPath);
 		return this.#fillPackages(packagesCollection);
 	}
 
 	#collectPackages(packagesCollection: PackagesCollection, parentPath: AbsoluteFsPath) {
-		const nodes = this.#fsNavCursor.getNodeChildrenByPath(parentPath);
+		const nodes = this.#fSTree.getNodeChildrenByPath(parentPath);
 
 		const filePaths = nodes.filter(({ isFile }) => isFile).map(({ path }) => path);
 		const packageEntryPoint = this.#resolveEntryPointModule(filePaths);
@@ -72,7 +72,7 @@ export class PackagesCollector {
 	#fillPackage(packagesCollection: PackagesCollection, pack: Package, currentPath: AbsoluteFsPath) {
 		const subPaths: AbsoluteFsPath[] = [];
 
-		this.#fsNavCursor.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
+		this.#fSTree.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
 			if (isFile) {
 				pack.modules.push(path);
 				this.#modulesCollection.get(path).package = pack.path;

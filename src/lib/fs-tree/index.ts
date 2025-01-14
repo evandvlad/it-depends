@@ -1,7 +1,7 @@
 import { type AbsoluteFsPath, delimiter, shortFsPath } from "~/lib/fs-path";
 import { NodesRegistry } from "./nodes-registry";
 
-export class FSNavCursor {
+export class FSTree {
 	readonly rootPath;
 	readonly shortRootPath;
 

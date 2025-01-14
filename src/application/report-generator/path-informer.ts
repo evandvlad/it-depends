@@ -1,9 +1,9 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 
 interface Params {
 	rootPath: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 }
 
 export class PathInformer {
@@ -11,12 +11,12 @@ export class PathInformer {
 	readonly assetsPath;
 	readonly indexHtmlPagePath;
 
+	#fSTree;
 	#modulesFolderPath;
 	#packagesFolderPath;
-	#fsNavCursor;
 
-	constructor({ rootPath, fsNavCursor }: Params) {
-		this.#fsNavCursor = fsNavCursor;
+	constructor({ rootPath, fSTree }: Params) {
+		this.#fSTree = fSTree;
 
 		this.rootPath = rootPath;
 		this.assetsPath = joinPaths(this.rootPath, "assets");
@@ -30,12 +30,12 @@ export class PathInformer {
 	}
 
 	getModuleHtmlPagePathByRealPath(path: AbsoluteFsPath) {
-		const shortPath = this.#fsNavCursor.getShortPathByPath(path);
+		const shortPath = this.#fSTree.getShortPathByPath(path);
 		return joinPaths(this.#modulesFolderPath, `${shortPath}.html`);
 	}
 
 	getPackageHtmlPagePathByRealPath(path: AbsoluteFsPath) {
-		const shortPath = this.#fsNavCursor.getShortPathByPath(path);
+		const shortPath = this.#fSTree.getShortPathByPath(path);
 		return joinPaths(this.#packagesFolderPath, `${shortPath}.html`);
 	}
 }

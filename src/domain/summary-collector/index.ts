@@ -1,5 +1,5 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { ImportPath, ParserErrors } from "../file-items-transformer";
 import type { Language } from "../module-expert";
@@ -8,7 +8,7 @@ import type { PackagesCollection } from "../packages-collector";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 	parserErrors: ParserErrors;
@@ -50,10 +50,10 @@ export class SummaryCollector {
 		parserErrors: new Rec(),
 	};
 
-	constructor({ fsNavCursor, packagesCollection, modulesCollection, parserErrors }: Params) {
+	constructor({ fSTree, packagesCollection, modulesCollection, parserErrors }: Params) {
 		this.#packagesCollection = packagesCollection;
 		this.#modulesCollection = modulesCollection;
-		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fsNavCursor, packagesCollection });
+		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fSTree, packagesCollection });
 		this.#summary.parserErrors = parserErrors;
 	}
 

@@ -4,7 +4,7 @@ import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { generateReport } from "..";
 
 async function createParams() {
-	const { packagesCollection, fsNavCursor, summary, modulesCollection } = await processFileItems([
+	const { packagesCollection, fSTree, summary, modulesCollection } = await processFileItems([
 		{
 			path: "/src/main.ts",
 			content: `import { a } from "./lib/a";`,
@@ -48,7 +48,7 @@ async function createParams() {
 		fSysPort,
 		modulesCollection,
 		packagesCollection,
-		fsNavCursor,
+		fSTree,
 		summary,
 	};
 }

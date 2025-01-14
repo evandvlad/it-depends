@@ -1,4 +1,4 @@
-import { FSNavCursor } from "~/lib/fs-nav-cursor";
+import { FSTree } from "~/lib/fs-tree";
 import {
 	type DispatcherPort,
 	type FileItem,
@@ -25,7 +25,7 @@ export interface Result {
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 	summary: Summary;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 }
 
 export type {
@@ -47,18 +47,18 @@ export async function process({
 }: Params): Promise<Result> {
 	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
 
-	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
-	const modulesCollection = collectModules({ fsNavCursor, fileEntries, aliases });
+	const fSTree = new FSTree(fileEntries.toKeys());
+	const modulesCollection = collectModules({ fSTree, fileEntries, aliases });
 
 	const packagesCollector = new PackagesCollector({
-		fsNavCursor,
+		fSTree,
 		modulesCollection,
 		extraPackageEntries,
 	});
 	const packagesCollection = packagesCollector.collect();
 
-	const summaryCollector = new SummaryCollector({ fsNavCursor, modulesCollection, packagesCollection, parserErrors });
+	const summaryCollector = new SummaryCollector({ fSTree, modulesCollection, packagesCollection, parserErrors });
 	const summary = summaryCollector.collect();
 
-	return { modulesCollection, packagesCollection, summary, fsNavCursor };
+	return { modulesCollection, packagesCollection, summary, fSTree };
 }

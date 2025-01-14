@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { ImportPath } from "../../file-items-transformer";
 import { ImportSourceResolver } from "../import-source-resolver";
@@ -303,9 +303,9 @@ describe("import-source-resolver", () => {
 			},
 		},
 	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
-		const fsNavCursor = new FSNavCursor(filePaths as AbsoluteFsPath[]);
+		const fSTree = new FSTree(filePaths as AbsoluteFsPath[]);
 		const importSourceResolver = new ImportSourceResolver({
-			fsNavCursor,
+			fSTree,
 			aliases: Rec.fromObject(aliases as Record<string, AbsoluteFsPath>),
 		});
 

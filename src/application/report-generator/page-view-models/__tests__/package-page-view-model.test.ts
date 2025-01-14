@@ -7,7 +7,7 @@ import { PackagePageViewModel } from "../package-page-view-model";
 async function createPageViewModelParams() {
 	const rootPath = "/report" as AbsoluteFsPath;
 
-	const { packagesCollection, fsNavCursor } = await processFileItems([
+	const { packagesCollection, fSTree } = await processFileItems([
 		{
 			path: "/src/index.ts",
 			content: `import { a } from "./lib/a";`,
@@ -27,11 +27,11 @@ async function createPageViewModelParams() {
 	]);
 
 	return {
+		fSTree,
 		path: "/src/lib/a" as AbsoluteFsPath,
 		version: "999",
 		packagesCollection,
-		fsNavCursor,
-		pathInformer: new PathInformer({ rootPath, fsNavCursor }),
+		pathInformer: new PathInformer({ rootPath, fSTree }),
 	};
 }
 

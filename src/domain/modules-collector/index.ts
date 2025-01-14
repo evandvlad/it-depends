@@ -1,4 +1,4 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { FSTree } from "~/lib/fs-tree";
 import type { FileEntries } from "../file-items-transformer";
 import { bindModules } from "./binder";
 import { ImportSourceResolver } from "./import-source-resolver";
@@ -7,14 +7,14 @@ import type { Aliases, ImportSource, Module, ModulesCollection } from "./values"
 
 interface Params {
 	fileEntries: FileEntries;
-	fsNavCursor: FSNavCursor;
+	fSTree: FSTree;
 	aliases: Aliases;
 }
 
 export type { Module, ModulesCollection, ImportSource, Aliases };
 
-export function collectModules({ fsNavCursor, fileEntries, aliases }: Params) {
-	const importSourceResolver = new ImportSourceResolver({ fsNavCursor, aliases });
+export function collectModules({ fSTree, fileEntries, aliases }: Params) {
+	const importSourceResolver = new ImportSourceResolver({ fSTree, aliases });
 	const moduleFactory = new ModuleFactory(importSourceResolver);
 	const modulesCollection = fileEntries.mapValue((entry) => moduleFactory.create(entry));
 

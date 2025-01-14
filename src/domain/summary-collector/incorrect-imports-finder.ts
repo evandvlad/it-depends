@@ -1,19 +1,19 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { FSTree } from "~/lib/fs-tree";
 import type { ImportSource, Module } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
 
 interface Params {
+	fSTree: FSTree;
 	packagesCollection: PackagesCollection;
-	fsNavCursor: FSNavCursor;
 }
 
 export class IncorrectImportsFinder {
+	#fSTree;
 	#packagesCollection;
-	#fsNavCursor;
 
-	constructor({ fsNavCursor, packagesCollection }: Params) {
-		this.#fsNavCursor = fsNavCursor;
+	constructor({ fSTree, packagesCollection }: Params) {
+		this.#fSTree = fSTree;
 		this.#packagesCollection = packagesCollection;
 	}
 
@@ -81,7 +81,7 @@ export class IncorrectImportsFinder {
 	}
 
 	#findPackageByFilePath(filePath: AbsoluteFsPath): Package | null {
-		let parentNode = this.#fsNavCursor.getNodeByPath(filePath).parent;
+		let parentNode = this.#fSTree.getNodeByPath(filePath).parent;
 
 		while (parentNode) {
 			const { path } = parentNode;

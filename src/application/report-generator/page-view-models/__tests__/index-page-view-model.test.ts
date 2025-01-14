@@ -5,7 +5,7 @@ import { PathInformer } from "../../path-informer";
 import { IndexPageViewModel } from "../index-page-view-model";
 
 async function createPageViewModelParams() {
-	const { modulesCollection, packagesCollection, fsNavCursor, summary } = await processFileItems([
+	const { modulesCollection, packagesCollection, fSTree, summary } = await processFileItems([
 		{
 			path: "/src/main.ts",
 			content: `import { a } from "./lib/a/a";`,
@@ -39,12 +39,12 @@ async function createPageViewModelParams() {
 	]);
 
 	return {
+		fSTree,
 		version: "999",
 		modulesCollection,
 		packagesCollection,
-		fsNavCursor,
 		summary,
-		pathInformer: new PathInformer({ rootPath: "/report" as AbsoluteFsPath, fsNavCursor }),
+		pathInformer: new PathInformer({ rootPath: "/report" as AbsoluteFsPath, fSTree }),
 	};
 }
 
