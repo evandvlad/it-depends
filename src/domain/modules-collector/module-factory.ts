@@ -61,7 +61,10 @@ export class ModuleFactory {
 						module.imports.push({ importSource, values: inputValues });
 					}
 
-					assert(!outputValues.includes(ieValueAll), "Incorrect result processing of parser in re-export case");
+					assert(
+						!outputValues.includes(ieValueAll),
+						"Incorrect result processing of the parser for the re-export case",
+					);
 
 					this.#fillExportValuesToModule(module, outputValues);
 

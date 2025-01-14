@@ -51,7 +51,7 @@ describe("report-writer", () => {
 		});
 
 		await expect(writeReport({ rootPath, assetsPath, staticAssetsPath, htmlPages, fSysPort })).rejects.toThrow(
-			new AppError(`Can't create directory by path: ${rootPath}`),
+			new AppError(`Can't create the directory '${rootPath}' for the report.`),
 		);
 	});
 

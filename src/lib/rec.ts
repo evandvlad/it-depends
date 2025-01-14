@@ -30,7 +30,7 @@ export class Rec<K extends PropertyKey, V> {
 	}
 
 	get(key: K) {
-		assert(this.has(key), `Value by key "${key.toString()}" wasn't found in rec`);
+		assert(this.has(key), `Value by key '${key.toString()}' wasn't found in the rec instance.`);
 		return this.#data[key]!;
 	}
 

@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { type AbsoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
 
 type StatEntryType = "file" | "dir" | "unknown";
@@ -44,5 +44,14 @@ export class FSys {
 
 	async copy(sourcePath: AbsoluteFsPath, destinationPath: AbsoluteFsPath) {
 		await cp(sourcePath, destinationPath, { recursive: true });
+	}
+
+	async checkAccess(path: AbsoluteFsPath) {
+		try {
+			await access(path);
+			return true;
+		} catch {
+			return false;
+		}
 	}
 }

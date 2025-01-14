@@ -8,7 +8,7 @@ describe("rec", () => {
 
 		expect(() => {
 			rec.get("key");
-		}).toThrow(new AppError(`Value by key "key" wasn't found in rec`));
+		}).toThrow(new AppError("Value by key 'key' wasn't found in the rec instance."));
 	});
 
 	it("should perform basic operation correctly", () => {

@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, absoluteFsPath, getParentPath, joinPaths, delimiter } from "~/lib/fs-path";
+import { type AbsoluteFsPath, absoluteFsPath, delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";

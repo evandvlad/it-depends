@@ -1,3 +1,4 @@
+import { assert } from "~/lib/errors";
 import { FSTree } from "~/lib/fs-tree";
 import {
 	type DispatcherPort,
@@ -46,8 +47,14 @@ export async function process({
 	settings: { aliases, extraPackageEntries },
 }: Params): Promise<Result> {
 	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
+	const allFilePaths = fileEntries.toKeys();
 
-	const fSTree = new FSTree(fileEntries.toKeys());
+	assert(
+		allFilePaths.length > 0,
+		"No files have been found for processing. It seems like a problem with the configuration.",
+	);
+
+	const fSTree = new FSTree(allFilePaths);
 	const modulesCollection = collectModules({ fSTree, fileEntries, aliases });
 
 	const packagesCollector = new PackagesCollector({

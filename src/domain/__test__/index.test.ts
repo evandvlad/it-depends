@@ -28,7 +28,9 @@ describe("domain", () => {
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
 			}),
-		).rejects.toThrow(new AppError("File paths list is empty"));
+		).rejects.toThrow(
+			new AppError("No files have been found for processing. It seems like a problem with the configuration."),
+		);
 	});
 
 	describe("modules", () => {

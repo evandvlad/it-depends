@@ -39,7 +39,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 		const fSysPort = new FSys();
 		const confLoaderPort = new ConfLoader(__dirname);
 
-		const settings = await createSettings({ options: this.#options, confLoaderPort });
+		const settings = await createSettings({ options: this.#options, fSysPort, confLoaderPort });
 
 		const fileItems = createFileItemsGenerator({
 			fSysPort,

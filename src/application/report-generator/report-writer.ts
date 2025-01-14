@@ -16,7 +16,7 @@ export async function writeReport({ fSysPort, rootPath, assetsPath, staticAssets
 		await fSysPort.removeDir(rootPath);
 		await fSysPort.makeDir(rootPath);
 	} catch (e) {
-		throw new AppError(`Can't create directory by path: ${rootPath}`, { cause: e as Error });
+		throw new AppError(`Can't create the directory '${rootPath}' for the report.`, { cause: e as Error });
 	}
 
 	await fSysPort.copy(staticAssetsPath, assetsPath);

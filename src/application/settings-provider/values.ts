@@ -3,6 +3,19 @@ import type { ReportSettings } from "~/application/report-generator";
 import type { Aliases, ExtraPackageEntries } from "~/domain";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 
+interface Conf {
+	version: string;
+	reportStaticAssetsPath: AbsoluteFsPath;
+}
+
+export interface ConfLoaderPort {
+	load: () => Promise<Conf>;
+}
+
+export interface FSysPort {
+	checkAccess: (path: AbsoluteFsPath) => Promise<boolean>;
+}
+
 export interface Options {
 	paths: string[];
 	pathFilter?: (path: string) => boolean;

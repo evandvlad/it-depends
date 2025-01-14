@@ -9,7 +9,7 @@ export class NodesRegistry {
 	#nodesMap;
 
 	static create(allFilePaths: AbsoluteFsPath[]) {
-		assert(allFilePaths.length > 0, "File paths list is empty");
+		assert(allFilePaths.length > 0, "The file paths list is empty. Can't create FSTree with an empty list.");
 
 		function createNode(path: AbsoluteFsPath, parent: Node | null = null): Node {
 			return {

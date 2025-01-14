@@ -7,21 +7,21 @@ describe("fs-tree", () => {
 	it("should throw error for empty file paths list", () => {
 		expect(() => {
 			new FSTree([]);
-		}).toThrow(new AppError("File paths list is empty"));
+		}).toThrow(new AppError("The file paths list is empty. Can't create FSTree with an empty list."));
 	});
 
 	it("should throw error on trying to get node by path which doesn't exist", () => {
 		expect(() => {
 			const fSTree = new FSTree(["C:/dir/file.ts"] as AbsoluteFsPath[]);
 			fSTree.getNodeByPath("C:/dir2/dir3/file.ts" as AbsoluteFsPath);
-		}).toThrow(new AppError(`Value by key "C:/dir2/dir3/file.ts" wasn't found in rec`));
+		}).toThrow(new AppError("Value by key 'C:/dir2/dir3/file.ts' wasn't found in the rec instance."));
 	});
 
 	it("should throw error on trying to get children by path which don't exist", () => {
 		expect(() => {
 			const fSTree = new FSTree(["C:/dir/file.ts"] as AbsoluteFsPath[]);
 			fSTree.getNodeChildrenByPath("C:/dir2" as AbsoluteFsPath);
-		}).toThrow(new AppError(`Value by key "C:/dir2" wasn't found in rec`));
+		}).toThrow(new AppError("Value by key 'C:/dir2' wasn't found in the rec instance."));
 	});
 
 	it.each([

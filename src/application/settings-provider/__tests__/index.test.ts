@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { AppError } from "~/lib/errors";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
@@ -12,14 +12,21 @@ const confLoaderPort = {
 	},
 };
 
+function createFSysPort() {
+	return {
+		checkAccess: jest.fn((_p: string) => Promise.resolve(true)),
+	};
+}
+
 describe("settings-provider", () => {
 	it("should be error if pathes are empty", async () => {
 		await expect(
 			createSettings({
 				options: { paths: [] },
 				confLoaderPort,
+				fSysPort: createFSysPort(),
 			}),
-		).rejects.toThrow(new AppError("Empty paths"));
+		).rejects.toThrow(new AppError("Option 'paths' should be an array fulfilled with real absolute paths."));
 	});
 
 	it("should be error if not all paths are absolute", async () => {
@@ -27,8 +34,31 @@ describe("settings-provider", () => {
 			createSettings({
 				options: { paths: ["/src", "../dir"] },
 				confLoaderPort,
+				fSysPort: createFSysPort(),
 			}),
-		).rejects.toThrow(new AppError("All paths should be absolute"));
+		).rejects.toThrow(
+			new AppError(
+				"Option 'paths' should be an array fulfilled with real absolute paths. Path '../dir' is not absolute.",
+			),
+		);
+	});
+
+	it("should be error if not all paths are accessible", async () => {
+		const fSysPort = createFSysPort();
+
+		fSysPort.checkAccess.mockImplementation(async (path) => path === "/src");
+
+		await expect(
+			createSettings({
+				options: { paths: ["/src", "/src2"] },
+				confLoaderPort,
+				fSysPort,
+			}),
+		).rejects.toThrow(
+			new AppError(
+				"Option 'paths' should be an array fulfilled with real absolute paths. Path '/src2' doesn't exist or is not accessible.",
+			),
+		);
 	});
 
 	it("should be error if not all paths in aliases are absolute", async () => {
@@ -36,8 +66,31 @@ describe("settings-provider", () => {
 			createSettings({
 				options: { paths: ["/src", "/src/dir"], aliases: { "@root": "/src", "@components": "./dir" } },
 				confLoaderPort,
+				fSysPort: createFSysPort(),
 			}),
-		).rejects.toThrow(new AppError("All paths for aliases should be absolute"));
+		).rejects.toThrow(
+			new AppError(
+				"Option 'aliases' should be a record of names and real absolute paths. Path './dir' for name '@components' is not absolute.",
+			),
+		);
+	});
+
+	it("should be error if not all paths in aliases are accessible", async () => {
+		const fSysPort = createFSysPort();
+
+		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/src/dir1");
+
+		await expect(
+			createSettings({
+				options: { paths: ["/src"], aliases: { "@root": "/src/dir1", "@components": "/src/dir2" } },
+				confLoaderPort,
+				fSysPort,
+			}),
+		).rejects.toThrow(
+			new AppError(
+				"Option 'aliases' should be a record of names and real absolute paths. Path '/src/dir1' for '@root' doesn't exist or is not accessible.",
+			),
+		);
 	});
 
 	it("should be error if not all some extra package entry paths are absolute", async () => {
@@ -45,8 +98,31 @@ describe("settings-provider", () => {
 			createSettings({
 				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "./dir2"] } },
 				confLoaderPort,
+				fSysPort: createFSysPort(),
 			}),
-		).rejects.toThrow(new AppError("All paths for package entries should be absolute"));
+		).rejects.toThrow(
+			new AppError(
+				"Option 'extraPackageEntries.filePaths' should be an array fulfilled with real absolute paths Path './dir2' is not absolute.",
+			),
+		);
+	});
+
+	it("should be error if not all some extra package entry paths are accessible", async () => {
+		const fSysPort = createFSysPort();
+
+		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/dir1");
+
+		await expect(
+			createSettings({
+				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "/dir2"] } },
+				confLoaderPort,
+				fSysPort,
+			}),
+		).rejects.toThrow(
+			new AppError(
+				"Option 'extraPackageEntries.filePaths' should be an array fulfilled with real absolute paths Path '/dir1' doesn't exist or is not accessible.",
+			),
+		);
 	});
 
 	it("should be error if report path isn't absolute", async () => {
@@ -54,8 +130,29 @@ describe("settings-provider", () => {
 			createSettings({
 				options: { paths: ["/src"], report: { path: "../report" } },
 				confLoaderPort,
+				fSysPort: createFSysPort(),
 			}),
-		).rejects.toThrow(new AppError("Path for report should be absolute"));
+		).rejects.toThrow(
+			new AppError("Option 'report.path' should be a real absolute path. Path '../report' is not absolute."),
+		);
+	});
+
+	it("should be error if report path isn't accessible", async () => {
+		const fSysPort = createFSysPort();
+
+		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/report");
+
+		await expect(
+			createSettings({
+				options: { paths: ["/src"], report: { path: "/report" } },
+				confLoaderPort,
+				fSysPort,
+			}),
+		).rejects.toThrow(
+			new AppError(
+				"Option 'report.path' should be a real absolute path. Path '/report' doesn't exist or is not accessible.",
+			),
+		);
 	});
 
 	it("should be normalized all paths", async () => {
@@ -67,6 +164,7 @@ describe("settings-provider", () => {
 				report: { path: "/report" },
 			},
 			confLoaderPort,
+			fSysPort: createFSysPort(),
 		});
 
 		expect(settings.paths).toEqual(["/src/dir1", "/src/dir2"]);
@@ -84,6 +182,7 @@ describe("settings-provider", () => {
 		const settings = await createSettings({
 			options: { paths: ["/src"] },
 			confLoaderPort,
+			fSysPort: createFSysPort(),
 		});
 
 		expect(settings).toEqual({
@@ -111,6 +210,7 @@ describe("settings-provider", () => {
 		const settings = await createSettings({
 			options,
 			confLoaderPort,
+			fSysPort: createFSysPort(),
 		});
 
 		expect(settings).toEqual({
