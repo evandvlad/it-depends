@@ -1,7 +1,8 @@
 import { ConfLoader } from "~/adapters/conf-loader";
 import { FSys } from "~/adapters/fsys";
-import { type GlobalEventBusSubscriber, createGlobalEventBus } from "~/adapters/global-event-bus";
+import { Terminal } from "~/adapters/terminal";
 import { createFileItemsGenerator } from "~/application/file-items-generator";
+import { Logger } from "~/application/logger";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
 import { type Options, createSettings } from "~/application/settings-provider";
 import {
@@ -12,6 +13,8 @@ import {
 	process,
 } from "~/domain";
 import { AppError } from "~/lib/errors";
+import { EventBus } from "~/lib/event-bus";
+import type { GlobalEventBusRecord, GlobalEventBusSubscriber } from "./values";
 
 interface Result {
 	summary: Summary;
@@ -30,41 +33,55 @@ export class ItDepends implements GlobalEventBusSubscriber {
 	constructor(options: Options) {
 		this.#options = options;
 
-		this.#eventBus = createGlobalEventBus();
+		this.#eventBus = new EventBus<GlobalEventBusRecord>();
 
 		this.on = this.#eventBus.on;
 	}
 
 	run = async (): Promise<Result> => {
-		const fSysPort = new FSys();
-		const confLoaderPort = new ConfLoader(__dirname);
+		let logger: Logger | null = null;
 
-		const settings = await createSettings({ options: this.#options, fSysPort, confLoaderPort });
+		try {
+			const fSysPort = new FSys();
+			const confLoaderPort = new ConfLoader(__dirname);
 
-		const fileItems = createFileItemsGenerator({
-			fSysPort,
-			paths: settings.paths,
-			pathFilter: settings.pathFilter,
-		});
+			if (!this.#options.turnOffLogging) {
+				logger = new Logger({
+					terminalPort: new Terminal(),
+					globalEventBusSubscriber: this.#eventBus,
+				});
+			}
 
-		const { modulesCollection, packagesCollection, summary, fSTree } = await process({
-			fileItems,
-			settings,
-			dispatcherPort: this.#eventBus as DomainDispatcherPort,
-		});
+			const settings = await createSettings({ options: this.#options, fSysPort, confLoaderPort });
 
-		if (settings.report) {
-			await generateReport({
+			const fileItems = createFileItemsGenerator({
 				fSysPort,
-				summary,
-				fSTree,
-				modulesCollection,
-				packagesCollection,
-				settings: settings.report,
-				dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
+				paths: settings.paths,
+				pathFilter: settings.pathFilter,
 			});
-		}
 
-		return { modulesCollection, packagesCollection, summary };
+			const { modulesCollection, packagesCollection, summary, fSTree } = await process({
+				fileItems,
+				settings,
+				dispatcherPort: this.#eventBus as DomainDispatcherPort,
+			});
+
+			if (settings.report) {
+				await generateReport({
+					fSysPort,
+					summary,
+					fSTree,
+					modulesCollection,
+					packagesCollection,
+					settings: settings.report,
+					dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
+				});
+			}
+
+			return { modulesCollection, packagesCollection, summary };
+		} catch (e) {
+			logger?.acceptAppLevelError(e as Error);
+			throw e;
+		}
 	};
 }

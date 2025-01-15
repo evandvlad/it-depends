@@ -16,14 +16,6 @@ export interface FSysPort {
 	checkAccess: (path: AbsoluteFsPath) => Promise<boolean>;
 }
 
-export interface Options {
-	paths: string[];
-	pathFilter?: (path: string) => boolean;
-	aliases?: Record<string, string>;
-	extraPackageEntries?: { fileNames?: string[]; filePaths?: string[] };
-	report?: { path: string };
-}
-
 export interface Settings {
 	paths: AbsoluteFsPath[];
 	pathFilter: PathFilter;

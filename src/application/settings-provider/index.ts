@@ -1,5 +1,6 @@
+import type { Options } from "../../values";
 import { OptionProcessor } from "./option-processor";
-import type { ConfLoaderPort, FSysPort, Options, Settings } from "./values";
+import type { ConfLoaderPort, FSysPort, Settings } from "./values";
 
 interface Params {
 	options: Options;
