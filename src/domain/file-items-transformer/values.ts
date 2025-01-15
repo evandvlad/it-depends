@@ -15,9 +15,10 @@ export interface FileItem {
 }
 
 export type DispatcherPort = EventBusDispatcher<{
-	"file-item-processed": [{ path: AbsoluteFsPath }];
-	"file-item-processing-failed": [{ path: AbsoluteFsPath; error: Error }];
-	"all-file-items-processed": [];
+	"files-transformation:started": [];
+	"files-transformation:file-processed": [{ path: AbsoluteFsPath }];
+	"files-transformation:file-processing-failed": [{ path: AbsoluteFsPath; error: Error }];
+	"files-transformation:finished": [];
 }>;
 
 export type FileItems = AsyncGenerator<FileItem>;

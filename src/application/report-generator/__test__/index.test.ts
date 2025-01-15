@@ -77,7 +77,9 @@ describe("report-generator", () => {
 
 		await generateReport(params);
 
-		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "report-generation-started");
-		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "report-generation-completed");
+		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "report-generation:started");
+		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "report-generation:finished", {
+			path: "/report/content/index.html",
+		});
 	});
 });

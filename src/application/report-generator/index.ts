@@ -31,7 +31,7 @@ export async function generateReport({
 }: Params) {
 	const pathInformer = new PathInformer({ rootPath: settings.path, fSTree });
 
-	dispatcherPort.dispatch("report-generation-started");
+	dispatcherPort.dispatch("report-generation:started");
 
 	const { version } = settings;
 	const htmlPages = new Rec<AbsoluteFsPath, string>();
@@ -65,5 +65,5 @@ export async function generateReport({
 		staticAssetsPath: settings.staticAssetsPath,
 	});
 
-	dispatcherPort.dispatch("report-generation-completed");
+	dispatcherPort.dispatch("report-generation:finished", { path: pathInformer.indexHtmlPagePath });
 }

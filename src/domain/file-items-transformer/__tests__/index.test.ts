@@ -213,9 +213,10 @@ describe("file-items-transformer", () => {
 		});
 
 		expect(dispatcherPort.dispatch.mock.calls).toEqual([
-			["file-item-processed", { path: "/tmp/file1.ts" }],
-			["file-item-processing-failed", { path: "/tmp/file3.js", error: expect.any(Error) }],
-			["all-file-items-processed"],
+			["files-transformation:started"],
+			["files-transformation:file-processed", { path: "/tmp/file1.ts" }],
+			["files-transformation:file-processing-failed", { path: "/tmp/file3.js", error: expect.any(Error) }],
+			["files-transformation:finished"],
 		]);
 	});
 });

@@ -7,17 +7,77 @@ interface TerminalPort {
 
 interface Params {
 	terminalPort: TerminalPort;
-	globalEventBusSubscriber: GlobalEventBusSubscriber;
+	subscriberPort: GlobalEventBusSubscriber;
 }
 
 export class Logger {
 	#terminalPort;
 
-	constructor({ terminalPort }: Params) {
+	constructor({ terminalPort, subscriberPort }: Params) {
 		this.#terminalPort = terminalPort;
+
+		const state: { processedFiles: number; unprocessedFiles: 0 } = {
+			processedFiles: 0,
+			unprocessedFiles: 0,
+		};
+
+		subscriberPort.on("app:started", () => {
+			this.#writeLine("Started");
+		});
+
+		subscriberPort.on("settings-preparation:started", () => {
+			this.#writeLine("Options checking");
+		});
+
+		subscriberPort.on("settings-preparation:finished", () => {
+			this.#writeLine("Options was successfully checked");
+		});
+
+		subscriberPort.on("files-transformation:started", () => {
+			this.#writeLine("File processing started");
+		});
+
+		subscriberPort.on("files-transformation:file-processed", () => {
+			if (state.processedFiles > 0) {
+				this.#terminalPort.clearPreviousLine();
+			}
+
+			state.processedFiles += 1;
+
+			this.#writeLine(`File processing. Processed ${state.processedFiles} file(s).`);
+		});
+
+		subscriberPort.on("files-transformation:file-processing-failed", () => {
+			state.unprocessedFiles += 1;
+		});
+
+		subscriberPort.on("files-transformation:finished", () => {
+			this.#writeLine(
+				`File processing finished.${
+					state.unprocessedFiles > 0 ? ` Unfortunately, ${state.unprocessedFiles} file(s) was/were not processed.` : ""
+				}`,
+			);
+		});
+
+		subscriberPort.on("report-generation:started", () => {
+			this.#writeLine("Report generation started");
+		});
+
+		subscriberPort.on("report-generation:finished", ({ path }) => {
+			this.#writeLine(`Report generation finished. Path to the report - ${path}`);
+		});
+
+		subscriberPort.on("app:finished", () => {
+			this.#writeLine("Done");
+		});
 	}
 
-	acceptAppLevelError(_error: Error) {
-		this.#terminalPort.writeLine("Oh. An error occured.");
+	acceptAppLevelError(error: Error) {
+		this.#writeLine(`Oh. An error occured: '${error.message}'`);
+	}
+
+	#writeLine(text: string) {
+		const timeMark = new Date().toLocaleTimeString();
+		this.#terminalPort.writeLine(`[${timeMark}] ${text}`);
 	}
 }

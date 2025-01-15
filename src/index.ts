@@ -48,11 +48,18 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			if (!this.#options.turnOffLogging) {
 				logger = new Logger({
 					terminalPort: new Terminal(),
-					globalEventBusSubscriber: this.#eventBus,
+					subscriberPort: this.#eventBus,
 				});
 			}
 
-			const settings = await createSettings({ options: this.#options, fSysPort, confLoaderPort });
+			this.#eventBus.dispatch("app:started");
+
+			const settings = await createSettings({
+				options: this.#options,
+				fSysPort,
+				confLoaderPort,
+				dispatcherPort: this.#eventBus,
+			});
 
 			const fileItems = createFileItemsGenerator({
 				fSysPort,
@@ -77,6 +84,8 @@ export class ItDepends implements GlobalEventBusSubscriber {
 					dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
 				});
 			}
+
+			this.#eventBus.dispatch("app:finished");
 
 			return { modulesCollection, packagesCollection, summary };
 		} catch (e) {

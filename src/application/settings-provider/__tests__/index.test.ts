@@ -18,6 +18,12 @@ function createFSysPort() {
 	};
 }
 
+function createDispatcherPort() {
+	return {
+		dispatch: jest.fn(),
+	};
+}
+
 describe("settings-provider", () => {
 	it("should be error if pathes are empty", async () => {
 		await expect(
@@ -25,6 +31,7 @@ describe("settings-provider", () => {
 				options: { paths: [] },
 				confLoaderPort,
 				fSysPort: createFSysPort(),
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(new AppError("Option 'paths' should be an array fulfilled with real absolute paths."));
 	});
@@ -35,6 +42,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src", "../dir"] },
 				confLoaderPort,
 				fSysPort: createFSysPort(),
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -53,6 +61,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src", "/src2"] },
 				confLoaderPort,
 				fSysPort,
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -67,6 +76,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src", "/src/dir"], aliases: { "@root": "/src", "@components": "./dir" } },
 				confLoaderPort,
 				fSysPort: createFSysPort(),
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -85,6 +95,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src"], aliases: { "@root": "/src/dir1", "@components": "/src/dir2" } },
 				confLoaderPort,
 				fSysPort,
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -99,6 +110,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "./dir2"] } },
 				confLoaderPort,
 				fSysPort: createFSysPort(),
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -117,6 +129,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "/dir2"] } },
 				confLoaderPort,
 				fSysPort,
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -131,6 +144,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src"], report: { path: "../report" } },
 				confLoaderPort,
 				fSysPort: createFSysPort(),
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError("Option 'report.path' should be a real absolute path. Path '../report' is not absolute."),
@@ -147,6 +161,7 @@ describe("settings-provider", () => {
 				options: { paths: ["/src"], report: { path: "/report" } },
 				confLoaderPort,
 				fSysPort,
+				dispatcherPort: createDispatcherPort(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -165,6 +180,7 @@ describe("settings-provider", () => {
 			},
 			confLoaderPort,
 			fSysPort: createFSysPort(),
+			dispatcherPort: createDispatcherPort(),
 		});
 
 		expect(settings.paths).toEqual(["/src/dir1", "/src/dir2"]);
@@ -183,6 +199,7 @@ describe("settings-provider", () => {
 			options: { paths: ["/src"] },
 			confLoaderPort,
 			fSysPort: createFSysPort(),
+			dispatcherPort: createDispatcherPort(),
 		});
 
 		expect(settings).toEqual({
@@ -211,6 +228,7 @@ describe("settings-provider", () => {
 			options,
 			confLoaderPort,
 			fSysPort: createFSysPort(),
+			dispatcherPort: createDispatcherPort(),
 		});
 
 		expect(settings).toEqual({
@@ -224,5 +242,19 @@ describe("settings-provider", () => {
 				staticAssetsPath: conf.reportStaticAssetsPath,
 			},
 		});
+	});
+
+	it("should dispatch events correctly", async () => {
+		const dispatcherPort = createDispatcherPort();
+
+		await createSettings({
+			options: { paths: ["/src"] },
+			confLoaderPort,
+			fSysPort: createFSysPort(),
+			dispatcherPort,
+		});
+
+		expect(dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "settings-preparation:started");
+		expect(dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "settings-preparation:finished");
 	});
 });

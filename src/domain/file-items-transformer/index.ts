@@ -32,6 +32,8 @@ export async function transformFileItems({ fileItems, dispatcherPort }: Params) 
 	const fileEntries: FileEntries = new Rec();
 	const parserErrors: ParserErrors = new Rec();
 
+	dispatcherPort.dispatch("files-transformation:started");
+
 	for await (const { path, content } of fileItems) {
 		const acceptableFileExtName = getAcceptableFileExtNameByPath(path);
 
@@ -49,15 +51,15 @@ export async function transformFileItems({ fileItems, dispatcherPort }: Params) 
 				ieItems: parseCode({ content, language, allowedJSXSyntax }),
 			});
 
-			dispatcherPort.dispatch("file-item-processed", { path });
+			dispatcherPort.dispatch("files-transformation:file-processed", { path });
 		} catch (e) {
 			const error = e as Error;
 			parserErrors.set(path, error);
-			dispatcherPort.dispatch("file-item-processing-failed", { path, error });
+			dispatcherPort.dispatch("files-transformation:file-processing-failed", { path, error });
 		}
 	}
 
-	dispatcherPort.dispatch("all-file-items-processed");
+	dispatcherPort.dispatch("files-transformation:finished");
 
 	return { fileEntries, parserErrors };
 }

@@ -15,6 +15,6 @@ export interface ReportSettings {
 }
 
 export type DispatcherPort = EventBusDispatcher<{
-	"report-generation-started": [];
-	"report-generation-completed": [];
+	"report-generation:started": [];
+	"report-generation:finished": [{ path: AbsoluteFsPath }];
 }>;

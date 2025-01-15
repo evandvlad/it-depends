@@ -871,7 +871,7 @@ describe("domain", () => {
 			});
 
 			expect(modulesCollection).toEqual(result);
-			expect(fn).toHaveBeenCalledTimes(modulesCollection.size + 1);
+			expect(fn).toHaveBeenCalledTimes(modulesCollection.size + 2);
 		});
 	});
 
