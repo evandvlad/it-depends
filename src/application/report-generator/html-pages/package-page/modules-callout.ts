@@ -5,7 +5,7 @@ import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
 
 export function modulesCallout(pageViewModel: PackagePageViewModel) {
-	const items = pageViewModel.collectModuleLinks((linkData) => a(linkData));
+	const items = pageViewModel.collectModuleLinks((linkData) => ({ content: a(linkData) }));
 
 	return callout({
 		title: `Modules ${counter({ value: items.length, color: "white" })}`,

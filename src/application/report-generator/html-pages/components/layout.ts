@@ -37,6 +37,7 @@ export function layout({ title, content, assetsPath, indexHtmlPagePath, version,
 						</div>
 					</footer>
 				</main>
+				<script src="${joinPaths(assetsPath, "index.js")}"></script>
 			</body>
 		</html>
 	`;

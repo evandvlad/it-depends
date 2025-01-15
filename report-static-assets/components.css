@@ -102,10 +102,3 @@
 		white-space: nowrap;
 	}
 }
-
-.counter-line {
-	display: grid;
-	grid-auto-flow: column;
-	grid-template-columns: auto max-content;
-	gap: 5px;
-}

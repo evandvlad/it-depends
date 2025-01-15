@@ -6,6 +6,7 @@ import { counter } from "../atoms/counter";
 import { datalist } from "../atoms/datalist";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
+import { textbox } from "../atoms/textbox";
 import { tree } from "../atoms/tree";
 
 export function modulesCallout(pageViewModel: IndexPageViewModel) {
@@ -26,7 +27,16 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 						},
 						{
 							label: "Modules list",
-							content: list({ items: pageViewModel.collectModulesList((linkData) => a(linkData)) }),
+							content: container({
+								items: [
+									textbox({ placeholder: "Filter modules...", onInput: "app.log(this.value);" }),
+									list({
+										items: pageViewModel.collectModulesList((linkData) => ({
+											content: a(linkData),
+										})),
+									}),
+								],
+							}),
 						},
 					],
 				}),

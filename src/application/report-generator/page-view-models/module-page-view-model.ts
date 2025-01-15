@@ -1,4 +1,4 @@
-import type { ModulesCollection, Summary } from "~/domain";
+import type { ImportPath, ModulesCollection, Summary } from "~/domain";
 import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
@@ -24,10 +24,7 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly numOfExports;
 	readonly packageLinkData;
 	readonly unparsedDynamicImports;
-	readonly unresolvedFullImports;
-	readonly unresolvedFullExports;
 	readonly shadowedExportValues;
-	readonly outOfScopeImports;
 
 	#summary;
 	#pathInformer;
@@ -50,13 +47,8 @@ export class ModulePageViewModel extends PageViewModel {
 
 		this.code = this.#module.content;
 
-		this.unresolvedFullImports = this.#module.unresolvedFullImports.map(({ importPath }) => importPath);
-		this.unresolvedFullExports = this.#module.unresolvedFullExports.map(({ importPath }) => importPath);
-
 		this.numOfImports = this.#module.imports.reduce((acc, { values }) => acc + values.length, 0);
 		this.numOfExports = this.#module.exports.reduce((acc, paths) => acc + paths.length, 0);
-
-		this.outOfScopeImports = summary.outOfScopeImports.getOrDefault(path, []);
 	}
 
 	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
@@ -104,5 +96,17 @@ export class ModulePageViewModel extends PageViewModel {
 				content: importPath,
 			}),
 		);
+	}
+
+	collectOutOfScopeImports<T>(handler: (path: ImportPath) => T) {
+		return this.#summary.outOfScopeImports.getOrDefault(this.fullPath, []).map((path) => handler(path));
+	}
+
+	collectUnresolvedFullImports<T>(handler: (path: ImportPath) => T) {
+		return this.#module.unresolvedFullImports.map(({ importPath }) => handler(importPath));
+	}
+
+	collectUnresolvedFullExports<T>(handler: (path: ImportPath) => T) {
+		return this.#module.unresolvedFullExports.map(({ importPath }) => handler(importPath));
 	}
 }

@@ -3,16 +3,16 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
-import { counterLine } from "../components/counter-line";
+import { item } from "../atoms/item";
 
 export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectOutOfScopeImports(({ linkData, values }) =>
-		counterLine({
-			content: details({
+		item({
+			mainContent: details({
 				title: a(linkData),
 				content: values.join(", "),
 			}),
-			count: values.length,
+			extraContent: counter({ value: values.length }),
 		}),
 	);
 

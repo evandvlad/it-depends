@@ -18,11 +18,12 @@
 	--g-small-font-size: 12px;
 	--g-medium-font-size: 16px;
 	--g-large-font-size: 18px;
+	--g-base-font-style: Verdana, sans-serif;
 	--g-mono-font-style: Monaco, monospace;
 }
 
 body {
-	font: var(--g-base-font-size) / 1.5 Verdana, sans-serif;
+	font: var(--g-base-font-size) / 1.5 var(--g-base-font-style);
 	background-color: var(--g-white-color);
 	color: var(--g-black-color);
 }

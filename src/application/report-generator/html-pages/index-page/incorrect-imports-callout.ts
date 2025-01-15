@@ -3,17 +3,19 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
+import { item } from "../atoms/item";
 import { list } from "../atoms/list";
-import { counterLine } from "../components/counter-line";
 
 export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectIncorrectImports(({ linkData, importItems }) =>
-		counterLine({
-			content: details({
+		item({
+			mainContent: details({
 				title: a(linkData),
-				content: list({ items: importItems.map(({ name, linkData }) => (linkData ? a(linkData) : name)) }),
+				content: list({
+					items: importItems.map(({ name, linkData }) => ({ content: linkData ? a(linkData) : name })),
+				}),
 			}),
-			count: importItems.length,
+			extraContent: counter({ value: importItems.length }),
 		}),
 	);
 

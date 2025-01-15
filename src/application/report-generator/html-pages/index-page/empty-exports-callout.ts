@@ -5,7 +5,7 @@ import { counter } from "../atoms/counter";
 import { list } from "../atoms/list";
 
 export function emptyExportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectEmptyExports((linkData) => a(linkData));
+	const items = pageViewModel.collectEmptyExports((linkData) => ({ content: a(linkData) }));
 
 	return callout({
 		title: `Empty exports ${counter({ value: items.length, color: "white" })}`,

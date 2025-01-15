@@ -4,17 +4,17 @@ import { callout } from "../atoms/callout";
 import { card } from "../atoms/card";
 import { container } from "../atoms/container";
 import { counter } from "../atoms/counter";
+import { item } from "../atoms/item";
 import { list } from "../atoms/list";
-import { counterLine } from "../components/counter-line";
 
 function getCalloutContent(pageViewModel: IndexPageViewModel) {
-	const importItems = pageViewModel.collectUnresolvedFullImports(({ linkData, num }) =>
-		counterLine({ content: a(linkData), count: num }),
-	);
+	const importItems = pageViewModel.collectUnresolvedFullImports(({ linkData, num }) => ({
+		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
+	}));
 
-	const exportItems = pageViewModel.collectUnresolvedFullExports(({ linkData, num }) =>
-		counterLine({ content: a(linkData), count: num }),
-	);
+	const exportItems = pageViewModel.collectUnresolvedFullExports(({ linkData, num }) => ({
+		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
+	}));
 
 	return container({
 		items: [

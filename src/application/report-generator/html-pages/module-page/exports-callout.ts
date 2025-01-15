@@ -3,28 +3,28 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
+import { item } from "../atoms/item";
 import { list } from "../atoms/list";
 import { tabs } from "../atoms/tabs";
-import { counterLine } from "../components/counter-line";
 
 export function exportsCallout(pageViewModel: ModulePageViewModel) {
 	const itemsByModules = pageViewModel.collectExportItemsByModules(({ linkData, values }) =>
-		counterLine({
-			content: details({
+		item({
+			mainContent: details({
 				title: a(linkData),
 				content: values.join(", "),
 			}),
-			count: values.length,
+			extraContent: counter({ value: values.length }),
 		}),
 	);
 
 	const itemsByValues = pageViewModel.collectExportItemsByValues(({ value, linksData }) =>
-		counterLine({
-			content: details({
+		item({
+			mainContent: details({
 				title: value,
-				content: list({ items: linksData.map((linkData) => a(linkData)) }),
+				content: list({ items: linksData.map((linkData) => ({ content: a(linkData) })) }),
 			}),
-			count: linksData.length,
+			extraContent: counter({ value: linksData.length }),
 		}),
 	);
 

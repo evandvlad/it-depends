@@ -15,7 +15,7 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 			},
 			{
 				label: "Packages list",
-				content: list({ items: pageViewModel.collectPackagesList((linkData) => a(linkData)) }),
+				content: list({ items: pageViewModel.collectPackagesList((linkData) => ({ content: a(linkData) })) }),
 			},
 		],
 	});

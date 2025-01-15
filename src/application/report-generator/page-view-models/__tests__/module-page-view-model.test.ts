@@ -64,10 +64,7 @@ describe("module-page-view-model", () => {
 			url: "/report/content/packages/src/lib/a.html",
 		});
 		expect(pageViewModel.unparsedDynamicImports).toEqual(0);
-		expect(pageViewModel.unresolvedFullImports).toEqual(["bar"]);
-		expect(pageViewModel.unresolvedFullExports).toEqual(["bar"]);
 		expect(pageViewModel.shadowedExportValues).toEqual([]);
-		expect(pageViewModel.outOfScopeImports).toEqual(["foo"]);
 	});
 
 	it("should collect import items correctly", async () => {
@@ -117,5 +114,32 @@ describe("module-page-view-model", () => {
 		const incorrectImports = pageViewModel.collectIncorrectImportItems((params) => params);
 
 		expect(incorrectImports).toEqual([{ url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "./b/c" }]);
+	});
+
+	it("should collect unresolved full imports correctly", async () => {
+		const params = await createPageViewModelParams();
+		const pageViewModel = new ModulePageViewModel(params);
+
+		const unresolvedFullImports = pageViewModel.collectUnresolvedFullImports((params) => params);
+
+		expect(unresolvedFullImports).toEqual(["bar"]);
+	});
+
+	it("should collect unresolved full exports correctly", async () => {
+		const params = await createPageViewModelParams();
+		const pageViewModel = new ModulePageViewModel(params);
+
+		const unresolvedFullExports = pageViewModel.collectUnresolvedFullExports((params) => params);
+
+		expect(unresolvedFullExports).toEqual(["bar"]);
+	});
+
+	it("should collect out of scope imports correctly", async () => {
+		const params = await createPageViewModelParams();
+		const pageViewModel = new ModulePageViewModel(params);
+
+		const outOfScopeImports = pageViewModel.collectOutOfScopeImports((params) => params);
+
+		expect(outOfScopeImports).toEqual(["foo"]);
 	});
 });

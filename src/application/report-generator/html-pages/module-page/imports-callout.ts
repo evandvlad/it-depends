@@ -3,20 +3,18 @@ import { a } from "../atoms/a";
 import { callout } from "../atoms/callout";
 import { counter } from "../atoms/counter";
 import { details } from "../atoms/details";
-import { counterLine } from "../components/counter-line";
+import { item } from "../atoms/item";
 
 export function importsCallout(pageViewModel: ModulePageViewModel) {
-	const items = pageViewModel.collectImportItems(({ name, linkData, values }) => {
-		const title = linkData ? a(linkData) : name;
-
-		return counterLine({
-			content: details({
-				title,
+	const items = pageViewModel.collectImportItems(({ name, linkData, values }) =>
+		item({
+			mainContent: details({
+				title: linkData ? a(linkData) : name,
 				content: values.join(", "),
 			}),
-			count: values.length,
-		});
-	});
+			extraContent: counter({ value: values.length }),
+		}),
+	);
 
 	return callout({
 		title: `Imports ${counter({ value: pageViewModel.numOfImports, color: "white" })}`,
