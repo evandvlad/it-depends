@@ -11,6 +11,24 @@ import { moduleDatalist } from "./module-datalist";
 export function modulePage(pageViewModel: ModulePageViewModel) {
 	const title = `Module: ${pageViewModel.shortPath}`;
 
+	const leftSection = `
+		<div style="flex: 1">
+			${container({
+				items: [
+					{ content: moduleDatalist(pageViewModel) },
+					{ content: importsCallout(pageViewModel) },
+					{ content: exportsCallout(pageViewModel) },
+				],
+			})}
+		</div>
+	`;
+
+	const rightSection = `
+		<div style="width: 990px">
+			${frame({ content: moduleCode(pageViewModel) })}
+		</div>
+	`;
+
 	return layout({
 		assetsPath: pageViewModel.assetsPath,
 		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
@@ -18,16 +36,7 @@ export function modulePage(pageViewModel: ModulePageViewModel) {
 		title,
 		header: headerHeading({ content: title }),
 		content: container({
-			items: [
-				`<div style="flex: 1">
-						${container({
-							items: [moduleDatalist(pageViewModel), importsCallout(pageViewModel), exportsCallout(pageViewModel)],
-						})}
-					</div>`,
-				`<div style="width: 990px">
-						${frame({ content: moduleCode(pageViewModel) })}
-					</div>`,
-			],
+			items: [{ content: leftSection }, { content: rightSection }],
 			direction: "horizontal",
 			gap: "20px",
 		}),

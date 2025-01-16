@@ -1,8 +1,10 @@
+import { type DataAttrs, spreadDataAttrs } from "../helpers/data-attrs";
+
 interface Params {
-	onInput: string;
-	placeholder?: string;
+	placeholder: string;
+	dataAttrs: DataAttrs;
 }
 
-export function textbox({ onInput, placeholder = "" }: Params) {
-	return `<input class="textbox" type="text" placeholder="${placeholder}" onInput="${onInput}" />`;
+export function textbox({ placeholder, dataAttrs }: Params) {
+	return `<input class="textbox" type="text" placeholder="${placeholder}" ${spreadDataAttrs(dataAttrs)} />`;
 }

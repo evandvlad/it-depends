@@ -18,8 +18,8 @@ function getCalloutContent(pageViewModel: IndexPageViewModel) {
 
 	return container({
 		items: [
-			card({ title: "Imports", content: list({ items: importItems }) }),
-			card({ title: "Exports", content: list({ items: exportItems }) }),
+			{ content: card({ title: "Imports", content: list({ items: importItems }) }) },
+			{ content: card({ title: "Exports", content: list({ items: exportItems }) }) },
 		],
 		gap: "0px",
 	});

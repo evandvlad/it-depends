@@ -9,9 +9,7 @@ export function modulesCallout(pageViewModel: PackagePageViewModel) {
 
 	return callout({
 		title: `Modules ${counter({ value: items.length, color: "white" })}`,
-		content: list({
-			items,
-		}),
+		content: list({ items }),
 		color: "green",
 		open: true,
 	});

@@ -13,32 +13,37 @@ import { unparsedDynamicImportsCallout } from "./unparsed-dynamic-imports-callou
 import { unresolvedFullIECallout } from "./unresolved-full-ie-callout";
 
 export function indexPage(pageViewModel: IndexPageViewModel) {
+	const leftSection = `
+		<div style="width: 50%">
+			${container({
+				items: [{ content: modulesCallout(pageViewModel) }, { content: packagesCallout(pageViewModel) }],
+			})}
+		</div>
+	`;
+
+	const rightSection = `
+		<div style="width: 50%">
+			${container({
+				items: [
+					{ content: parserErrorsCallout(pageViewModel) },
+					{ content: incorrectImportsCallout(pageViewModel) },
+					{ content: possiblyUnusedExportsCallout(pageViewModel) },
+					{ content: emptyExportsCallout(pageViewModel) },
+					{ content: outOfScopeImportsCallout(pageViewModel) },
+					{ content: unparsedDynamicImportsCallout(pageViewModel) },
+					{ content: unresolvedFullIECallout(pageViewModel) },
+					{ content: shadowedExportValuesCallout(pageViewModel) },
+				],
+			})}
+		</div>
+	`;
+
 	return layout({
 		assetsPath: pageViewModel.assetsPath,
 		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
 		version: pageViewModel.version,
 		content: container({
-			items: [
-				`<div style="width: 50%">
-						${container({
-							items: [modulesCallout(pageViewModel), packagesCallout(pageViewModel)],
-						})}
-					</div>`,
-				`<div style="width: 50%">
-						${container({
-							items: [
-								parserErrorsCallout(pageViewModel),
-								incorrectImportsCallout(pageViewModel),
-								possiblyUnusedExportsCallout(pageViewModel),
-								emptyExportsCallout(pageViewModel),
-								outOfScopeImportsCallout(pageViewModel),
-								unparsedDynamicImportsCallout(pageViewModel),
-								unresolvedFullIECallout(pageViewModel),
-								shadowedExportValuesCallout(pageViewModel),
-							],
-						})}
-					</div>`,
-			],
+			items: [{ content: leftSection }, { content: rightSection }],
 			direction: "horizontal",
 			gap: "20px",
 		}),

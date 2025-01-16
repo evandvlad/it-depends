@@ -219,9 +219,7 @@
 	font-family: var(--g-base-font-style);
 	font-size: var(--g-base-font-size);
 	color: var(--g-dark-gray-color);
-	border: 1px solid var(--g-gray-color);
-	border-top-color: transparent;
-	border-right-color: transparent;
+	border: none;
 	border-radius: 0;
 	outline: none;
 

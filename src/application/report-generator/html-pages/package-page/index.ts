@@ -9,6 +9,14 @@ import { packagesCallout } from "./packages-callout";
 export function packagePage(pageViewModel: PackagePageViewModel) {
 	const title = `Package: ${pageViewModel.shortPath}`;
 
+	const leftSection = `<div style="width: 60%">${packageDatalist(pageViewModel)}</div>`;
+
+	const rightSection = `
+		<div style="width: 40%">${container({
+			items: [{ content: modulesCallout(pageViewModel) }, { content: packagesCallout(pageViewModel) }],
+		})}</div>
+	`;
+
 	return layout({
 		title,
 		assetsPath: pageViewModel.assetsPath,
@@ -16,10 +24,7 @@ export function packagePage(pageViewModel: PackagePageViewModel) {
 		version: pageViewModel.version,
 		header: headerHeading({ content: title }),
 		content: container({
-			items: [
-				`<div style="width: 60%">${packageDatalist(pageViewModel)}</div>`,
-				`<div style="width: 40%">${container({ items: [modulesCallout(pageViewModel), packagesCallout(pageViewModel)] })}</div>`,
-			],
+			items: [{ content: leftSection }, { content: rightSection }],
 			direction: "horizontal",
 			gap: "20px",
 		}),
