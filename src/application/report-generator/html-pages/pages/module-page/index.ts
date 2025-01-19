@@ -1,9 +1,9 @@
-import type { ModulePageViewModel } from "../../page-view-models";
-import { container } from "../atoms/container";
-import { frame } from "../atoms/frame";
-import { headerHeading } from "../components/header-heading";
-import { layout } from "../components/layout";
-import { moduleCode } from "../components/module-code";
+import type { ModulePageViewModel } from "../../../page-view-models";
+import { container } from "../../atoms/container";
+import { frame } from "../../atoms/frame";
+import { headerHeading } from "../../components/header-heading";
+import { layout } from "../../components/layout";
+import { moduleCode } from "../../components/module-code";
 import { exportsCallout } from "./exports-callout";
 import { importsCallout } from "./imports-callout";
 import { moduleDatalist } from "./module-datalist";

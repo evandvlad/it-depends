@@ -1,3 +1,3 @@
-export { indexPage } from "./index-page";
-export { modulePage } from "./module-page";
-export { packagePage } from "./package-page";
+export { indexPage } from "./pages/index-page";
+export { modulePage } from "./pages/module-page";
+export { packagePage } from "./pages/package-page";

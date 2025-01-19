@@ -1,11 +1,11 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { callout } from "../atoms/callout";
-import { card } from "../atoms/card";
-import { container } from "../atoms/container";
-import { counter } from "../atoms/counter";
-import { item } from "../atoms/item";
-import { list } from "../atoms/list";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { callout } from "../../atoms/callout";
+import { card } from "../../atoms/card";
+import { container } from "../../atoms/container";
+import { counter } from "../../atoms/counter";
+import { item } from "../../atoms/item";
+import { list } from "../../atoms/list";
 
 function getCalloutContent(pageViewModel: IndexPageViewModel) {
 	const importItems = pageViewModel.collectUnresolvedFullImports(({ linkData, num }) => ({

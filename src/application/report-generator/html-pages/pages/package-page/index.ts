@@ -1,7 +1,7 @@
-import type { PackagePageViewModel } from "../../page-view-models";
-import { container } from "../atoms/container";
-import { headerHeading } from "../components/header-heading";
-import { layout } from "../components/layout";
+import type { PackagePageViewModel } from "../../../page-view-models";
+import { container } from "../../atoms/container";
+import { headerHeading } from "../../components/header-heading";
+import { layout } from "../../components/layout";
 import { modulesCallout } from "./modules-callout";
 import { packageDatalist } from "./package-datalist";
 import { packagesCallout } from "./packages-callout";

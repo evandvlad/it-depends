@@ -1,6 +1,6 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { container } from "../atoms/container";
-import { layout } from "../components/layout";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { container } from "../../atoms/container";
+import { layout } from "../../components/layout";
 import { emptyExportsCallout } from "./empty-exports-callout";
 import { incorrectImportsCallout } from "./incorrect-imports-callout";
 import { modulesCallout } from "./modules-callout";

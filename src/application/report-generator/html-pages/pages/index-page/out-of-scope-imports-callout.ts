@@ -1,9 +1,9 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { callout } from "../atoms/callout";
-import { counter } from "../atoms/counter";
-import { details } from "../atoms/details";
-import { item } from "../atoms/item";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { callout } from "../../atoms/callout";
+import { counter } from "../../atoms/counter";
+import { details } from "../../atoms/details";
+import { item } from "../../atoms/item";
 
 export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectOutOfScopeImports(({ linkData, values }) =>

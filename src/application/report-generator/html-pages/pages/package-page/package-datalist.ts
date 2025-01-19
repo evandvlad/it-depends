@@ -1,6 +1,6 @@
-import type { PackagePageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { datalist } from "../atoms/datalist";
+import type { PackagePageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { datalist } from "../../atoms/datalist";
 
 export function packageDatalist({ fullPath, entryPointLinkData, parentPackageLinkData }: PackagePageViewModel) {
 	return datalist({

@@ -1,10 +1,10 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { callout } from "../atoms/callout";
-import { counter } from "../atoms/counter";
-import { tabs } from "../atoms/tabs";
-import { tree } from "../atoms/tree";
-import { filterableList } from "../components/filtrable-list";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { callout } from "../../atoms/callout";
+import { counter } from "../../atoms/counter";
+import { tabs } from "../../atoms/tabs";
+import { tree } from "../../atoms/tree";
+import { filterableList } from "../../components/filtrable-list";
 
 function getTabs(pageViewModel: IndexPageViewModel) {
 	return tabs({

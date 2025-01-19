@@ -1,12 +1,12 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { callout } from "../atoms/callout";
-import { container } from "../atoms/container";
-import { counter } from "../atoms/counter";
-import { datalist } from "../atoms/datalist";
-import { tabs } from "../atoms/tabs";
-import { tree } from "../atoms/tree";
-import { filterableList } from "../components/filtrable-list";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { callout } from "../../atoms/callout";
+import { container } from "../../atoms/container";
+import { counter } from "../../atoms/counter";
+import { datalist } from "../../atoms/datalist";
+import { tabs } from "../../atoms/tabs";
+import { tree } from "../../atoms/tree";
+import { filterableList } from "../../components/filtrable-list";
 
 export function modulesCallout(pageViewModel: IndexPageViewModel) {
 	const tabsContent = tabs({

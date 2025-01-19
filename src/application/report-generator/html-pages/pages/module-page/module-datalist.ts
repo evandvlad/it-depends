@@ -1,7 +1,7 @@
-import type { ModulePageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { datalist } from "../atoms/datalist";
-import { list } from "../atoms/list";
+import type { ModulePageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { datalist } from "../../atoms/datalist";
+import { list } from "../../atoms/list";
 
 export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({

@@ -1,8 +1,8 @@
-import type { IndexPageViewModel } from "../../page-view-models";
-import { a } from "../atoms/a";
-import { callout } from "../atoms/callout";
-import { counter } from "../atoms/counter";
-import { list } from "../atoms/list";
+import type { IndexPageViewModel } from "../../../page-view-models";
+import { a } from "../../atoms/a";
+import { callout } from "../../atoms/callout";
+import { counter } from "../../atoms/counter";
+import { list } from "../../atoms/list";
 
 export function emptyExportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectEmptyExports((linkData) => ({ content: a(linkData) }));
