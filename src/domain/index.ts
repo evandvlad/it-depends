@@ -1,12 +1,6 @@
 import { assert } from "~/lib/errors";
 import { FSTree } from "~/lib/fs-tree";
-import {
-	type DispatcherPort,
-	type FileItem,
-	type FileItems,
-	type ImportPath,
-	transformFileItems,
-} from "./file-items-transformer";
+import { type DispatcherPort, type FileItem, type FileItems, transformFileItems } from "./file-items-transformer";
 import { type Aliases, type ModulesCollection, collectModules } from "./modules-collector";
 import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Summary, SummaryCollector } from "./summary-collector";
@@ -38,7 +32,6 @@ export type {
 	PackagesCollection,
 	Summary,
 	ExtraPackageEntries,
-	ImportPath,
 };
 
 export async function process({

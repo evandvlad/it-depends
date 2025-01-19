@@ -1,8 +1,8 @@
-import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
+import { joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 
 interface Params {
-	rootPath: AbsoluteFsPath;
+	rootPath: string;
 	fSTree: FSTree;
 }
 
@@ -29,12 +29,12 @@ export class PathInformer {
 		this.#packagesFolderPath = joinPaths(contentPath, "packages");
 	}
 
-	getModuleHtmlPagePathByRealPath(path: AbsoluteFsPath) {
+	getModuleHtmlPagePathByRealPath(path: string) {
 		const shortPath = this.#fSTree.getShortPathByPath(path);
 		return joinPaths(this.#modulesFolderPath, `${shortPath}.html`);
 	}
 
-	getPackageHtmlPagePathByRealPath(path: AbsoluteFsPath) {
+	getPackageHtmlPagePathByRealPath(path: string) {
 		const shortPath = this.#fSTree.getShortPathByPath(path);
 		return joinPaths(this.#packagesFolderPath, `${shortPath}.html`);
 	}

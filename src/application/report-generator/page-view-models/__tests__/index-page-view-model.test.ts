@@ -1,6 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
 import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { PathInformer } from "../../path-informer";
 import { IndexPageViewModel } from "../index-page-view-model";
 
@@ -44,7 +43,7 @@ async function createPageViewModelParams() {
 		modulesCollection,
 		packagesCollection,
 		summary,
-		pathInformer: new PathInformer({ rootPath: "/report" as AbsoluteFsPath, fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fSTree }),
 	};
 }
 

@@ -1,8 +1,8 @@
-import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
+import { joinPaths } from "~/lib/fs-path";
 
 interface Params {
-	assetsPath: AbsoluteFsPath;
-	indexHtmlPagePath: AbsoluteFsPath;
+	assetsPath: string;
+	indexHtmlPagePath: string;
 	version: string;
 	content: string;
 	title?: string;

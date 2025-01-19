@@ -7,7 +7,7 @@ import {
 	isIdentifier,
 	isStringLiteral,
 } from "@babel/types";
-import { type IEItem, ieValueAll, importPath } from "./values";
+import { type IEItem, ieValueAll } from "./values";
 
 const defaultValue = "default";
 
@@ -45,7 +45,7 @@ export function processAST(ast: Node) {
 
 			items.push({
 				type: "standard-import",
-				source: importPath(node.source.value),
+				source: node.source.value,
 				values: values.has(ieValueAll) ? [ieValueAll] : Array.from(values),
 			});
 		},
@@ -62,7 +62,7 @@ export function processAST(ast: Node) {
 
 			items.push({
 				type: "dynamic-import",
-				source: isStringLiteral(arg) ? importPath(arg.value) : null,
+				source: isStringLiteral(arg) ? arg.value : null,
 			});
 		},
 
@@ -72,7 +72,7 @@ export function processAST(ast: Node) {
 		ExportAllDeclaration({ node }) {
 			items.push({
 				type: "re-export",
-				source: importPath(node.source.value),
+				source: node.source.value,
 				inputValues: [ieValueAll],
 				outputValues: [ieValueAll],
 			});
@@ -107,7 +107,7 @@ export function processAST(ast: Node) {
 				items.push({
 					outputValues,
 					type: "re-export",
-					source: importPath(node.source.value),
+					source: node.source.value,
 					inputValues: inputValues.includes(ieValueAll) ? [ieValueAll] : inputValues,
 				});
 

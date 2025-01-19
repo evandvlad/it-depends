@@ -1,5 +1,4 @@
-import type { ImportPath, ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
 import type { FSTree } from "~/lib/fs-tree";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
@@ -121,7 +120,7 @@ export class IndexPageViewModel extends PageViewModel {
 			);
 	}
 
-	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: ImportPath[] }) => T) {
+	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
 		return this.#summary.outOfScopeImports
 			.toEntries()
 			.toSorted((first, second) => second[1].length - first[1].length)
@@ -185,7 +184,7 @@ export class IndexPageViewModel extends PageViewModel {
 			);
 	}
 
-	#collectModulesTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectModulesTree<T>(path: string, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return this.#fSTree.getNodeChildrenByPath(path).map(({ path, name }) => {
 			const content = handler(
 				this.#modulesCollection.has(path)
@@ -207,7 +206,7 @@ export class IndexPageViewModel extends PageViewModel {
 		});
 	}
 
-	#collectPackagesTree<T>(paths: AbsoluteFsPath[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectPackagesTree<T>(paths: string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
 			const pack = this.#packagesCollection.get(path);
 
@@ -226,7 +225,7 @@ export class IndexPageViewModel extends PageViewModel {
 		});
 	}
 
-	#findRootPackages(path: AbsoluteFsPath): AbsoluteFsPath[] {
+	#findRootPackages(path: string): string[] {
 		const node = this.#fSTree.getNodeByPath(path);
 
 		if (this.#packagesCollection.has(node.path)) {

@@ -1,4 +1,3 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import type { ImportSource, Module } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
@@ -80,7 +79,7 @@ export class IncorrectImportsFinder {
 		return true;
 	}
 
-	#findPackageByFilePath(filePath: AbsoluteFsPath): Package | null {
+	#findPackageByFilePath(filePath: string): Package | null {
 		let parentNode = this.#fSTree.getNodeByPath(filePath).parent;
 
 		while (parentNode) {

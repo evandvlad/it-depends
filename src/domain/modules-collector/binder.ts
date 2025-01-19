@@ -1,4 +1,3 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { ImportSource, Module, ModulesCollection } from "./values";
 
 class ResolvedMarks {
@@ -28,7 +27,7 @@ function getImportSourcesInScope(importSources: ImportSource[]) {
 }
 
 function createFullExportsResolver() {
-	const enteredFilePaths = new Set<AbsoluteFsPath>();
+	const enteredFilePaths = new Set<string>();
 
 	function canProcessExportValues({ currentModule, sourceModule }: { currentModule: Module; sourceModule: Module }) {
 		const hasOutOfScopeUnresolvedFullExportsOnCurrentModule = currentModule.unresolvedFullExports.some(

@@ -7,7 +7,6 @@ import {
 	type FileEntry,
 	type FileItem,
 	type FileItems,
-	type ImportPath,
 	type ParserErrors,
 	ieValueAll,
 } from "./values";
@@ -24,7 +23,6 @@ export {
 	type FileItem,
 	type ParserErrors,
 	type FileItems,
-	type ImportPath,
 	type DispatcherPort,
 };
 

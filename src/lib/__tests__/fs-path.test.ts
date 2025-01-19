@@ -1,14 +1,6 @@
 import { platform } from "node:os";
 import { describe, expect, it } from "@jest/globals";
-import {
-	type AbsoluteFsPath,
-	getBreadcrumbs,
-	getName,
-	getParentPath,
-	isAbsolutePath,
-	joinPaths,
-	normalizePath,
-} from "../fs-path";
+import { getBreadcrumbs, getName, getParentPath, isAbsolutePath, joinPaths, normalizePath } from "../fs-path";
 
 const isWindows = platform() === "win32";
 
@@ -40,7 +32,7 @@ describe("fs-path", () => {
 				result: "C:/tmp/file.txt",
 			},
 		])("$name", ({ path, result }) => {
-			expect(normalizePath(path as AbsoluteFsPath)).toEqual(result);
+			expect(normalizePath(path)).toEqual(result);
 		});
 	});
 
@@ -53,7 +45,7 @@ describe("fs-path", () => {
 				result: "/tmp/file.txt",
 			},
 		])("$name", ({ path1, path2, result }) => {
-			expect(joinPaths(path1 as AbsoluteFsPath, path2)).toEqual(result);
+			expect(joinPaths(path1, path2)).toEqual(result);
 		});
 	});
 
@@ -77,7 +69,7 @@ describe("fs-path", () => {
 				result: "/",
 			},
 		])("$name", ({ path, result }) => {
-			expect(getParentPath(path as AbsoluteFsPath)).toEqual(result);
+			expect(getParentPath(path)).toEqual(result);
 		});
 	});
 
@@ -104,7 +96,7 @@ describe("fs-path", () => {
 				result: "file.js",
 			},
 		])("$name", ({ path, result }) => {
-			expect(getName(path as AbsoluteFsPath)).toEqual(result);
+			expect(getName(path)).toEqual(result);
 		});
 	});
 
@@ -141,7 +133,7 @@ describe("fs-path", () => {
 				result: ["/"],
 			},
 		])("$name", ({ path, result }) => {
-			expect(getBreadcrumbs(path as AbsoluteFsPath)).toEqual(result);
+			expect(getBreadcrumbs(path)).toEqual(result);
 		});
 	});
 });

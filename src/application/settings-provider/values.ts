@@ -2,11 +2,10 @@ import type { PathFilter } from "~/application/file-items-generator";
 import type { ReportSettings } from "~/application/report-generator";
 import type { Aliases, ExtraPackageEntries } from "~/domain";
 import type { EventBusDispatcher } from "~/lib/event-bus";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 
 interface Conf {
 	version: string;
-	reportStaticAssetsPath: AbsoluteFsPath;
+	reportStaticAssetsPath: string;
 }
 
 export interface ConfLoaderPort {
@@ -14,7 +13,7 @@ export interface ConfLoaderPort {
 }
 
 export interface FSysPort {
-	checkAccess: (path: AbsoluteFsPath) => Promise<boolean>;
+	checkAccess: (path: string) => Promise<boolean>;
 }
 
 export type DispatcherPort = EventBusDispatcher<{
@@ -23,7 +22,7 @@ export type DispatcherPort = EventBusDispatcher<{
 }>;
 
 export interface Settings {
-	paths: AbsoluteFsPath[];
+	paths: string[];
 	pathFilter: PathFilter;
 	aliases: Aliases;
 	extraPackageEntries: ExtraPackageEntries;

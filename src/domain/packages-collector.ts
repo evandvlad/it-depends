@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, getName } from "~/lib/fs-path";
+import { getName } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./module-expert";
@@ -12,19 +12,19 @@ interface Params {
 
 export interface ExtraPackageEntries {
 	fileNames: string[];
-	filePaths: AbsoluteFsPath[];
+	filePaths: string[];
 }
 
 export interface Package {
-	path: AbsoluteFsPath;
+	path: string;
 	name: string;
-	entryPoint: AbsoluteFsPath;
-	parent: AbsoluteFsPath | null;
-	modules: AbsoluteFsPath[];
-	packages: AbsoluteFsPath[];
+	entryPoint: string;
+	parent: string | null;
+	modules: string[];
+	packages: string[];
 }
 
-export type PackagesCollection = Rec<AbsoluteFsPath, Package>;
+export type PackagesCollection = Rec<string, Package>;
 
 export class PackagesCollector {
 	#fSTree;
@@ -43,7 +43,7 @@ export class PackagesCollector {
 		return this.#fillPackages(packagesCollection);
 	}
 
-	#collectPackages(packagesCollection: PackagesCollection, parentPath: AbsoluteFsPath) {
+	#collectPackages(packagesCollection: PackagesCollection, parentPath: string) {
 		const nodes = this.#fSTree.getNodeChildrenByPath(parentPath);
 
 		const filePaths = nodes.filter(({ isFile }) => isFile).map(({ path }) => path);
@@ -69,8 +69,8 @@ export class PackagesCollector {
 		return packagesCollection;
 	}
 
-	#fillPackage(packagesCollection: PackagesCollection, pack: Package, currentPath: AbsoluteFsPath) {
-		const subPaths: AbsoluteFsPath[] = [];
+	#fillPackage(packagesCollection: PackagesCollection, pack: Package, currentPath: string) {
+		const subPaths: string[] = [];
 
 		this.#fSTree.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
 			if (isFile) {
@@ -93,7 +93,7 @@ export class PackagesCollector {
 		});
 	}
 
-	#resolveEntryPointModule(filePaths: AbsoluteFsPath[]) {
+	#resolveEntryPointModule(filePaths: string[]) {
 		if (filePaths.length === 0) {
 			return null;
 		}
@@ -118,7 +118,7 @@ export class PackagesCollector {
 			}
 
 			return acc;
-		}, new Map<number, AbsoluteFsPath>());
+		}, new Map<number, string>());
 
 		if (entryPointCandidates.size === 0) {
 			return null;
@@ -128,7 +128,7 @@ export class PackagesCollector {
 		return entryPointCandidates.get(minIndex)!;
 	}
 
-	#createPackage({ path, entryPoint }: { path: AbsoluteFsPath; entryPoint: AbsoluteFsPath }): Package {
+	#createPackage({ path, entryPoint }: { path: string; entryPoint: string }): Package {
 		return {
 			path,
 			entryPoint,

@@ -1,12 +1,11 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { Rec } from "~/lib/rec";
 
 export interface Node {
 	parent: Node | null;
-	path: AbsoluteFsPath;
+	path: string;
 	name: string;
 	isFile: boolean;
 	children: NodesMap;
 }
 
-export type NodesMap = Rec<AbsoluteFsPath, Node>;
+export type NodesMap = Rec<string, Node>;

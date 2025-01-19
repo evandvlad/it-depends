@@ -1,5 +1,4 @@
 import type { PackagesCollection } from "~/domain";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
@@ -7,7 +6,7 @@ import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
-	path: AbsoluteFsPath;
+	path: string;
 	fSTree: FSTree;
 	pathInformer: PathInformer;
 	packagesCollection: PackagesCollection;

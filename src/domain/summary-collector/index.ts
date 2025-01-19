@@ -1,7 +1,6 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
-import type { ImportPath, ParserErrors } from "../file-items-transformer";
+import type { ParserErrors } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 import type { ImportSource, Module, ModulesCollection } from "../modules-collector";
 import type { PackagesCollection } from "../packages-collector";
@@ -17,14 +16,14 @@ interface Params {
 export interface Summary {
 	packages: number;
 	languages: Rec<Language, number>;
-	unparsedDynamicImports: Rec<AbsoluteFsPath, number>;
-	unresolvedFullImports: Rec<AbsoluteFsPath, number>;
-	unresolvedFullExports: Rec<AbsoluteFsPath, number>;
-	shadowedExportValues: Rec<AbsoluteFsPath, number>;
-	outOfScopeImports: Rec<AbsoluteFsPath, ImportPath[]>;
-	possiblyUnusedExportValues: Rec<AbsoluteFsPath, string[]>;
-	incorrectImports: Rec<AbsoluteFsPath, ImportSource[]>;
-	emptyExports: AbsoluteFsPath[];
+	unparsedDynamicImports: Rec<string, number>;
+	unresolvedFullImports: Rec<string, number>;
+	unresolvedFullExports: Rec<string, number>;
+	shadowedExportValues: Rec<string, number>;
+	outOfScopeImports: Rec<string, string[]>;
+	possiblyUnusedExportValues: Rec<string, string[]>;
+	incorrectImports: Rec<string, ImportSource[]>;
+	emptyExports: string[];
 	parserErrors: ParserErrors;
 }
 

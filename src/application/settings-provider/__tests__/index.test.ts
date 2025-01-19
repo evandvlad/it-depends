@@ -1,10 +1,9 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { AppError } from "~/lib/errors";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import { createSettings } from "..";
 
-const conf = { version: "999", reportStaticAssetsPath: "/assets" as AbsoluteFsPath };
+const conf = { version: "999", reportStaticAssetsPath: "/assets" };
 
 const confLoaderPort = {
 	load() {

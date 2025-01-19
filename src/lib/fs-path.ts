@@ -1,14 +1,8 @@
 import { isAbsolute, join } from "node:path";
 
-type ShortFsPath = string & { __brand: "short-fs-path" };
-
-export type AbsoluteFsPath = string & { __brand: "absolute-fs-path" };
-
-type FsPath = ShortFsPath | AbsoluteFsPath;
-
 export const delimiter = "/";
 
-function splitPath<T extends FsPath>(path: T) {
+function splitPath(path: string) {
 	const parts = path.split(delimiter);
 
 	if (!parts[0]) {
@@ -18,44 +12,36 @@ function splitPath<T extends FsPath>(path: T) {
 	return parts.filter(Boolean);
 }
 
-export function shortFsPath(path: string) {
-	return path as ShortFsPath;
-}
-
-export function absoluteFsPath(path: string) {
-	return path as AbsoluteFsPath;
-}
-
-export function normalizePath<T extends FsPath>(path: T) {
+export function normalizePath(path: string) {
 	const escapedPath = path.replaceAll("\\", delimiter).replace(/\/{2,}/g, delimiter);
 
 	if (escapedPath === delimiter || !escapedPath.endsWith(delimiter)) {
-		return escapedPath as T;
+		return escapedPath;
 	}
 
-	return escapedPath.slice(0, -1) as T;
+	return escapedPath.slice(0, -1);
 }
 
-export function joinPaths(path: AbsoluteFsPath, subPath: string): AbsoluteFsPath {
-	return normalizePath(join(path, subPath) as AbsoluteFsPath);
+export function joinPaths(path: string, subPath: string) {
+	return normalizePath(join(path, subPath));
 }
 
-export function isAbsolutePath(path: string): path is AbsoluteFsPath {
+export function isAbsolutePath(path: string) {
 	return isAbsolute(path);
 }
 
-export function getParentPath(path: AbsoluteFsPath): AbsoluteFsPath {
+export function getParentPath(path: string) {
 	return joinPaths(path, "..");
 }
 
-export function getName(path: FsPath) {
+export function getName(path: string) {
 	return splitPath(path).at(-1)!;
 }
 
-export function getBreadcrumbs(path: AbsoluteFsPath) {
-	return splitPath(path).reduce<AbsoluteFsPath[]>((acc, part) => {
+export function getBreadcrumbs(path: string) {
+	return splitPath(path).reduce<string[]>((acc, part) => {
 		if (acc.length === 0) {
-			acc.push(absoluteFsPath(part));
+			acc.push(part);
 			return acc;
 		}
 

@@ -1,11 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { PathInformer } from "../../path-informer";
 import { PackagePageViewModel } from "../package-page-view-model";
 
 async function createPageViewModelParams() {
-	const rootPath = "/report" as AbsoluteFsPath;
+	const rootPath = "/report";
 
 	const { packagesCollection, fSTree } = await processFileItems([
 		{
@@ -28,7 +27,7 @@ async function createPageViewModelParams() {
 
 	return {
 		fSTree,
-		path: "/src/lib/a" as AbsoluteFsPath,
+		path: "/src/lib/a",
 		version: "999",
 		packagesCollection,
 		pathInformer: new PathInformer({ rootPath, fSTree }),

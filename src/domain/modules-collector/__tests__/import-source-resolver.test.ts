@@ -1,8 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
-import type { ImportPath } from "../../file-items-transformer";
 import { ImportSourceResolver } from "../import-source-resolver";
 
 describe("import-source-resolver", () => {
@@ -303,16 +301,16 @@ describe("import-source-resolver", () => {
 			},
 		},
 	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
-		const fSTree = new FSTree(filePaths as AbsoluteFsPath[]);
+		const fSTree = new FSTree(filePaths);
 		const importSourceResolver = new ImportSourceResolver({
 			fSTree,
-			aliases: Rec.fromObject(aliases as Record<string, AbsoluteFsPath>),
+			aliases: Rec.fromObject(aliases as Record<string, string>),
 		});
 
 		expect(
 			importSourceResolver.resolve({
-				filePath: filePath as AbsoluteFsPath,
-				importPath: importPath as ImportPath,
+				filePath,
+				importPath,
 			}),
 		).toEqual(result);
 	});

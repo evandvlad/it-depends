@@ -1,5 +1,3 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
-
 const declarationFileExtName = ".d.ts";
 
 export const orderedByResolvingPriorityAcceptableFileExtNames = [
@@ -29,7 +27,7 @@ const moduleDetailsByAcceptableFileExtName: Record<AcceptableFileExtName, Module
 	".tsx": { language: "typescript", allowedJSXSyntax: true },
 };
 
-export function getAcceptableFileExtNameByPath(path: AbsoluteFsPath): AcceptableFileExtName | null {
+export function getAcceptableFileExtNameByPath(path: string): AcceptableFileExtName | null {
 	if (path.endsWith(declarationFileExtName)) {
 		return declarationFileExtName;
 	}

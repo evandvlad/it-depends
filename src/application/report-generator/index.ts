@@ -1,5 +1,4 @@
 import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
@@ -34,7 +33,7 @@ export async function generateReport({
 	dispatcherPort.dispatch("report-generation:started");
 
 	const { version } = settings;
-	const htmlPages = new Rec<AbsoluteFsPath, string>();
+	const htmlPages = new Rec<string, string>();
 
 	htmlPages.set(
 		pathInformer.indexHtmlPagePath,

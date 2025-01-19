@@ -1,7 +1,7 @@
 import type { PathFilter } from "~/application/file-items-generator";
 import type { ExtraPackageEntries } from "~/domain";
 import { assert } from "~/lib/errors";
-import { type AbsoluteFsPath, isAbsolutePath, normalizePath } from "~/lib/fs-path";
+import { isAbsolutePath, normalizePath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import type { FSysPort } from "./values";
 
@@ -18,7 +18,7 @@ export class OptionProcessor {
 
 	async processPaths(paths: string[]) {
 		const baseErrorMessage = "Option 'paths' should be an array fulfilled with real absolute paths.";
-		const processedPaths: AbsoluteFsPath[] = [];
+		const processedPaths: string[] = [];
 
 		assert(paths.length > 0, baseErrorMessage);
 
@@ -40,7 +40,7 @@ export class OptionProcessor {
 	}
 
 	async processAliases(rawAliases?: Record<string, string>) {
-		const aliases = new Rec<string, AbsoluteFsPath>();
+		const aliases = new Rec<string, string>();
 
 		if (!rawAliases) {
 			return aliases;
@@ -76,7 +76,7 @@ export class OptionProcessor {
 		const baseErrorMessage =
 			"Option 'extraPackageEntries.filePaths' should be an array fulfilled with real absolute paths";
 
-		const processedFilePaths: AbsoluteFsPath[] = [];
+		const processedFilePaths: string[] = [];
 
 		for await (const path of entries.filePaths) {
 			assert(isAbsolutePath(path), `${baseErrorMessage} Path '${path}' is not absolute.`);

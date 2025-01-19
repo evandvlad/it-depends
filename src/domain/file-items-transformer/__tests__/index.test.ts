@@ -1,7 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
-import { type FileItem, type ImportPath, transformFileItems } from "..";
+import { type FileItem, transformFileItems } from "..";
 import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
 
 function createEmptyFileItem(path: string) {
@@ -109,7 +108,7 @@ describe("file-items-transformer", () => {
 					ieItems: [
 						{
 							type: "standard-import",
-							source: "b" as ImportPath,
+							source: "b",
 							values: ["default"],
 						},
 					],
@@ -188,7 +187,7 @@ describe("file-items-transformer", () => {
 			dispatcherPort: nullDispatcherPort,
 		});
 
-		expect(parserErrors.get(fileItem.path as AbsoluteFsPath).message).toEqual(errorMessage);
+		expect(parserErrors.get(fileItem.path).message).toEqual(errorMessage);
 	});
 
 	it("should dispatch all events", async () => {

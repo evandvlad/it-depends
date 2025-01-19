@@ -1,6 +1,5 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { generateReport } from "..";
 
 async function createParams() {
@@ -35,14 +34,14 @@ async function createParams() {
 		removeDir: jest.fn(() => Promise.resolve()),
 		makeDir: jest.fn(() => Promise.resolve()),
 		copy: jest.fn(() => Promise.resolve()),
-		writeFile: jest.fn<(path: AbsoluteFsPath, html: string) => Promise<void>>(() => Promise.resolve()),
+		writeFile: jest.fn<(path: string, html: string) => Promise<void>>(() => Promise.resolve()),
 	};
 
 	return {
 		settings: {
 			version: "777",
-			path: "/report" as AbsoluteFsPath,
-			staticAssetsPath: "/assets" as AbsoluteFsPath,
+			path: "/report",
+			staticAssetsPath: "/assets",
 		},
 		dispatcherPort,
 		fSysPort,

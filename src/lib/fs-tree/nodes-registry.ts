@@ -1,5 +1,5 @@
 import { assert } from "~/lib/errors";
-import { type AbsoluteFsPath, getBreadcrumbs, getName } from "~/lib/fs-path";
+import { getBreadcrumbs, getName } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import type { Node, NodesMap } from "./values";
 
@@ -8,10 +8,10 @@ export class NodesRegistry {
 
 	#nodesMap;
 
-	static create(allFilePaths: AbsoluteFsPath[]) {
+	static create(allFilePaths: string[]) {
 		assert(allFilePaths.length > 0, "The file paths list is empty. Can't create FSTree with an empty list.");
 
-		function createNode(path: AbsoluteFsPath, parent: Node | null = null): Node {
+		function createNode(path: string, parent: Node | null = null): Node {
 			return {
 				path,
 				parent,
@@ -21,12 +21,12 @@ export class NodesRegistry {
 			};
 		}
 
-		function attachChildToTree(parent: Node, paths: AbsoluteFsPath[]) {
+		function attachChildToTree(parent: Node, paths: string[]) {
 			if (paths.length === 0) {
 				return;
 			}
 
-			const [path, ...restPaths] = paths as [AbsoluteFsPath, ...AbsoluteFsPath[]];
+			const [path, ...restPaths] = paths as [string, ...string[]];
 
 			if (!parent.children.has(path)) {
 				const node = createNode(path, parent);
@@ -57,11 +57,11 @@ export class NodesRegistry {
 		this.rootNode = rootNode;
 	}
 
-	hasNode(path: AbsoluteFsPath) {
+	hasNode(path: string) {
 		return this.#nodesMap.has(path);
 	}
 
-	getNode(path: AbsoluteFsPath) {
+	getNode(path: string) {
 		return this.#nodesMap.get(path);
 	}
 }

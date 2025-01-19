@@ -1,4 +1,4 @@
-import { type AbsoluteFsPath, delimiter, shortFsPath } from "~/lib/fs-path";
+import { delimiter } from "~/lib/fs-path";
 import { NodesRegistry } from "./nodes-registry";
 
 export class FSTree {
@@ -9,7 +9,7 @@ export class FSTree {
 	#rootNode;
 	#shortRootNode;
 
-	constructor(allFilePaths: AbsoluteFsPath[]) {
+	constructor(allFilePaths: string[]) {
 		this.#nodesRegistry = NodesRegistry.create(allFilePaths);
 		this.#rootNode = this.#nodesRegistry.rootNode;
 		this.rootPath = this.#rootNode.path;
@@ -18,26 +18,26 @@ export class FSTree {
 		this.shortRootPath = this.#shortRootNode.path;
 	}
 
-	getShortPathByPath(path: AbsoluteFsPath) {
+	getShortPathByPath(path: string) {
 		if (!this.#shortRootNode.parent) {
-			return shortFsPath(path);
+			return path;
 		}
 
 		const rootPath = this.#shortRootNode.parent.path;
 		const basePathLength = rootPath === delimiter ? rootPath.length : rootPath.length + 1;
 
-		return shortFsPath(path.slice(basePathLength) || path);
+		return path.slice(basePathLength) || path;
 	}
 
-	hasNodeByPath(path: AbsoluteFsPath) {
+	hasNodeByPath(path: string) {
 		return this.#nodesRegistry.hasNode(path);
 	}
 
-	getNodeByPath(path: AbsoluteFsPath) {
+	getNodeByPath(path: string) {
 		return this.#nodesRegistry.getNode(path);
 	}
 
-	getNodeChildrenByPath(path: AbsoluteFsPath) {
+	getNodeChildrenByPath(path: string) {
 		const node = this.getNodeByPath(path);
 		return node.children.toValues().toSorted((a, b) => Number(a.isFile) - Number(b.isFile));
 	}

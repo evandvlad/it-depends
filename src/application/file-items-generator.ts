@@ -1,16 +1,15 @@
 import type { FileItems } from "~/domain";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 
-export type PathFilter = (path: AbsoluteFsPath) => boolean;
+export type PathFilter = (path: string) => boolean;
 
 interface FSysPort {
-	getStatEntryType: (path: AbsoluteFsPath) => Promise<"file" | "dir" | "unknown">;
-	readFile: (path: AbsoluteFsPath) => Promise<string>;
-	readDir: (path: AbsoluteFsPath) => Promise<AbsoluteFsPath[]>;
+	getStatEntryType: (path: string) => Promise<"file" | "dir" | "unknown">;
+	readFile: (path: string) => Promise<string>;
+	readDir: (path: string) => Promise<string[]>;
 }
 
 interface Params {
-	paths: AbsoluteFsPath[];
+	paths: string[];
 	fSysPort: FSysPort;
 	pathFilter: PathFilter;
 }
@@ -19,7 +18,7 @@ class FileItemsGenerator {
 	#paths;
 	#fSysPort;
 	#pathFilter;
-	#loadedPaths = new Set<AbsoluteFsPath>();
+	#loadedPaths = new Set<string>();
 
 	constructor({ paths, fSysPort, pathFilter }: Params) {
 		this.#paths = paths;
@@ -34,7 +33,7 @@ class FileItemsGenerator {
 		this.#loadedPaths.clear();
 	}
 
-	async *#generateFileItems(paths: AbsoluteFsPath[]): FileItems {
+	async *#generateFileItems(paths: string[]): FileItems {
 		for (const path of paths) {
 			if (this.#loadedPaths.has(path)) {
 				continue;

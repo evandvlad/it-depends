@@ -1,5 +1,4 @@
 import { describe, expect, it } from "@jest/globals";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { type PathFilter, createFileItemsGenerator } from "../file-items-generator";
 
 const fsTestData = new Map([
@@ -49,7 +48,7 @@ async function loadAllFilesAndGetPathsImmediately({
 
 	for await (const entry of createFileItemsGenerator({
 		pathFilter,
-		paths: paths as AbsoluteFsPath[],
+		paths: paths,
 		fSysPort: {
 			getStatEntryType(path) {
 				return Promise.resolve(fsTestData.get(path)!.type as "file" | "dir");
@@ -58,7 +57,7 @@ async function loadAllFilesAndGetPathsImmediately({
 				return Promise.resolve(fsTestData.get(path)!.content!);
 			},
 			readDir(path) {
-				return Promise.resolve(fsTestData.get(path)!.children! as AbsoluteFsPath[]);
+				return Promise.resolve(fsTestData.get(path)!.children!);
 			},
 		},
 	})) {

@@ -1,14 +1,13 @@
 import { AppError } from "~/lib/errors";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { Rec } from "~/lib/rec";
 import type { FSysPort } from "./values";
 
 interface Params {
 	fSysPort: FSysPort;
-	rootPath: AbsoluteFsPath;
-	assetsPath: AbsoluteFsPath;
-	staticAssetsPath: AbsoluteFsPath;
-	htmlPages: Rec<AbsoluteFsPath, string>;
+	rootPath: string;
+	assetsPath: string;
+	staticAssetsPath: string;
+	htmlPages: Rec<string, string>;
 }
 
 export async function writeReport({ fSysPort, rootPath, assetsPath, staticAssetsPath, htmlPages }: Params) {

@@ -1,6 +1,5 @@
-import { type AbsoluteFsPath, absoluteFsPath, delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
+import { delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
-import type { ImportPath } from "../file-items-transformer";
 import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
 import type { Aliases, ImportSource } from "./values";
 
@@ -18,7 +17,7 @@ export class ImportSourceResolver {
 		this.#aliases = aliases;
 	}
 
-	resolve({ filePath, importPath }: { filePath: AbsoluteFsPath; importPath: ImportPath }) {
+	resolve({ filePath, importPath }: { filePath: string; importPath: string }) {
 		const importSource: ImportSource = {
 			importPath,
 		};
@@ -32,11 +31,16 @@ export class ImportSourceResolver {
 		return importSource;
 	}
 
-	#isRelativeImport(path: ImportPath) {
-		return path === "." || path === ".." || path.startsWith(`.${delimiter}`) || path.startsWith(`..${delimiter}`);
+	#isRelativeImport(importPath: string) {
+		return (
+			importPath === "." ||
+			importPath === ".." ||
+			importPath.startsWith(`.${delimiter}`) ||
+			importPath.startsWith(`..${delimiter}`)
+		);
 	}
 
-	#resolvePath(filePath: AbsoluteFsPath, importPath: ImportPath) {
+	#resolvePath(filePath: string, importPath: string) {
 		const absoluteImportPath = this.#calcAbsoluteImportPath(filePath, importPath);
 
 		if (!absoluteImportPath) {
@@ -48,7 +52,7 @@ export class ImportSourceResolver {
 		return candidates.find((importPathCandidate) => this.#fSTree.hasNodeByPath(importPathCandidate)) ?? null;
 	}
 
-	#calcAbsoluteImportPath(filePath: AbsoluteFsPath, importPath: ImportPath) {
+	#calcAbsoluteImportPath(filePath: string, importPath: string) {
 		const isRelativeImport = this.#isRelativeImport(importPath);
 
 		if (isRelativeImport) {
@@ -71,11 +75,9 @@ export class ImportSourceResolver {
 		return null;
 	}
 
-	#getImportResolutionFSPaths(absoluteImportPath: AbsoluteFsPath) {
+	#getImportResolutionFSPaths(absoluteImportPath: string) {
 		return [
-			...orderedByResolvingPriorityAcceptableFileExtNames.map((extName) =>
-				absoluteFsPath(`${absoluteImportPath}${extName}`),
-			),
+			...orderedByResolvingPriorityAcceptableFileExtNames.map((extName) => `${absoluteImportPath}${extName}`),
 			...orderedByResolvingPriorityAcceptableFileExtNames.map((extName) =>
 				joinPaths(absoluteImportPath, `${entryPointFileName}${extName}`),
 			),

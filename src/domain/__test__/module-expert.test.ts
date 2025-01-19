@@ -1,5 +1,4 @@
 import { describe, expect, it } from "@jest/globals";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { getAcceptableFileExtNameByPath } from "../module-expert";
 
 describe("module-expert", () => {
@@ -25,7 +24,7 @@ describe("module-expert", () => {
 			{ name: "should be null for *.svg", path: "C:/dir/file.svg", result: null },
 			{ name: "should be null for *.json", path: "C:/dir/file.json", result: null },
 		])("$name", ({ path, result }) => {
-			expect(getAcceptableFileExtNameByPath(path as AbsoluteFsPath)).toEqual(result);
+			expect(getAcceptableFileExtNameByPath(path)).toEqual(result);
 		});
 	});
 });

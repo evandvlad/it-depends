@@ -1,13 +1,11 @@
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { Rec } from "~/lib/rec";
-import type { ImportPath } from "../file-items-transformer";
 import type { Language } from "../module-expert";
 
-export type Aliases = Rec<string, AbsoluteFsPath>;
+export type Aliases = Rec<string, string>;
 
 export interface ImportSource {
-	importPath: ImportPath;
-	filePath?: AbsoluteFsPath;
+	importPath: string;
+	filePath?: string;
 }
 
 interface ImportData {
@@ -16,17 +14,17 @@ interface ImportData {
 }
 
 export interface Module {
-	path: AbsoluteFsPath;
+	path: string;
 	name: string;
-	package: AbsoluteFsPath | null;
+	package: string | null;
 	language: Language;
 	content: string;
 	imports: ImportData[];
-	exports: Rec<string, AbsoluteFsPath[]>;
+	exports: Rec<string, string[]>;
 	unresolvedFullImports: ImportSource[];
 	unresolvedFullExports: ImportSource[];
 	shadowedExportValues: string[];
 	unparsedDynamicImports: number;
 }
 
-export type ModulesCollection = Rec<AbsoluteFsPath, Module>;
+export type ModulesCollection = Rec<string, Module>;

@@ -1,18 +1,13 @@
 import { expect } from "@jest/globals";
 
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import type { FileEntries, FileEntry } from "../file-items-transformer";
 import type { Module, ModulesCollection } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
 import type { Summary } from "../summary-collector";
 
-type FileEntriesListTestInput = Array<Omit<FileEntry, "path"> & { path: string }>;
-
-export function createFileEntries(fileEntriesList: FileEntriesListTestInput): FileEntries {
-	return Rec.fromEntries(
-		fileEntriesList.map((fileEntry) => [fileEntry.path as AbsoluteFsPath, fileEntry as FileEntry]),
-	);
+export function createFileEntries(fileEntriesList: FileEntry[]): FileEntries {
+	return Rec.fromEntries(fileEntriesList.map((fileEntry) => [fileEntry.path, fileEntry as FileEntry]));
 }
 
 export function createModule(parts: Partial<Module>) {

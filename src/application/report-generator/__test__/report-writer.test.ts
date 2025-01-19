@@ -1,18 +1,17 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { AppError } from "~/lib/errors";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import { writeReport } from "../report-writer";
 
-const rootPath = "/report" as AbsoluteFsPath;
-const assetsPath = "/report/assets" as AbsoluteFsPath;
-const staticAssetsPath = "/assets" as AbsoluteFsPath;
+const rootPath = "/report";
+const assetsPath = "/report/assets";
+const staticAssetsPath = "/assets";
 
 const htmlPages = Rec.fromObject({
 	"/report/content/f1.html": "f1",
 	"/report/content/f2.html": "f2",
 	"/report/content/f3.html": "f3",
-}) as unknown as Rec<AbsoluteFsPath, string>;
+}) as unknown as Rec<string, string>;
 
 function createFSysPort() {
 	return {

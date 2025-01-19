@@ -1,5 +1,4 @@
-import type { ImportPath, ModulesCollection, Summary } from "~/domain";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { ModulesCollection, Summary } from "~/domain";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
@@ -8,7 +7,7 @@ import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
-	path: AbsoluteFsPath;
+	path: string;
 	fSTree: FSTree;
 	pathInformer: PathInformer;
 	modulesCollection: ModulesCollection;
@@ -84,7 +83,7 @@ export class ModulePageViewModel extends PageViewModel {
 			});
 
 			return acc;
-		}, new Rec<AbsoluteFsPath, string[]>());
+		}, new Rec<string, string[]>());
 
 		return rec
 			.toEntries()
@@ -106,15 +105,15 @@ export class ModulePageViewModel extends PageViewModel {
 		);
 	}
 
-	collectOutOfScopeImports<T>(handler: (path: ImportPath) => T) {
+	collectOutOfScopeImports<T>(handler: (path: string) => T) {
 		return this.#summary.outOfScopeImports.getOrDefault(this.fullPath, []).map((path) => handler(path));
 	}
 
-	collectUnresolvedFullImports<T>(handler: (path: ImportPath) => T) {
+	collectUnresolvedFullImports<T>(handler: (path: string) => T) {
 		return this.#module.unresolvedFullImports.map(({ importPath }) => handler(importPath));
 	}
 
-	collectUnresolvedFullExports<T>(handler: (path: ImportPath) => T) {
+	collectUnresolvedFullExports<T>(handler: (path: string) => T) {
 		return this.#module.unresolvedFullExports.map(({ importPath }) => handler(importPath));
 	}
 }

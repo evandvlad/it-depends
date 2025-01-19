@@ -1,6 +1,5 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { EventBus } from "~/lib/event-bus";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 import type { GlobalEventBusRecord } from "~/values";
 import { Logger } from "../logger";
 
@@ -22,16 +21,16 @@ describe("logger", () => {
 		eventBus.dispatch("settings-preparation:started");
 		eventBus.dispatch("settings-preparation:finished");
 		eventBus.dispatch("files-transformation:started");
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file1.ts" as AbsoluteFsPath });
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file2.ts" as AbsoluteFsPath });
+		eventBus.dispatch("files-transformation:file-processed", { path: "src/file1.ts" });
+		eventBus.dispatch("files-transformation:file-processed", { path: "src/file2.ts" });
 		eventBus.dispatch("files-transformation:file-processing-failed", {
-			path: "src/file2.ts" as AbsoluteFsPath,
+			path: "src/file2.ts",
 			error: new Error("Ooops"),
 		});
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file4.ts" as AbsoluteFsPath });
+		eventBus.dispatch("files-transformation:file-processed", { path: "src/file4.ts" });
 		eventBus.dispatch("files-transformation:finished");
 		eventBus.dispatch("report-generation:started");
-		eventBus.dispatch("report-generation:finished", { path: "/report/index.html" as AbsoluteFsPath });
+		eventBus.dispatch("report-generation:finished", { path: "/report/index.html" });
 		eventBus.dispatch("app:finished");
 
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(1, expect.stringContaining("Started"));
