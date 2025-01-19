@@ -1,8 +1,10 @@
+export type Color = "green" | "yellow" | "red" | "blue" | "transparent";
+
 interface Params {
 	title: string;
 	content?: string;
 	open?: boolean;
-	color?: "green" | "yellow" | "red" | "blue" | "transparent";
+	color?: Color;
 }
 
 export function callout({ title, content, open, color = "transparent" }: Params) {

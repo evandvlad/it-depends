@@ -1,9 +1,8 @@
 import type { IndexPageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { callout } from "../../atoms/callout";
-import { counter } from "../../atoms/counter";
 import { tabs } from "../../atoms/tabs";
 import { tree } from "../../atoms/tree";
+import { countCallout } from "../../components/count-callout";
 import { filterableList } from "../../components/filtrable-list";
 
 function getTabs(pageViewModel: IndexPageViewModel) {
@@ -28,9 +27,9 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 }
 
 export function packagesCallout(pageViewModel: IndexPageViewModel) {
-	return callout({
-		title: `Packages ${counter({ value: pageViewModel.numOfPackages, color: "white" })}`,
+	return countCallout({
+		title: "Packages",
+		counter: { value: pageViewModel.numOfPackages },
 		content: pageViewModel.numOfPackages > 0 ? getTabs(pageViewModel) : "",
-		color: "green",
 	});
 }

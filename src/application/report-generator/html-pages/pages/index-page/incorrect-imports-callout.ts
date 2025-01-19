@@ -1,10 +1,10 @@
 import type { IndexPageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { callout } from "../../atoms/callout";
 import { counter } from "../../atoms/counter";
 import { details } from "../../atoms/details";
 import { item } from "../../atoms/item";
 import { list } from "../../atoms/list";
+import { countCallout } from "../../components/count-callout";
 
 export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.collectIncorrectImports(({ linkData, importItems }) =>
@@ -19,8 +19,9 @@ export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 		}),
 	);
 
-	return callout({
-		title: `Incorrect imports ${counter({ value: pageViewModel.numOfIncorrectImports, color: "white" })}`,
+	return countCallout({
+		title: "Incorrect imports",
+		counter: { value: pageViewModel.numOfIncorrectImports },
 		content: items.join(""),
 		color: pageViewModel.numOfIncorrectImports > 0 ? "red" : "green",
 	});

@@ -1,10 +1,10 @@
 import type { IndexPageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { callout } from "../../atoms/callout";
 import { counter } from "../../atoms/counter";
 import { details } from "../../atoms/details";
 import { item } from "../../atoms/item";
 import { tabs } from "../../atoms/tabs";
+import { countCallout } from "../../components/count-callout";
 
 export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) {
 	const fullyUnusedItems: string[] = [];
@@ -26,11 +26,9 @@ export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) 
 		}
 	});
 
-	return callout({
-		title: `Possibly unused exports ${counter({
-			value: pageViewModel.numOfPossiblyUnusedExports,
-			color: "white",
-		})}`,
+	return countCallout({
+		title: "Possibly unused exports",
+		counter: { value: pageViewModel.numOfPossiblyUnusedExports },
 		content: tabs({
 			items: [
 				{ label: "Fully possible unused", content: fullyUnusedItems.join("") },
