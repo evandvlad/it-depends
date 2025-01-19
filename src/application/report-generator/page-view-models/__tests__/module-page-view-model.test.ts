@@ -42,8 +42,11 @@ describe("module-page-view-model", () => {
 		const pageViewModel = new ModulePageViewModel(params);
 
 		expect(pageViewModel.version).toEqual(params.version);
-		expect(pageViewModel.assetsPath).toEqual("/report/assets");
-		expect(pageViewModel.indexHtmlPagePath).toEqual("/report/content/index.html");
+		expect(pageViewModel.layoutParams).toEqual({
+			indexHtmlPagePath: "/report/content/index.html",
+			externalStylePaths: ["/report/assets/index.css"],
+			externalScriptPaths: ["/report/assets/index.js"],
+		});
 	});
 
 	it("should get base module properties correctly", async () => {

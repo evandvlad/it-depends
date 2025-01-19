@@ -19,8 +19,6 @@ export function packagePage(pageViewModel: PackagePageViewModel) {
 
 	return layout({
 		title,
-		assetsPath: pageViewModel.assetsPath,
-		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
 		version: pageViewModel.version,
 		header: headerHeading({ content: title }),
 		content: container({
@@ -28,5 +26,6 @@ export function packagePage(pageViewModel: PackagePageViewModel) {
 			direction: "horizontal",
 			gap: "20px",
 		}),
+		...pageViewModel.layoutParams,
 	});
 }

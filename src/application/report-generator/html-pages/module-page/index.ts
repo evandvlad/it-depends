@@ -30,8 +30,6 @@ export function modulePage(pageViewModel: ModulePageViewModel) {
 	`;
 
 	return layout({
-		assetsPath: pageViewModel.assetsPath,
-		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
 		version: pageViewModel.version,
 		title,
 		header: headerHeading({ content: title }),
@@ -40,5 +38,6 @@ export function modulePage(pageViewModel: ModulePageViewModel) {
 			direction: "horizontal",
 			gap: "20px",
 		}),
+		...pageViewModel.layoutParams,
 	});
 }

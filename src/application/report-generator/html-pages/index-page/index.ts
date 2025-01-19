@@ -39,13 +39,12 @@ export function indexPage(pageViewModel: IndexPageViewModel) {
 	`;
 
 	return layout({
-		assetsPath: pageViewModel.assetsPath,
-		indexHtmlPagePath: pageViewModel.indexHtmlPagePath,
 		version: pageViewModel.version,
 		content: container({
 			items: [{ content: leftSection }, { content: rightSection }],
 			direction: "horizontal",
 			gap: "20px",
 		}),
+		...pageViewModel.layoutParams,
 	});
 }
