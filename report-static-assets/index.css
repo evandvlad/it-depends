@@ -3,6 +3,8 @@
 @import url("components.css");
 
 :root {
+	overflow-y: scroll;
+
 	--g-black-color: black;
 	--g-white-color: white;
 	--g-dark-blue-color: #032f62;

@@ -52,22 +52,27 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
-		return this.#module.imports.map(({ importSource, values }) =>
-			handler({
-				name: importSource.importPath,
-				linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
-				values,
-			}),
-		);
+		return this.#module.imports
+			.toSorted((first, second) => second.values.length - first.values.length)
+			.map(({ importSource, values }) =>
+				handler({
+					name: importSource.importPath,
+					linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
+					values,
+				}),
+			);
 	}
 
 	collectExportItemsByValues<T>(handler: (params: { linksData: LinkData[]; value: string }) => T) {
-		return this.#module.exports.toEntries().map(([value, paths]) =>
-			handler({
-				value,
-				linksData: paths.map((path) => this.getModuleLinkData(path)),
-			}),
-		);
+		return this.#module.exports
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([value, paths]) =>
+				handler({
+					value,
+					linksData: paths.map((path) => this.getModuleLinkData(path)),
+				}),
+			);
 	}
 
 	collectExportItemsByModules<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
@@ -81,12 +86,15 @@ export class ModulePageViewModel extends PageViewModel {
 			return acc;
 		}, new Rec<AbsoluteFsPath, string[]>());
 
-		return rec.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return rec
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, values]) =>
+				handler({
+					values,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	collectIncorrectImportItems<T>(handler: (linkData: LinkData) => T) {

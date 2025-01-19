@@ -89,42 +89,48 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectIncorrectImports<T>(
-		handler: (params: {
-			linkData: LinkData;
-			importItems: Array<{ name: string; linkData: LinkData | null }>;
-		}) => T,
+		handler: (params: { linkData: LinkData; importItems: Array<{ name: string; linkData: LinkData | null }> }) => T,
 	) {
-		return this.#summary.incorrectImports.toEntries().map(([path, importSources]) => {
-			const importItems = importSources.map(({ importPath, filePath }) => ({
-				name: importPath,
-				linkData: filePath
-					? { url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
-					: null,
-			}));
+		return this.#summary.incorrectImports
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, importSources]) => {
+				const importItems = importSources.map(({ importPath, filePath }) => ({
+					name: importPath,
+					linkData: filePath
+						? { url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
+						: null,
+				}));
 
-			return handler({ linkData: this.getModuleLinkData(path), importItems });
-		});
+				return handler({ linkData: this.getModuleLinkData(path), importItems });
+			});
 	}
 
 	collectPossiblyUnusedExports<T>(
 		handler: (params: { linkData: LinkData; values: string[]; isFullyUnused: boolean }) => T,
 	) {
-		return this.#summary.possiblyUnusedExportValues.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-				isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
-			}),
-		);
+		return this.#summary.possiblyUnusedExportValues
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, values]) =>
+				handler({
+					values,
+					linkData: this.getModuleLinkData(path),
+					isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
+				}),
+			);
 	}
 
 	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: ImportPath[] }) => T) {
-		return this.#summary.outOfScopeImports.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return this.#summary.outOfScopeImports
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, values]) =>
+				handler({
+					values,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	collectEmptyExports<T>(handler: (linkData: LinkData) => T) {
@@ -132,39 +138,51 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectUnparsedDynamicImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unparsedDynamicImports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return this.#summary.unparsedDynamicImports
+			.toEntries()
+			.toSorted((first, second) => second[1] - first[1])
+			.map(([path, num]) =>
+				handler({
+					num,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	collectUnresolvedFullImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullImports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return this.#summary.unresolvedFullImports
+			.toEntries()
+			.toSorted((first, second) => second[1] - first[1])
+			.map(([path, num]) =>
+				handler({
+					num,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	collectUnresolvedFullExports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullExports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return this.#summary.unresolvedFullExports
+			.toEntries()
+			.toSorted((first, second) => second[1] - first[1])
+			.map(([path, num]) =>
+				handler({
+					num,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	collectShadowedExportValues<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.shadowedExportValues.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
+		return this.#summary.shadowedExportValues
+			.toEntries()
+			.toSorted((first, second) => second[1] - first[1])
+			.map(([path, num]) =>
+				handler({
+					num,
+					linkData: this.getModuleLinkData(path),
+				}),
+			);
 	}
 
 	#collectModulesTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {

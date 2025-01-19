@@ -90,9 +90,9 @@ describe("module-page-view-model", () => {
 		const exportItems = pageViewModel.collectExportItemsByValues((params) => params);
 
 		expect(exportItems).toEqual([
+			{ linksData: [{ url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }], value: "a" },
 			{ linksData: [], value: "f" },
 			{ linksData: [], value: "b" },
-			{ linksData: [{ url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }], value: "a" },
 		]);
 	});
 
