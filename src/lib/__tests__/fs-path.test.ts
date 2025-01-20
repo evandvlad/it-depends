@@ -1,22 +1,7 @@
-import { platform } from "node:os";
 import { describe, expect, it } from "@jest/globals";
-import { getBreadcrumbs, getName, getParentPath, isAbsolutePath, joinPaths, normalizePath } from "../fs-path";
-
-const isWindows = platform() === "win32";
+import { getBreadcrumbs, getName, getParentPath, joinPaths, normalizePath } from "../fs-path";
 
 describe("fs-path", () => {
-	describe("isAbsolutePath", () => {
-		it.each([
-			{ name: "should be absolute windows path", path: "C:\\tmp\\dir", result: isWindows },
-			{ name: "should be absolute normalized windows path", path: "C:/tmp/dir", result: isWindows },
-			{ name: "should be absolute unix path", path: "/tmp/dir", result: true },
-			{ name: "should be relative windows path", path: ".\\tmp\\dir", result: false },
-			{ name: "should be relative normalized path", path: "../tmp/dir", result: false },
-		])("$name", ({ path, result }) => {
-			expect(isAbsolutePath(path)).toEqual(result);
-		});
-	});
-
 	describe("normalizePath", () => {
 		it.each([
 			{ name: "should be normalized windows relative path", path: ".\\tmp\\file.txt", result: "./tmp/file.txt" },

@@ -1,5 +1,3 @@
-import { isAbsolute, join } from "node:path";
-
 export const delimiter = "/";
 
 function splitPath(path: string) {
@@ -23,11 +21,24 @@ export function normalizePath(path: string) {
 }
 
 export function joinPaths(path: string, subPath: string) {
-	return normalizePath(join(path, subPath));
-}
+	const parts = subPath.split(delimiter);
 
-export function isAbsolutePath(path: string) {
-	return isAbsolute(path);
+	if (parts.length === 0) {
+		return path;
+	}
+
+	const [firstPart, ...otherParts] = parts;
+
+	if (firstPart === "..") {
+		const parentPath = path.split(delimiter).slice(0, -1).join(delimiter);
+		return joinPaths(parentPath, otherParts.join(delimiter));
+	}
+
+	if (firstPart === ".") {
+		return normalizePath(`${path}${delimiter}${otherParts.join(delimiter)}`);
+	}
+
+	return normalizePath(`${path}${delimiter}${subPath}`);
 }
 
 export function getParentPath(path: string) {

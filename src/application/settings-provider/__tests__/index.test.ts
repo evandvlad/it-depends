@@ -13,6 +13,7 @@ const confLoaderPort = {
 
 function createFSysPort() {
 	return {
+		isAbsolutePath: jest.fn((path: string) => path.startsWith("/")),
 		checkAccess: jest.fn((_p: string) => Promise.resolve(true)),
 	};
 }

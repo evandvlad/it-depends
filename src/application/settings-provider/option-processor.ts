@@ -1,7 +1,7 @@
 import type { PathFilter } from "~/application/file-items-generator";
 import type { ExtraPackageEntries } from "~/domain";
 import { assert } from "~/lib/errors";
-import { isAbsolutePath, normalizePath } from "~/lib/fs-path";
+import { normalizePath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import type { FSysPort } from "./values";
 
@@ -23,7 +23,7 @@ export class OptionProcessor {
 		assert(paths.length > 0, baseErrorMessage);
 
 		for await (const path of paths) {
-			assert(isAbsolutePath(path), `${baseErrorMessage} Path '${path}' is not absolute.`);
+			assert(this.#fSysPort.isAbsolutePath(path), `${baseErrorMessage} Path '${path}' is not absolute.`);
 
 			assert(
 				await this.#fSysPort.checkAccess(path),
@@ -49,7 +49,10 @@ export class OptionProcessor {
 		const baseErrorMessage = "Option 'aliases' should be a record of names and real absolute paths.";
 
 		for await (const [name, path] of Object.entries(rawAliases)) {
-			assert(isAbsolutePath(path), `${baseErrorMessage} Path '${path}' for name '${name}' is not absolute.`);
+			assert(
+				this.#fSysPort.isAbsolutePath(path),
+				`${baseErrorMessage} Path '${path}' for name '${name}' is not absolute.`,
+			);
 
 			assert(
 				await this.#fSysPort.checkAccess(path),
@@ -79,7 +82,7 @@ export class OptionProcessor {
 		const processedFilePaths: string[] = [];
 
 		for await (const path of entries.filePaths) {
-			assert(isAbsolutePath(path), `${baseErrorMessage} Path '${path}' is not absolute.`);
+			assert(this.#fSysPort.isAbsolutePath(path), `${baseErrorMessage} Path '${path}' is not absolute.`);
 
 			assert(
 				await this.#fSysPort.checkAccess(path),
@@ -101,7 +104,7 @@ export class OptionProcessor {
 
 		const baseErrorMessage = "Option 'report.path' should be a real absolute path.";
 
-		assert(isAbsolutePath(report.path), `${baseErrorMessage} Path '${report.path}' is not absolute.`);
+		assert(this.#fSysPort.isAbsolutePath(report.path), `${baseErrorMessage} Path '${report.path}' is not absolute.`);
 
 		assert(
 			await this.#fSysPort.checkAccess(report.path),

@@ -13,6 +13,7 @@ export interface ConfLoaderPort {
 }
 
 export interface FSysPort {
+	isAbsolutePath: (path: string) => boolean;
 	checkAccess: (path: string) => Promise<boolean>;
 }
 
