@@ -2,6 +2,7 @@ import { describe, expect, it, jest } from "@jest/globals";
 import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
 import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
+import { Domain } from "..";
 import {
 	createModule,
 	createModulesCollection,
@@ -10,24 +11,105 @@ import {
 	createSummary,
 } from "../__test-utils__/domain-entity-factories";
 
-import { process } from "..";
-
 const nullDispatcherPort = { dispatch() {} };
 
 const nullSettings = {
 	aliases: new Rec<string, string>(),
 	extraPackageEntries: { fileNames: [], filePaths: [] },
+	pathFilter: () => true,
 };
 
 describe("domain", () => {
-	it("should be error for empty file items", async () => {
-		await expect(
-			process({
-				fileItems: createFileItemsGenerator([]),
+	describe("path-filtration", () => {
+		it("should ignore non script files", () => {
+			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
-			}),
-		).rejects.toThrow(
+			});
+
+			const paths = [
+				"/tmp/file.css",
+				"/tmp/file.html",
+				"/tmp/file.readme",
+				"/tmp/.gitignore",
+				"/tmp/file.json",
+				"/tmp/file.pdf",
+				"/tmp/file.js.orig",
+			];
+
+			const result = paths.filter((path) => domain.pathFilter(path));
+
+			expect(result).toEqual([]);
+		});
+
+		it("should ignore c* & m.* script files", () => {
+			const domain = new Domain({
+				dispatcherPort: nullDispatcherPort,
+				settings: nullSettings,
+			});
+
+			const paths = [
+				"/tmp/file.mjs",
+				"/tmp/file.mjsx",
+				"/tmp/file.mts",
+				"/tmp/file.mtsx",
+				"/tmp/file.d.mts",
+				"/tmp/file.cjs",
+				"/tmp/file.cjsx",
+				"/tmp/file.cts",
+				"/tmp/file.ctsx",
+				"/tmp/file.d.cts",
+			];
+
+			const result = paths.filter((path) => domain.pathFilter(path));
+
+			expect(result).toEqual([]);
+		});
+
+		it("shouldn't ignore script files", () => {
+			const domain = new Domain({
+				dispatcherPort: nullDispatcherPort,
+				settings: nullSettings,
+			});
+
+			const paths = ["/tmp/file.js", "/tmp/file.jsx", "/tmp/file.ts", "/tmp/file.tsx", "/tmp/file.d.ts"];
+
+			const result = paths.filter((path) => domain.pathFilter(path));
+
+			expect(result).toEqual(paths);
+		});
+
+		it("should apply user filter correcly", () => {
+			const domain = new Domain({
+				dispatcherPort: nullDispatcherPort,
+				settings: { ...nullSettings, pathFilter: (path) => !path.endsWith("x") },
+			});
+
+			const paths = [
+				"/tmp/file.css",
+				"/tmp/file.html",
+				"/tmp/file.js",
+				"/tmp/file.jsx",
+				"/tmp/file.ts",
+				"/tmp/file.tsx",
+				"/tmp/file.d.ts",
+				"/tmp/file.mts",
+				"/tmp/file.mtsx",
+			];
+
+			const result = paths.filter((path) => domain.pathFilter(path));
+
+			expect(result).toEqual(["/tmp/file.js", "/tmp/file.ts", "/tmp/file.d.ts"]);
+		});
+	});
+
+	it("should be error for empty file items", async () => {
+		const domain = new Domain({
+			dispatcherPort: nullDispatcherPort,
+			settings: nullSettings,
+		});
+
+		await expect(domain.process(createFileItemsGenerator([]))).rejects.toThrow(
 			new AppError("No files have been found for processing. It seems like a problem with the configuration."),
 		);
 	});
@@ -858,13 +940,14 @@ describe("domain", () => {
 		])("$name", async ({ fileItems, aliases = {}, result }) => {
 			const fn = jest.fn();
 
-			const { modulesCollection } = await process({
-				fileItems: createFileItemsGenerator(fileItems),
+			const domain = new Domain({
 				dispatcherPort: {
 					dispatch: fn,
 				},
 				settings: { ...nullSettings, aliases: Rec.fromObject(aliases as Record<string, string>) },
 			});
+
+			const { modulesCollection } = await domain.process(createFileItemsGenerator(fileItems));
 
 			expect(modulesCollection).toEqual(result);
 			expect(fn).toHaveBeenCalledTimes(modulesCollection.size + 2);
@@ -1103,14 +1186,16 @@ describe("domain", () => {
 			},
 		])("$name", async ({ filePaths, packages, extraPackageEntries = {} }) => {
 			const fileItems = filePaths.map((path) => ({ path, content: "" }));
-			const { packagesCollection } = await process({
-				fileItems: createFileItemsGenerator(fileItems),
+
+			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: {
 					...nullSettings,
 					extraPackageEntries: { fileNames: [], filePaths: [], ...extraPackageEntries },
 				},
 			});
+
+			const { packagesCollection } = await domain.process(createFileItemsGenerator(fileItems));
 
 			expect(packagesCollection).toEqual(packages);
 		});
@@ -1279,11 +1364,12 @@ describe("domain", () => {
 				}),
 			},
 		])("$name", async ({ fileItems, result }) => {
-			const { summary } = await process({
-				fileItems: createFileItemsGenerator(fileItems),
+			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
 			});
+
+			const { summary } = await domain.process(createFileItemsGenerator(fileItems));
 
 			expect(summary).toEqual(result);
 		});
@@ -1700,11 +1786,12 @@ describe("domain", () => {
 					isCorrect: false,
 				},
 			])("$name", async ({ fileItems, isCorrect }) => {
-				const { summary } = await process({
-					fileItems: createFileItemsGenerator(fileItems),
+				const domain = new Domain({
 					dispatcherPort: nullDispatcherPort,
 					settings: nullSettings,
 				});
+
+				const { summary } = await domain.process(createFileItemsGenerator(fileItems));
 
 				expect(summary.incorrectImports.size === 0).toEqual(isCorrect);
 			});

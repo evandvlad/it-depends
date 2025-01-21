@@ -1,4 +1,3 @@
-import type { PathFilter } from "~/application/file-items-generator";
 import type { ReportSettings } from "~/application/report-generator";
 import type { Aliases, ExtraPackageEntries } from "~/domain";
 import type { EventBusDispatcher } from "~/lib/event-bus";
@@ -24,7 +23,7 @@ export type DispatcherPort = EventBusDispatcher<{
 
 export interface Settings {
 	paths: string[];
-	pathFilter: PathFilter;
+	pathFilter: (path: string) => boolean;
 	aliases: Aliases;
 	extraPackageEntries: ExtraPackageEntries;
 	report: ReportSettings | null;

@@ -6,11 +6,11 @@ import { Logger } from "~/application/logger";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
 import { type Options, createSettings } from "~/application/settings-provider";
 import {
+	Domain,
 	type DispatcherPort as DomainDispatcherPort,
 	type ModulesCollection,
 	type PackagesCollection,
 	type Summary,
-	process,
 } from "~/domain";
 import { AppError } from "~/lib/errors";
 import { EventBus } from "~/lib/event-bus";
@@ -61,17 +61,18 @@ export class ItDepends implements GlobalEventBusSubscriber {
 				dispatcherPort: this.#eventBus,
 			});
 
-			const fileItems = createFileItemsGenerator({
-				fSysPort,
-				paths: settings.paths,
-				pathFilter: settings.pathFilter,
-			});
-
-			const { modulesCollection, packagesCollection, summary, fSTree } = await process({
-				fileItems,
+			const domain = new Domain({
 				settings,
 				dispatcherPort: this.#eventBus as DomainDispatcherPort,
 			});
+
+			const fileItems = createFileItemsGenerator({
+				fSysPort,
+				paths: settings.paths,
+				pathFilter: domain.pathFilter,
+			});
+
+			const { modulesCollection, packagesCollection, summary, fSTree } = await domain.process(fileItems);
 
 			if (settings.report) {
 				await generateReport({

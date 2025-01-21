@@ -1,4 +1,3 @@
-import type { PathFilter } from "~/application/file-items-generator";
 import type { ExtraPackageEntries } from "~/domain";
 import { assert } from "~/lib/errors";
 import { normalizePath } from "~/lib/fs-path";
@@ -36,7 +35,7 @@ export class OptionProcessor {
 	}
 
 	processPathFilter(filter?: (path: string) => boolean) {
-		return (filter ?? (() => true)) as PathFilter;
+		return filter ?? (() => true);
 	}
 
 	async processAliases(rawAliases?: Record<string, string>) {

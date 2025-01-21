@@ -1,11 +1,7 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
-import { type FileItem, transformFileItems } from "..";
+import { transformFileItems } from "..";
 import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
-
-function createEmptyFileItem(path: string) {
-	return { path, content: "" } as FileItem;
-}
 
 const nullDispatcherPort = { dispatch() {} };
 
@@ -15,73 +11,6 @@ describe("file-items-transformer", () => {
 			name: "should be empty result from empty files list",
 			fileItems: [],
 			result: createFileEntries([]),
-		},
-
-		{
-			name: "should be empty result for no script files",
-			fileItems: [
-				createEmptyFileItem("/tmp/file.css"),
-				createEmptyFileItem("/tmp/file.html"),
-				createEmptyFileItem("/tmp/file.readme"),
-				createEmptyFileItem("/tmp/.gitignore"),
-				createEmptyFileItem("/tmp/file.json"),
-				createEmptyFileItem("/tmp/file.pdf"),
-				createEmptyFileItem("/tmp/file.js.orig"),
-			],
-			result: createFileEntries([]),
-		},
-
-		{
-			name: "should discard c* & m.* script files",
-			fileItems: [
-				createEmptyFileItem("/tmp/file.mjs"),
-				createEmptyFileItem("/tmp/file.mjsx"),
-				createEmptyFileItem("/tmp/file.mts"),
-				createEmptyFileItem("/tmp/file.mtsx"),
-				createEmptyFileItem("/tmp/file.d.mts"),
-				createEmptyFileItem("/tmp/file.cjs"),
-				createEmptyFileItem("/tmp/file.cjsx"),
-				createEmptyFileItem("/tmp/file.cts"),
-				createEmptyFileItem("/tmp/file.ctsx"),
-				createEmptyFileItem("/tmp/file.d.cts"),
-				createEmptyFileItem("/tmp/file.js"),
-				createEmptyFileItem("/tmp/file.jsx"),
-				createEmptyFileItem("/tmp/file.ts"),
-				createEmptyFileItem("/tmp/file.tsx"),
-				createEmptyFileItem("/tmp/file.d.ts"),
-			],
-			result: createFileEntries([
-				{
-					content: "",
-					path: "/tmp/file.js",
-					language: "javascript",
-					ieItems: [],
-				},
-				{
-					content: "",
-					path: "/tmp/file.jsx",
-					language: "javascript",
-					ieItems: [],
-				},
-				{
-					content: "",
-					path: "/tmp/file.d.ts",
-					language: "typescript",
-					ieItems: [],
-				},
-				{
-					content: "",
-					path: "/tmp/file.ts",
-					language: "typescript",
-					ieItems: [],
-				},
-				{
-					content: "",
-					path: "/tmp/file.tsx",
-					language: "typescript",
-					ieItems: [],
-				},
-			]),
 		},
 
 		{
@@ -200,11 +129,7 @@ describe("file-items-transformer", () => {
 					content: `import a from "b";`,
 				},
 				{
-					path: "/tmp/file2.css",
-					content: "* { margin: 0; padding: 0 }",
-				},
-				{
-					path: "/tmp/file3.js",
+					path: "/tmp/file2.js",
 					content: "incorrect content",
 				},
 			]),
@@ -214,7 +139,7 @@ describe("file-items-transformer", () => {
 		expect(dispatcherPort.dispatch.mock.calls).toEqual([
 			["files-transformation:started"],
 			["files-transformation:file-processed", { path: "/tmp/file1.ts" }],
-			["files-transformation:file-processing-failed", { path: "/tmp/file3.js", error: expect.any(Error) }],
+			["files-transformation:file-processing-failed", { path: "/tmp/file2.js", error: expect.any(Error) }],
 			["files-transformation:finished"],
 		]);
 	});

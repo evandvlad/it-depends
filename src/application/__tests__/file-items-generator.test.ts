@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { type PathFilter, createFileItemsGenerator } from "../file-items-generator";
+import { createFileItemsGenerator } from "../file-items-generator";
 
 const fsTestData = new Map([
 	["/", { type: "dir", children: ["/tmp"] }],
@@ -42,7 +42,7 @@ async function loadAllFilesAndGetPathsImmediately({
 	pathFilter = () => true,
 }: {
 	paths: string[];
-	pathFilter?: PathFilter;
+	pathFilter?: (path: string) => boolean;
 }) {
 	const entries: string[] = [];
 

@@ -1,4 +1,4 @@
-import { type FileItem, type FileItems, type Result, process } from "~/domain";
+import { Domain, type FileItem, type FileItems, type Result } from "~/domain";
 import { Rec } from "~/lib/rec";
 
 type FileItemsTestInput = Array<Omit<FileItem, "path"> & { path: string }>;
@@ -10,14 +10,16 @@ export async function* createFileItemsGenerator(fileItems: FileItemsTestInput): 
 }
 
 export function processFileItems(fileItems: FileItemsTestInput): Promise<Result> {
-	return process({
-		fileItems: createFileItemsGenerator(fileItems),
+	const domain = new Domain({
 		dispatcherPort: {
 			dispatch() {},
 		},
 		settings: {
 			aliases: new Rec(),
 			extraPackageEntries: { fileNames: [], filePaths: [] },
+			pathFilter: () => true,
 		},
 	});
+
+	return domain.process(createFileItemsGenerator(fileItems));
 }

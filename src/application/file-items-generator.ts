@@ -1,7 +1,5 @@
 import type { FileItems } from "~/domain";
 
-export type PathFilter = (path: string) => boolean;
-
 interface FSysPort {
 	getStatEntryType: (path: string) => Promise<"file" | "dir" | "unknown">;
 	readFile: (path: string) => Promise<string>;
@@ -11,7 +9,7 @@ interface FSysPort {
 interface Params {
 	paths: string[];
 	fSysPort: FSysPort;
-	pathFilter: PathFilter;
+	pathFilter: (path: string) => boolean;
 }
 
 class FileItemsGenerator {

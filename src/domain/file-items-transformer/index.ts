@@ -1,5 +1,5 @@
 import { Rec } from "~/lib/rec";
-import { getAcceptableFileExtNameByPath, getModuleDetailsByAcceptedFileExtName } from "../module-expert";
+import { getModuleDetails } from "../module-expert";
 import { parseCode } from "./parser";
 import {
 	type DispatcherPort,
@@ -33,13 +33,7 @@ export async function transformFileItems({ fileItems, dispatcherPort }: Params) 
 	dispatcherPort.dispatch("files-transformation:started");
 
 	for await (const { path, content } of fileItems) {
-		const acceptableFileExtName = getAcceptableFileExtNameByPath(path);
-
-		if (acceptableFileExtName === null) {
-			continue;
-		}
-
-		const { language, allowedJSXSyntax } = getModuleDetailsByAcceptedFileExtName(acceptableFileExtName);
+		const { language, allowedJSXSyntax } = getModuleDetails(path);
 
 		try {
 			fileEntries.set(path, {

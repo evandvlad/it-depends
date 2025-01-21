@@ -1,3 +1,5 @@
+import { assert } from "~/lib/errors";
+
 const declarationFileExtName = ".d.ts";
 
 export const orderedByResolvingPriorityAcceptableFileExtNames = [
@@ -27,7 +29,7 @@ const moduleDetailsByAcceptableFileExtName: Record<AcceptableFileExtName, Module
 	".tsx": { language: "typescript", allowedJSXSyntax: true },
 };
 
-export function getAcceptableFileExtNameByPath(path: string): AcceptableFileExtName | null {
+function getAcceptableFileExtNameByPath(path: string): AcceptableFileExtName | null {
 	if (path.endsWith(declarationFileExtName)) {
 		return declarationFileExtName;
 	}
@@ -41,6 +43,13 @@ export function getAcceptableFileExtNameByPath(path: string): AcceptableFileExtN
 	return null;
 }
 
-export function getModuleDetailsByAcceptedFileExtName(extName: AcceptableFileExtName) {
+export function isAcceptableFile(path: string) {
+	return orderedByResolvingPriorityAcceptableFileExtNames.some((extName) => path.endsWith(extName));
+}
+
+export function getModuleDetails(path: string) {
+	const extName = getAcceptableFileExtNameByPath(path);
+	assert(extName !== null, `Unsupported extension name for file '${path}'`);
+
 	return moduleDetailsByAcceptableFileExtName[extName];
 }
