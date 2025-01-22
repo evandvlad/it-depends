@@ -1,8 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
 import { AppError } from "~/lib/errors";
-import { getModuleDetails, isAcceptableFile } from "../module-expert";
+import { Rec } from "~/lib/rec";
+import { ProgramFileExpert } from "..";
 
-describe("module-expert", () => {
+const nullParams = {
+	settings: { aliases: new Rec<string, string>(), extraPackageEntries: { fileNames: [], filePaths: [] } },
+};
+
+describe("program-file-expert", () => {
 	describe("isAcceptableFile", () => {
 		it.each([
 			{ name: "should be true for *.js", path: "C:/dir/file.js", result: true },
@@ -25,7 +30,8 @@ describe("module-expert", () => {
 			{ name: "should be false for *.svg", path: "C:/dir/file.svg", result: false },
 			{ name: "should be false for *.json", path: "C:/dir/file.json", result: false },
 		])("$name", ({ path, result }) => {
-			expect(isAcceptableFile(path)).toEqual(result);
+			const expert = new ProgramFileExpert(nullParams);
+			expect(expert.isAcceptableFile(path)).toEqual(result);
 		});
 	});
 
@@ -57,12 +63,14 @@ describe("module-expert", () => {
 				result: { language: "javascript", allowedJSXSyntax: true },
 			},
 		])("$name", ({ path, result }) => {
-			expect(getModuleDetails(path)).toEqual(result);
+			const expert = new ProgramFileExpert(nullParams);
+			expect(expert.getDetails(path)).toEqual(result);
 		});
 
 		it("should throw error for unsupported file extension", () => {
 			expect(() => {
-				getModuleDetails("/src/index.css");
+				const expert = new ProgramFileExpert(nullParams);
+				expert.getDetails("/src/index.css");
 			}).toThrow(new AppError("Unsupported extension name for file '/src/index.css'"));
 		});
 	});

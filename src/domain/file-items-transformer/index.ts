@@ -1,5 +1,5 @@
 import { Rec } from "~/lib/rec";
-import { getModuleDetails } from "../module-expert";
+import type { ProgramFileExpert } from "../program-file-expert";
 import { parseCode } from "./parser";
 import {
 	type DispatcherPort,
@@ -13,6 +13,7 @@ import {
 
 interface Params {
 	fileItems: FileItems;
+	programFileExpert: ProgramFileExpert;
 	dispatcherPort: DispatcherPort;
 }
 
@@ -26,14 +27,14 @@ export {
 	type DispatcherPort,
 };
 
-export async function transformFileItems({ fileItems, dispatcherPort }: Params) {
+export async function transformFileItems({ fileItems, programFileExpert, dispatcherPort }: Params) {
 	const fileEntries: FileEntries = new Rec();
 	const parserErrors: ParserErrors = new Rec();
 
 	dispatcherPort.dispatch("files-transformation:started");
 
 	for await (const { path, content } of fileItems) {
-		const { language, allowedJSXSyntax } = getModuleDetails(path);
+		const { language, allowedJSXSyntax } = programFileExpert.getDetails(path);
 
 		try {
 			fileEntries.set(path, {

@@ -1,9 +1,9 @@
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { ParserErrors } from "../file-items-transformer";
-import type { Language } from "../module-expert";
-import type { ImportSource, Module, ModulesCollection } from "../modules-collector";
+import type { Module, ModulesCollection } from "../modules-collector";
 import type { PackagesCollection } from "../packages-collector";
+import type { ImportSource, Language } from "../program-file-expert";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {

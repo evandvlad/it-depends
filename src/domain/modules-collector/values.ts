@@ -1,12 +1,5 @@
 import type { Rec } from "~/lib/rec";
-import type { Language } from "../module-expert";
-
-export type Aliases = Rec<string, string>;
-
-export interface ImportSource {
-	importPath: string;
-	filePath?: string;
-}
+import type { ImportSource, Language } from "../program-file-expert";
 
 interface ImportData {
 	importSource: ImportSource;

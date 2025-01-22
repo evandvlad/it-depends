@@ -1,9 +1,20 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import { Rec } from "~/lib/rec";
 import { transformFileItems } from "..";
 import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
+import { ProgramFileExpert } from "../../program-file-expert";
 
 const nullDispatcherPort = { dispatch() {} };
+
+function createProgramFileExpert() {
+	return new ProgramFileExpert({
+		settings: {
+			aliases: new Rec<string, string>(),
+			extraPackageEntries: { fileNames: [], filePaths: [] },
+		},
+	});
+}
 
 describe("file-items-transformer", () => {
 	it.each([
@@ -69,6 +80,7 @@ describe("file-items-transformer", () => {
 	])("$name", async ({ fileItems, result }) => {
 		const { fileEntries } = await transformFileItems({
 			fileItems: createFileItemsGenerator(fileItems),
+			programFileExpert: createProgramFileExpert(),
 			dispatcherPort: nullDispatcherPort,
 		});
 
@@ -113,6 +125,7 @@ describe("file-items-transformer", () => {
 	])("$name", async ({ fileItem, errorMessage }) => {
 		const { parserErrors } = await transformFileItems({
 			fileItems: createFileItemsGenerator([fileItem]),
+			programFileExpert: createProgramFileExpert(),
 			dispatcherPort: nullDispatcherPort,
 		});
 
@@ -133,6 +146,7 @@ describe("file-items-transformer", () => {
 					content: "incorrect content",
 				},
 			]),
+			programFileExpert: createProgramFileExpert(),
 			dispatcherPort,
 		});
 

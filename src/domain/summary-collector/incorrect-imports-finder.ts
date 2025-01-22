@@ -1,6 +1,7 @@
 import type { FSTree } from "~/lib/fs-tree";
-import type { ImportSource, Module } from "../modules-collector";
+import type { Module } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
+import type { ImportSource } from "../program-file-expert";
 
 interface Params {
 	fSTree: FSTree;

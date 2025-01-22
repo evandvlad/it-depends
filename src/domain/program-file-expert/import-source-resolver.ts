@@ -1,7 +1,11 @@
 import { delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
-import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "../module-expert";
-import type { Aliases, ImportSource } from "./values";
+import {
+	type Aliases,
+	type ImportSource,
+	entryPointFileName,
+	orderedByResolvingPriorityAcceptableFileExtNames,
+} from "./values";
 
 interface Params {
 	fSTree: FSTree;

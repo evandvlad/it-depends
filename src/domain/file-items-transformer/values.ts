@@ -1,6 +1,6 @@
 import type { EventBusDispatcher } from "~/lib/event-bus";
 import type { Rec } from "~/lib/rec";
-import type { Language } from "../module-expert";
+import type { Language } from "../program-file-expert";
 
 export interface FileItem {
 	path: string;

@@ -1,4 +1,5 @@
-import type { ImportSource, Module, ModulesCollection } from "./values";
+import type { ImportSource } from "../program-file-expert";
+import type { Module, ModulesCollection } from "./values";
 
 class ResolvedMarks {
 	#resolvedItems: ImportSource[] = [];

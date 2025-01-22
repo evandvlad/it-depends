@@ -1,5 +1,5 @@
 import { type ParserPlugin, parse } from "@babel/parser";
-import type { Language } from "../module-expert";
+import type { Language } from "../program-file-expert";
 import { processAST } from "./ast-processor";
 
 interface Params {

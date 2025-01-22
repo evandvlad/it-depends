@@ -1,18 +1,13 @@
 import { getName } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
-import { entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./module-expert";
 import type { ModulesCollection } from "./modules-collector";
+import type { ProgramFileExpert } from "./program-file-expert";
 
 interface Params {
 	fSTree: FSTree;
+	programFileExpert: ProgramFileExpert;
 	modulesCollection: ModulesCollection;
-	extraPackageEntries: ExtraPackageEntries;
-}
-
-export interface ExtraPackageEntries {
-	fileNames: string[];
-	filePaths: string[];
 }
 
 export interface Package {
@@ -29,12 +24,12 @@ export type PackagesCollection = Rec<string, Package>;
 export class PackagesCollector {
 	#fSTree;
 	#modulesCollection;
-	#extraPackageEntries;
+	#programFileExpert;
 
-	constructor({ fSTree, modulesCollection, extraPackageEntries }: Params) {
+	constructor({ fSTree, programFileExpert, modulesCollection }: Params) {
 		this.#fSTree = fSTree;
+		this.#programFileExpert = programFileExpert;
 		this.#modulesCollection = modulesCollection;
-		this.#extraPackageEntries = extraPackageEntries;
 	}
 
 	collect() {
@@ -47,7 +42,7 @@ export class PackagesCollector {
 		const nodes = this.#fSTree.getNodeChildrenByPath(parentPath);
 
 		const filePaths = nodes.filter(({ isFile }) => isFile).map(({ path }) => path);
-		const packageEntryPoint = this.#resolveEntryPointModule(filePaths);
+		const packageEntryPoint = this.#programFileExpert.getPackageEntryPoint(filePaths);
 
 		if (packageEntryPoint) {
 			const pack = this.#createPackage({ path: parentPath, entryPoint: packageEntryPoint });
@@ -91,41 +86,6 @@ export class PackagesCollector {
 		subPaths.forEach((subPath) => {
 			this.#fillPackage(packagesCollection, pack, subPath);
 		});
-	}
-
-	#resolveEntryPointModule(filePaths: string[]) {
-		if (filePaths.length === 0) {
-			return null;
-		}
-
-		for (const filePath of filePaths) {
-			if (this.#extraPackageEntries.filePaths.includes(filePath)) {
-				return filePath;
-			}
-		}
-
-		const entryPointNames = [entryPointFileName, ...this.#extraPackageEntries.fileNames];
-		const orderedEntryPointFullNames = entryPointNames.flatMap((baseName) =>
-			orderedByResolvingPriorityAcceptableFileExtNames.map((extName) => `${baseName}${extName}`),
-		);
-
-		const entryPointCandidates = filePaths.reduce((acc, filePath) => {
-			const fileName = getName(filePath);
-			const index = orderedEntryPointFullNames.indexOf(fileName);
-
-			if (index !== -1) {
-				acc.set(index, filePath);
-			}
-
-			return acc;
-		}, new Map<number, string>());
-
-		if (entryPointCandidates.size === 0) {
-			return null;
-		}
-
-		const minIndex = Math.min(...entryPointCandidates.keys());
-		return entryPointCandidates.get(minIndex)!;
 	}
 
 	#createPackage({ path, entryPoint }: { path: string; entryPoint: string }): Package {

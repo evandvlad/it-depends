@@ -1,20 +1,17 @@
-import type { FSTree } from "~/lib/fs-tree";
 import type { FileEntries } from "../file-items-transformer";
+import type { ImportSourceResolver } from "../program-file-expert";
 import { bindModules } from "./binder";
-import { ImportSourceResolver } from "./import-source-resolver";
 import { ModuleFactory } from "./module-factory";
-import type { Aliases, ImportSource, Module, ModulesCollection } from "./values";
+import type { Module, ModulesCollection } from "./values";
 
 interface Params {
 	fileEntries: FileEntries;
-	fSTree: FSTree;
-	aliases: Aliases;
+	importSourceResolver: ImportSourceResolver;
 }
 
-export type { Module, ModulesCollection, ImportSource, Aliases };
+export type { Module, ModulesCollection };
 
-export function collectModules({ fSTree, fileEntries, aliases }: Params) {
-	const importSourceResolver = new ImportSourceResolver({ fSTree, aliases });
+export function collectModules({ fileEntries, importSourceResolver }: Params) {
 	const moduleFactory = new ModuleFactory(importSourceResolver);
 	const modulesCollection = fileEntries.mapValue((entry) => moduleFactory.create(entry));
 

@@ -1,9 +1,9 @@
 import { assert } from "~/lib/errors";
 import { FSTree } from "~/lib/fs-tree";
 import { type DispatcherPort, type FileItem, type FileItems, transformFileItems } from "./file-items-transformer";
-import { isAcceptableFile } from "./module-expert";
-import { type Aliases, type ModulesCollection, collectModules } from "./modules-collector";
-import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
+import { type ModulesCollection, collectModules } from "./modules-collector";
+import { type PackagesCollection, PackagesCollector } from "./packages-collector";
+import { type Aliases, type ExtraPackageEntries, ProgramFileExpert } from "./program-file-expert";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
@@ -38,14 +38,16 @@ export type {
 export class Domain {
 	#dispatcherPort;
 	#settings;
+	#programFileExpert;
 
 	constructor({ dispatcherPort, settings }: Params) {
 		this.#dispatcherPort = dispatcherPort;
 		this.#settings = settings;
+		this.#programFileExpert = new ProgramFileExpert({ settings });
 	}
 
 	pathFilter = (path: string) => {
-		if (!isAcceptableFile(path)) {
+		if (!this.#programFileExpert.isAcceptableFile(path)) {
 			return false;
 		}
 
@@ -55,6 +57,7 @@ export class Domain {
 	async process(fileItems: FileItems): Promise<Result> {
 		const { fileEntries, parserErrors } = await transformFileItems({
 			fileItems,
+			programFileExpert: this.#programFileExpert,
 			dispatcherPort: this.#dispatcherPort,
 		});
 		const allFilePaths = fileEntries.toKeys();
@@ -65,12 +68,13 @@ export class Domain {
 		);
 
 		const fSTree = new FSTree(allFilePaths);
-		const modulesCollection = collectModules({ fSTree, fileEntries, aliases: this.#settings.aliases });
+		const importSourceResolver = this.#programFileExpert.createImportSourceResolver({ fSTree });
+		const modulesCollection = collectModules({ fileEntries, importSourceResolver });
 
 		const packagesCollector = new PackagesCollector({
 			fSTree,
 			modulesCollection,
-			extraPackageEntries: this.#settings.extraPackageEntries,
+			programFileExpert: this.#programFileExpert,
 		});
 		const packagesCollection = packagesCollector.collect();
 
