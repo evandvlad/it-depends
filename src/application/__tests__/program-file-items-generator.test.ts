@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { createFileItemsGenerator } from "../file-items-generator";
+import { createProgramFileItemsGenerator } from "../program-file-items-generator";
 
 const fsTestData = new Map([
 	["/", { type: "dir", children: ["/tmp"] }],
@@ -37,7 +37,7 @@ const fsTestData = new Map([
 	["/tmp/source3/dir4/dir5/file10.ts", { type: "file", content: "/tmp/source3/dir4/dir5/file10.ts" }],
 ]);
 
-async function loadAllFilesAndGetPathsImmediately({
+async function loadAllProgramFilesAndGetPathsImmediately({
 	paths,
 	pathFilter = () => true,
 }: {
@@ -46,7 +46,7 @@ async function loadAllFilesAndGetPathsImmediately({
 }) {
 	const entries: string[] = [];
 
-	for await (const entry of createFileItemsGenerator({
+	for await (const entry of createProgramFileItemsGenerator({
 		pathFilter,
 		paths: paths,
 		fSysPort: {
@@ -67,14 +67,14 @@ async function loadAllFilesAndGetPathsImmediately({
 	return entries.sort();
 }
 
-describe("file-items-generator", () => {
+describe("program-file-items-generator", () => {
 	it("should be empty entries without paths", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({ paths: [] });
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({ paths: [] });
 		expect(entries).toEqual([]);
 	});
 
 	it("should be normalized paths in result", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({ paths: ["/tmp/source2"] });
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({ paths: ["/tmp/source2"] });
 
 		expect(entries).toEqual([
 			"/tmp/source2/dir1/dir2/dir3/file5.ts",
@@ -85,7 +85,7 @@ describe("file-items-generator", () => {
 	});
 
 	it("should be ignored duplicate paths", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp/source2/dir1/dir2", "/tmp/source2/dir1/dir2/dir3"],
 		});
 
@@ -94,13 +94,13 @@ describe("file-items-generator", () => {
 
 	it("should load single file", async () => {
 		const path = "/tmp/source1/file1.ts";
-		const entries = await loadAllFilesAndGetPathsImmediately({ paths: [path] });
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({ paths: [path] });
 
 		expect(entries).toEqual([path]);
 	});
 
 	it("should load files in multi nested structure", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({ paths: ["/tmp/source2"] });
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({ paths: ["/tmp/source2"] });
 
 		expect(entries).toEqual([
 			"/tmp/source2/dir1/dir2/dir3/file5.ts",
@@ -111,7 +111,7 @@ describe("file-items-generator", () => {
 	});
 
 	it("should filter by file names", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp"],
 			pathFilter: (path) => path.endsWith("file2.ts"),
 		});
@@ -120,7 +120,7 @@ describe("file-items-generator", () => {
 	});
 
 	it("should filter by directory names", async () => {
-		const entries = await loadAllFilesAndGetPathsImmediately({
+		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp"],
 			pathFilter: (path) => !/^\/tmp\/source[1-3]\/dir1\/dir2/.test(path),
 		});

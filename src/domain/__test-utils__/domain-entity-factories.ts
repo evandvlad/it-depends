@@ -1,13 +1,13 @@
 import { expect } from "@jest/globals";
 
 import { Rec } from "~/lib/rec";
-import type { FileEntries, FileEntry } from "../file-items-transformer";
 import type { Module, ModulesCollection } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
+import type { ProgramFileEntries, ProgramFileEntry } from "../program-file-items-processor";
 import type { Summary } from "../summary-collector";
 
-export function createFileEntries(fileEntriesList: FileEntry[]): FileEntries {
-	return Rec.fromEntries(fileEntriesList.map((fileEntry) => [fileEntry.path, fileEntry as FileEntry]));
+export function createProgramFileEntries(entriesList: ProgramFileEntry[]): ProgramFileEntries {
+	return Rec.fromEntries(entriesList.map((entry) => [entry.path, entry as ProgramFileEntry]));
 }
 
 export function createModule(parts: Partial<Module>) {
@@ -62,7 +62,7 @@ export function createSummary(parts: Partial<Summary>): Summary {
 		emptyExports: [],
 		possiblyUnusedExportValues: new Rec(),
 		incorrectImports: new Rec(),
-		parserErrors: new Rec(),
+		processorErrors: new Rec(),
 		...parts,
 	};
 }

@@ -20,15 +20,15 @@ describe("logger", () => {
 		eventBus.dispatch("app:started");
 		eventBus.dispatch("settings-preparation:started");
 		eventBus.dispatch("settings-preparation:finished");
-		eventBus.dispatch("files-transformation:started");
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file1.ts" });
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file2.ts" });
-		eventBus.dispatch("files-transformation:file-processing-failed", {
+		eventBus.dispatch("program-files-processing:started");
+		eventBus.dispatch("program-files-processing:program-file-processed", { path: "src/file1.ts" });
+		eventBus.dispatch("program-files-processing:program-file-processed", { path: "src/file2.ts" });
+		eventBus.dispatch("program-files-processing:program-file-processing-failed", {
 			path: "src/file2.ts",
 			error: new Error("Ooops"),
 		});
-		eventBus.dispatch("files-transformation:file-processed", { path: "src/file4.ts" });
-		eventBus.dispatch("files-transformation:finished");
+		eventBus.dispatch("program-files-processing:program-file-processed", { path: "src/file4.ts" });
+		eventBus.dispatch("program-files-processing:finished");
 		eventBus.dispatch("report-generation:started");
 		eventBus.dispatch("report-generation:finished", { path: "/report/index.html" });
 		eventBus.dispatch("app:finished");
@@ -39,22 +39,25 @@ describe("logger", () => {
 			3,
 			expect.stringContaining("Options was successfully checked"),
 		);
-		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(4, expect.stringContaining("File processing started"));
+		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(
+			4,
+			expect.stringContaining("Program files processing started"),
+		);
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(
 			5,
-			expect.stringContaining("File processing. Processed 1 file(s)."),
+			expect.stringContaining("Program files processing. Processed 1 file(s)."),
 		);
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(
 			6,
-			expect.stringContaining("File processing. Processed 2 file(s)."),
+			expect.stringContaining("Program files processing. Processed 2 file(s)."),
 		);
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(
 			7,
-			expect.stringContaining("File processing. Processed 3 file(s)."),
+			expect.stringContaining("Program files processing. Processed 3 file(s)."),
 		);
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(
 			8,
-			expect.stringContaining("File processing finished. Unfortunately, 1 file(s) was/were not processed."),
+			expect.stringContaining("Program files processing finished. Unfortunately, 1 file(s) was/were not processed."),
 		);
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(9, expect.stringContaining("Report generation started"));
 		expect(terminalPort.writeLine).toHaveBeenNthCalledWith(

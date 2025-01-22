@@ -1,10 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
+import { processProgramFileItems } from "~/__test-utils__/entity-factories";
 import { PathInformer } from "../../path-informer";
 import { IndexPageViewModel } from "../index-page-view-model";
 
 async function createPageViewModelParams() {
-	const { modulesCollection, packagesCollection, fSTree, summary } = await processFileItems([
+	const { modulesCollection, packagesCollection, fSTree, summary } = await processProgramFileItems([
 		{
 			path: "/src/main.ts",
 			content: `import { a } from "./lib/a/a";`,
@@ -217,11 +217,11 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect parser errors correctly", async () => {
+	it("should collect processor errors correctly", async () => {
 		const params = await createPageViewModelParams();
 		const pageViewModel = new IndexPageViewModel(params);
 
-		const parserErrors = pageViewModel.collectParserErrors((item) => item);
+		const parserErrors = pageViewModel.collectProcessorErrors((item) => item);
 
 		expect(parserErrors).toEqual([
 			{

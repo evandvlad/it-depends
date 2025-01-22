@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
+import { processProgramFileItems } from "~/__test-utils__/entity-factories";
 import { PathInformer } from "../../path-informer";
 import { PackagePageViewModel } from "../package-page-view-model";
 
 async function createPageViewModelParams() {
 	const rootPath = "/report";
 
-	const { packagesCollection, fSTree } = await processFileItems([
+	const { packagesCollection, fSTree } = await processProgramFileItems([
 		{
 			path: "/src/index.ts",
 			content: `import { a } from "./lib/a";`,

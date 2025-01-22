@@ -6,8 +6,8 @@ import { incorrectImportsCallout } from "./incorrect-imports-callout";
 import { modulesCallout } from "./modules-callout";
 import { outOfScopeImportsCallout } from "./out-of-scope-imports-callout";
 import { packagesCallout } from "./packages-callout";
-import { parserErrorsCallout } from "./parser-errors-callout";
 import { possiblyUnusedExportsCallout } from "./possibly-unused-exports-callout";
+import { processorErrorsCallout } from "./processor-errors-callout";
 import { shadowedExportValuesCallout } from "./shadowed-export-values-callout";
 import { unparsedDynamicImportsCallout } from "./unparsed-dynamic-imports-callout";
 import { unresolvedFullIECallout } from "./unresolved-full-ie-callout";
@@ -25,7 +25,7 @@ export function indexPage(pageViewModel: IndexPageViewModel) {
 		<div style="width: 50%">
 			${container({
 				items: [
-					{ content: parserErrorsCallout(pageViewModel) },
+					{ content: processorErrorsCallout(pageViewModel) },
 					{ content: incorrectImportsCallout(pageViewModel) },
 					{ content: possiblyUnusedExportsCallout(pageViewModel) },
 					{ content: emptyExportsCallout(pageViewModel) },

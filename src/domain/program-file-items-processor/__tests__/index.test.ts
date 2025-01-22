@@ -1,11 +1,13 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import { createProgramFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { Rec } from "~/lib/rec";
-import { transformFileItems } from "..";
-import { createFileEntries } from "../../__test-utils__/domain-entity-factories";
+import { processProgramFileItems } from "..";
+import { createProgramFileEntries } from "../../__test-utils__/domain-entity-factories";
 import { ProgramFileExpert } from "../../program-file-expert";
 
 const nullDispatcherPort = { dispatch() {} };
+const programFileProcessorPort = new ProgramFileProcessor();
 
 function createProgramFileExpert() {
 	return new ProgramFileExpert({
@@ -16,12 +18,12 @@ function createProgramFileExpert() {
 	});
 }
 
-describe("file-items-transformer", () => {
+describe("program-file-items-processor", () => {
 	it.each([
 		{
 			name: "should be empty result from empty files list",
 			fileItems: [],
-			result: createFileEntries([]),
+			result: createProgramFileEntries([]),
 		},
 
 		{
@@ -40,7 +42,7 @@ describe("file-items-transformer", () => {
 					content: "export default function F() {};",
 				},
 			],
-			result: createFileEntries([
+			result: createProgramFileEntries([
 				{
 					content: `import a from "b";`,
 					path: "/tmp/file1.ts",
@@ -78,13 +80,14 @@ describe("file-items-transformer", () => {
 			]),
 		},
 	])("$name", async ({ fileItems, result }) => {
-		const { fileEntries } = await transformFileItems({
-			fileItems: createFileItemsGenerator(fileItems),
+		const { entries } = await processProgramFileItems({
+			items: createProgramFileItemsGenerator(fileItems),
 			programFileExpert: createProgramFileExpert(),
 			dispatcherPort: nullDispatcherPort,
+			programFileProcessorPort,
 		});
 
-		expect(fileEntries).toEqual(result);
+		expect(entries).toEqual(result);
 	});
 
 	it.each([
@@ -123,20 +126,21 @@ describe("file-items-transformer", () => {
 			errorMessage: `Unexpected token, expected "," (2:34)`,
 		},
 	])("$name", async ({ fileItem, errorMessage }) => {
-		const { parserErrors } = await transformFileItems({
-			fileItems: createFileItemsGenerator([fileItem]),
+		const { processorErrors } = await processProgramFileItems({
+			items: createProgramFileItemsGenerator([fileItem]),
 			programFileExpert: createProgramFileExpert(),
 			dispatcherPort: nullDispatcherPort,
+			programFileProcessorPort,
 		});
 
-		expect(parserErrors.get(fileItem.path).message).toEqual(errorMessage);
+		expect(processorErrors.get(fileItem.path).message).toEqual(errorMessage);
 	});
 
 	it("should dispatch all events", async () => {
 		const dispatcherPort = { dispatch: jest.fn() };
 
-		await transformFileItems({
-			fileItems: createFileItemsGenerator([
+		await processProgramFileItems({
+			items: createProgramFileItemsGenerator([
 				{
 					path: "/tmp/file1.ts",
 					content: `import a from "b";`,
@@ -148,13 +152,14 @@ describe("file-items-transformer", () => {
 			]),
 			programFileExpert: createProgramFileExpert(),
 			dispatcherPort,
+			programFileProcessorPort,
 		});
 
 		expect(dispatcherPort.dispatch.mock.calls).toEqual([
-			["files-transformation:started"],
-			["files-transformation:file-processed", { path: "/tmp/file1.ts" }],
-			["files-transformation:file-processing-failed", { path: "/tmp/file2.js", error: expect.any(Error) }],
-			["files-transformation:finished"],
+			["program-files-processing:started"],
+			["program-files-processing:program-file-processed", { path: "/tmp/file1.ts" }],
+			["program-files-processing:program-file-processing-failed", { path: "/tmp/file2.js", error: expect.any(Error) }],
+			["program-files-processing:finished"],
 		]);
 	});
 });

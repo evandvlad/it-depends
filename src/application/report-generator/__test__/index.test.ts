@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
+import { processProgramFileItems } from "~/__test-utils__/entity-factories";
 import { generateReport } from "..";
 
 async function createParams() {
-	const { packagesCollection, fSTree, summary, modulesCollection } = await processFileItems([
+	const { packagesCollection, fSTree, summary, modulesCollection } = await processProgramFileItems([
 		{
 			path: "/src/main.ts",
 			content: `import { a } from "./lib/a";`,

@@ -1,4 +1,4 @@
-import type { FileItems } from "~/domain";
+import type { ProgramFileItems } from "~/domain";
 
 interface FSysPort {
 	getStatEntryType: (path: string) => Promise<"file" | "dir" | "unknown">;
@@ -12,7 +12,7 @@ interface Params {
 	pathFilter: (path: string) => boolean;
 }
 
-class FileItemsGenerator {
+class ProgramFileItemsGenerator {
 	#paths;
 	#fSysPort;
 	#pathFilter;
@@ -26,12 +26,12 @@ class FileItemsGenerator {
 
 	// biome-ignore lint/suspicious/useAwait: <explanation>
 	async *generate() {
-		yield* this.#generateFileItems(this.#paths);
+		yield* this.#generateProgramFileItems(this.#paths);
 
 		this.#loadedPaths.clear();
 	}
 
-	async *#generateFileItems(paths: string[]): FileItems {
+	async *#generateProgramFileItems(paths: string[]): ProgramFileItems {
 		for (const path of paths) {
 			if (this.#loadedPaths.has(path)) {
 				continue;
@@ -53,14 +53,14 @@ class FileItemsGenerator {
 			if (statEntryType === "dir") {
 				const subPaths = await this.#fSysPort.readDir(path);
 
-				yield* this.#generateFileItems(subPaths);
+				yield* this.#generateProgramFileItems(subPaths);
 			}
 		}
 	}
 }
 
 // biome-ignore lint/suspicious/useAwait: <explanation>
-export async function* createFileItemsGenerator(params: Params): FileItems {
-	const fileItemsGenerator = new FileItemsGenerator(params);
-	yield* fileItemsGenerator.generate();
+export async function* createProgramFileItemsGenerator(params: Params): ProgramFileItems {
+	const generator = new ProgramFileItemsGenerator(params);
+	yield* generator.generate();
 }

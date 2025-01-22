@@ -4,8 +4,8 @@ import { details } from "../../atoms/details";
 import { countCallout } from "../../components/count-callout";
 import { errorInfo } from "../../components/error-info";
 
-export function parserErrorsCallout(pageViewModel: IndexPageViewModel) {
-	const errors = pageViewModel.collectParserErrors(({ error, linkData }) =>
+export function processorErrorsCallout(pageViewModel: IndexPageViewModel) {
+	const errors = pageViewModel.collectProcessorErrors(({ error, linkData }) =>
 		details({
 			title: a(linkData),
 			content: errorInfo({ error }),
@@ -13,7 +13,7 @@ export function parserErrorsCallout(pageViewModel: IndexPageViewModel) {
 	);
 
 	return countCallout({
-		title: "Parser errors",
+		title: "Processor errors",
 		counter: { value: errors.length },
 		content: errors.join(""),
 		color: errors.length > 0 ? "red" : "green",

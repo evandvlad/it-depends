@@ -7,7 +7,7 @@ import {
 	isIdentifier,
 	isStringLiteral,
 } from "@babel/types";
-import { type IEItem, ieValueAll } from "./values";
+import { type IEItem, ieValueAll } from "~/domain";
 
 const defaultValue = "default";
 

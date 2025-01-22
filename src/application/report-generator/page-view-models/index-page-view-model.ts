@@ -78,8 +78,8 @@ export class IndexPageViewModel extends PageViewModel {
 		return this.#collectPackagesTree(this.#findRootPackages(this.#fSTree.shortRootPath), handler);
 	}
 
-	collectParserErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
-		return this.#summary.parserErrors.toEntries().map(([path, error]) =>
+	collectProcessorErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
+		return this.#summary.processorErrors.toEntries().map(([path, error]) =>
 			handler({
 				error,
 				linkData: this.getModuleLinkData(path),

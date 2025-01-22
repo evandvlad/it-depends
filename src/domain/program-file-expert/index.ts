@@ -21,7 +21,7 @@ interface Params {
 	};
 }
 
-export type { Language, Aliases, ImportSource, ExtraPackageEntries, ImportSourceResolver };
+export type { Language, Aliases, ImportSource, ExtraPackageEntries, ImportSourceResolver, ProgramFileDetails };
 
 export class ProgramFileExpert {
 	#settings;

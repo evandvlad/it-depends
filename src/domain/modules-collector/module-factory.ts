@@ -1,8 +1,8 @@
 import { assert, assertNever } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
-import { type FileEntry, ieValueAll } from "../file-items-transformer";
 import type { ImportSourceResolver } from "../program-file-expert";
+import { type ProgramFileEntry, ieValueAll } from "../program-file-items-processor";
 import type { Module } from "./values";
 
 export class ModuleFactory {
@@ -12,10 +12,10 @@ export class ModuleFactory {
 		this.#importSourceResolver = importSourceResolver;
 	}
 
-	create(fileEntry: FileEntry) {
-		const module = this.#createModule(fileEntry);
+	create(entry: ProgramFileEntry) {
+		const module = this.#createModule(entry);
 
-		fileEntry.ieItems.forEach((ieItem) => {
+		entry.ieItems.forEach((ieItem) => {
 			const { type } = ieItem;
 
 			switch (type) {
@@ -23,7 +23,7 @@ export class ModuleFactory {
 					const { source, values } = ieItem;
 
 					const importSource = this.#importSourceResolver.resolve({
-						filePath: fileEntry.path,
+						filePath: entry.path,
 						importPath: source,
 					});
 
@@ -46,7 +46,7 @@ export class ModuleFactory {
 					const { source, inputValues, outputValues } = ieItem;
 
 					const importSource = this.#importSourceResolver.resolve({
-						filePath: fileEntry.path,
+						filePath: entry.path,
 						importPath: source,
 					});
 
@@ -80,7 +80,7 @@ export class ModuleFactory {
 					}
 
 					const importSource = this.#importSourceResolver.resolve({
-						filePath: fileEntry.path,
+						filePath: entry.path,
 						importPath: source,
 					});
 
@@ -97,7 +97,7 @@ export class ModuleFactory {
 		return module;
 	}
 
-	#createModule({ path, content, language }: FileEntry): Module {
+	#createModule({ path, content, language }: ProgramFileEntry): Module {
 		return {
 			path,
 			language,

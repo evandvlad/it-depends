@@ -1,5 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { createFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import { createProgramFileItemsGenerator } from "~/__test-utils__/entity-factories";
+import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import { Domain } from "..";
@@ -11,6 +12,7 @@ import {
 	createSummary,
 } from "../__test-utils__/domain-entity-factories";
 
+const programFileProcessorPort = new ProgramFileProcessor();
 const nullDispatcherPort = { dispatch() {} };
 
 const nullSettings = {
@@ -25,6 +27,7 @@ describe("domain", () => {
 			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
+				programFileProcessorPort,
 			});
 
 			const paths = [
@@ -46,6 +49,7 @@ describe("domain", () => {
 			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
+				programFileProcessorPort,
 			});
 
 			const paths = [
@@ -70,6 +74,7 @@ describe("domain", () => {
 			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
+				programFileProcessorPort,
 			});
 
 			const paths = ["/tmp/file.js", "/tmp/file.jsx", "/tmp/file.ts", "/tmp/file.tsx", "/tmp/file.d.ts"];
@@ -83,6 +88,7 @@ describe("domain", () => {
 			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: { ...nullSettings, pathFilter: (path) => !path.endsWith("x") },
+				programFileProcessorPort,
 			});
 
 			const paths = [
@@ -107,9 +113,10 @@ describe("domain", () => {
 		const domain = new Domain({
 			dispatcherPort: nullDispatcherPort,
 			settings: nullSettings,
+			programFileProcessorPort,
 		});
 
-		await expect(domain.process(createFileItemsGenerator([]))).rejects.toThrow(
+		await expect(domain.process(createProgramFileItemsGenerator([]))).rejects.toThrow(
 			new AppError("No files have been found for processing. It seems like a problem with the configuration."),
 		);
 	});
@@ -945,9 +952,10 @@ describe("domain", () => {
 					dispatch: fn,
 				},
 				settings: { ...nullSettings, aliases: Rec.fromObject(aliases as Record<string, string>) },
+				programFileProcessorPort,
 			});
 
-			const { modulesCollection } = await domain.process(createFileItemsGenerator(fileItems));
+			const { modulesCollection } = await domain.process(createProgramFileItemsGenerator(fileItems));
 
 			expect(modulesCollection).toEqual(result);
 			expect(fn).toHaveBeenCalledTimes(modulesCollection.size + 2);
@@ -1193,9 +1201,10 @@ describe("domain", () => {
 					...nullSettings,
 					extraPackageEntries: { fileNames: [], filePaths: [], ...extraPackageEntries },
 				},
+				programFileProcessorPort,
 			});
 
-			const { packagesCollection } = await domain.process(createFileItemsGenerator(fileItems));
+			const { packagesCollection } = await domain.process(createProgramFileItemsGenerator(fileItems));
 
 			expect(packagesCollection).toEqual(packages);
 		});
@@ -1367,9 +1376,10 @@ describe("domain", () => {
 			const domain = new Domain({
 				dispatcherPort: nullDispatcherPort,
 				settings: nullSettings,
+				programFileProcessorPort,
 			});
 
-			const { summary } = await domain.process(createFileItemsGenerator(fileItems));
+			const { summary } = await domain.process(createProgramFileItemsGenerator(fileItems));
 
 			expect(summary).toEqual(result);
 		});
@@ -1789,9 +1799,10 @@ describe("domain", () => {
 				const domain = new Domain({
 					dispatcherPort: nullDispatcherPort,
 					settings: nullSettings,
+					programFileProcessorPort,
 				});
 
-				const { summary } = await domain.process(createFileItemsGenerator(fileItems));
+				const { summary } = await domain.process(createProgramFileItemsGenerator(fileItems));
 
 				expect(summary.incorrectImports.size === 0).toEqual(isCorrect);
 			});

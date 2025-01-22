@@ -1,9 +1,22 @@
 import { assert } from "~/lib/errors";
 import { FSTree } from "~/lib/fs-tree";
-import { type DispatcherPort, type FileItem, type FileItems, transformFileItems } from "./file-items-transformer";
 import { type ModulesCollection, collectModules } from "./modules-collector";
 import { type PackagesCollection, PackagesCollector } from "./packages-collector";
-import { type Aliases, type ExtraPackageEntries, ProgramFileExpert } from "./program-file-expert";
+import {
+	type Aliases,
+	type ExtraPackageEntries,
+	type ProgramFileDetails,
+	ProgramFileExpert,
+} from "./program-file-expert";
+import {
+	type DispatcherPort,
+	type IEItem,
+	type ProgramFileItem,
+	type ProgramFileItems,
+	type ProgramFileProcessorPort,
+	ieValueAll,
+	processProgramFileItems,
+} from "./program-file-items-processor";
 import { type Summary, SummaryCollector } from "./summary-collector";
 
 interface Settings {
@@ -14,6 +27,7 @@ interface Settings {
 
 interface Params {
 	dispatcherPort: DispatcherPort;
+	programFileProcessorPort: ProgramFileProcessorPort;
 	settings: Settings;
 }
 
@@ -25,24 +39,30 @@ export interface Result {
 }
 
 export type {
+	IEItem,
 	Aliases,
-	FileItem,
-	FileItems,
+	ProgramFileItem,
+	ProgramFileItems,
 	DispatcherPort,
 	ModulesCollection,
 	PackagesCollection,
 	Summary,
 	ExtraPackageEntries,
+	ProgramFileDetails,
 };
 
+export { ieValueAll };
+
 export class Domain {
-	#dispatcherPort;
 	#settings;
 	#programFileExpert;
+	#dispatcherPort;
+	#programFileProcessorPort;
 
-	constructor({ dispatcherPort, settings }: Params) {
-		this.#dispatcherPort = dispatcherPort;
+	constructor({ settings, dispatcherPort, programFileProcessorPort }: Params) {
 		this.#settings = settings;
+		this.#dispatcherPort = dispatcherPort;
+		this.#programFileProcessorPort = programFileProcessorPort;
 		this.#programFileExpert = new ProgramFileExpert({ settings });
 	}
 
@@ -54,13 +74,14 @@ export class Domain {
 		return this.#settings.pathFilter(path);
 	};
 
-	async process(fileItems: FileItems): Promise<Result> {
-		const { fileEntries, parserErrors } = await transformFileItems({
-			fileItems,
+	async process(items: ProgramFileItems): Promise<Result> {
+		const { entries, processorErrors } = await processProgramFileItems({
+			items,
 			programFileExpert: this.#programFileExpert,
+			programFileProcessorPort: this.#programFileProcessorPort,
 			dispatcherPort: this.#dispatcherPort,
 		});
-		const allFilePaths = fileEntries.toKeys();
+		const allFilePaths = entries.toKeys();
 
 		assert(
 			allFilePaths.length > 0,
@@ -69,7 +90,7 @@ export class Domain {
 
 		const fSTree = new FSTree(allFilePaths);
 		const importSourceResolver = this.#programFileExpert.createImportSourceResolver({ fSTree });
-		const modulesCollection = collectModules({ fileEntries, importSourceResolver });
+		const modulesCollection = collectModules({ entries, importSourceResolver });
 
 		const packagesCollector = new PackagesCollector({
 			fSTree,
@@ -78,7 +99,7 @@ export class Domain {
 		});
 		const packagesCollection = packagesCollector.collect();
 
-		const summaryCollector = new SummaryCollector({ fSTree, modulesCollection, packagesCollection, parserErrors });
+		const summaryCollector = new SummaryCollector({ fSTree, modulesCollection, packagesCollection, processorErrors });
 		const summary = summaryCollector.collect();
 
 		return { modulesCollection, packagesCollection, summary, fSTree };

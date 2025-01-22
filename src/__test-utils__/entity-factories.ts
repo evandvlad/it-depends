@@ -1,15 +1,14 @@
-import { Domain, type FileItem, type FileItems, type Result } from "~/domain";
+import { ProgramFileProcessor } from "~/adapters/program-file-processor";
+import { Domain, type ProgramFileItem, type ProgramFileItems, type Result } from "~/domain";
 import { Rec } from "~/lib/rec";
 
-type FileItemsTestInput = Array<Omit<FileItem, "path"> & { path: string }>;
-
-export async function* createFileItemsGenerator(fileItems: FileItemsTestInput): FileItems {
-	for await (const fileItem of fileItems) {
-		yield Promise.resolve(fileItem as FileItem);
+export async function* createProgramFileItemsGenerator(items: ProgramFileItem[]): ProgramFileItems {
+	for await (const item of items) {
+		yield Promise.resolve(item);
 	}
 }
 
-export function processFileItems(fileItems: FileItemsTestInput): Promise<Result> {
+export function processProgramFileItems(items: ProgramFileItem[]): Promise<Result> {
 	const domain = new Domain({
 		dispatcherPort: {
 			dispatch() {},
@@ -19,7 +18,8 @@ export function processFileItems(fileItems: FileItemsTestInput): Promise<Result>
 			extraPackageEntries: { fileNames: [], filePaths: [] },
 			pathFilter: () => true,
 		},
+		programFileProcessorPort: new ProgramFileProcessor(),
 	});
 
-	return domain.process(createFileItemsGenerator(fileItems));
+	return domain.process(createProgramFileItemsGenerator(items));
 }

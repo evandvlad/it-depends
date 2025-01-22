@@ -1,16 +1,16 @@
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
-import type { ParserErrors } from "../file-items-transformer";
 import type { Module, ModulesCollection } from "../modules-collector";
 import type { PackagesCollection } from "../packages-collector";
 import type { ImportSource, Language } from "../program-file-expert";
+import type { ProcessorErrors } from "../program-file-items-processor";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {
 	fSTree: FSTree;
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
-	parserErrors: ParserErrors;
+	processorErrors: ProcessorErrors;
 }
 
 export interface Summary {
@@ -24,7 +24,7 @@ export interface Summary {
 	possiblyUnusedExportValues: Rec<string, string[]>;
 	incorrectImports: Rec<string, ImportSource[]>;
 	emptyExports: string[];
-	parserErrors: ParserErrors;
+	processorErrors: ProcessorErrors;
 }
 
 export class SummaryCollector {
@@ -46,14 +46,14 @@ export class SummaryCollector {
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
 		incorrectImports: new Rec(),
-		parserErrors: new Rec(),
+		processorErrors: new Rec(),
 	};
 
-	constructor({ fSTree, packagesCollection, modulesCollection, parserErrors }: Params) {
+	constructor({ fSTree, packagesCollection, modulesCollection, processorErrors }: Params) {
 		this.#packagesCollection = packagesCollection;
 		this.#modulesCollection = modulesCollection;
 		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fSTree, packagesCollection });
-		this.#summary.parserErrors = parserErrors;
+		this.#summary.processorErrors = processorErrors;
 	}
 
 	collect() {

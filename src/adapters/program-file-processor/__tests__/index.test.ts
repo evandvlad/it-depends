@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { parseCode } from "../parser";
+import { ProgramFileProcessor } from "..";
 
-describe("parser", () => {
+describe("program-file-processor", () => {
 	describe("empty values", () => {
 		it.each([
 			{
@@ -42,10 +42,14 @@ describe("parser", () => {
 				content: "const foo = `import bar from 'baz';`",
 			},
 		])("$name", ({ content }) => {
-			const result = parseCode({
+			const processor = new ProgramFileProcessor();
+
+			const result = processor.process({
 				content,
-				language: "javascript",
-				allowedJSXSyntax: false,
+				programFileDetails: {
+					language: "javascript",
+					allowedJSXSyntax: false,
+				},
 			});
 
 			expect(result).toEqual([]);
@@ -154,7 +158,11 @@ describe("parser", () => {
 				],
 			},
 		])("$name", ({ content, result }) => {
-			expect(parseCode({ content, language: "typescript", allowedJSXSyntax: false })).toEqual(result);
+			const processor = new ProgramFileProcessor();
+
+			expect(
+				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+			).toEqual(result);
 		});
 	});
 
@@ -195,7 +203,11 @@ describe("parser", () => {
 				],
 			},
 		])("$name", ({ content, result }) => {
-			expect(parseCode({ content, language: "typescript", allowedJSXSyntax: false })).toEqual(result);
+			const processor = new ProgramFileProcessor();
+
+			expect(
+				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+			).toEqual(result);
 		});
 	});
 
@@ -262,7 +274,11 @@ describe("parser", () => {
 				],
 			},
 		])("$name", ({ content, result }) => {
-			expect(parseCode({ content, language: "typescript", allowedJSXSyntax: false })).toEqual(result);
+			const processor = new ProgramFileProcessor();
+
+			expect(
+				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+			).toEqual(result);
 		});
 	});
 
@@ -516,7 +532,11 @@ describe("parser", () => {
 				],
 			},
 		])("$name", ({ content, result }) => {
-			expect(parseCode({ content, language: "typescript", allowedJSXSyntax: false })).toEqual(result);
+			const processor = new ProgramFileProcessor();
+
+			expect(
+				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+			).toEqual(result);
 		});
 	});
 
@@ -583,7 +603,11 @@ describe("parser", () => {
 				],
 			},
 		])("$name", ({ content, result }) => {
-			expect(parseCode({ content, language: "typescript", allowedJSXSyntax: false })).toEqual(result);
+			const processor = new ProgramFileProcessor();
+
+			expect(
+				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+			).toEqual(result);
 		});
 	});
 });

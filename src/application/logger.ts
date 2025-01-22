@@ -33,27 +33,27 @@ export class Logger {
 			this.#writeLine("Options was successfully checked");
 		});
 
-		subscriberPort.on("files-transformation:started", () => {
-			this.#writeLine("File processing started");
+		subscriberPort.on("program-files-processing:started", () => {
+			this.#writeLine("Program files processing started");
 		});
 
-		subscriberPort.on("files-transformation:file-processed", () => {
+		subscriberPort.on("program-files-processing:program-file-processed", () => {
 			if (state.processedFiles > 0) {
 				this.#terminalPort.clearPreviousLine();
 			}
 
 			state.processedFiles += 1;
 
-			this.#writeLine(`File processing. Processed ${state.processedFiles} file(s).`);
+			this.#writeLine(`Program files processing. Processed ${state.processedFiles} file(s).`);
 		});
 
-		subscriberPort.on("files-transformation:file-processing-failed", () => {
+		subscriberPort.on("program-files-processing:program-file-processing-failed", () => {
 			state.unprocessedFiles += 1;
 		});
 
-		subscriberPort.on("files-transformation:finished", () => {
+		subscriberPort.on("program-files-processing:finished", () => {
 			this.#writeLine(
-				`File processing finished.${
+				`Program files processing finished.${
 					state.unprocessedFiles > 0 ? ` Unfortunately, ${state.unprocessedFiles} file(s) was/were not processed.` : ""
 				}`,
 			);

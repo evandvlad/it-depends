@@ -1,8 +1,9 @@
 import { ConfLoader } from "~/adapters/conf-loader";
 import { FSys } from "~/adapters/fsys";
+import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { Terminal } from "~/adapters/terminal";
-import { createFileItemsGenerator } from "~/application/file-items-generator";
 import { Logger } from "~/application/logger";
+import { createProgramFileItemsGenerator } from "~/application/program-file-items-generator";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
 import { type Options, createSettings } from "~/application/settings-provider";
 import {
@@ -43,6 +44,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 
 		try {
 			const fSysPort = new FSys();
+			const programFileProcessor = new ProgramFileProcessor();
 			const confLoaderPort = new ConfLoader(__dirname);
 
 			if (!this.#options.turnOffLogging) {
@@ -64,15 +66,16 @@ export class ItDepends implements GlobalEventBusSubscriber {
 			const domain = new Domain({
 				settings,
 				dispatcherPort: this.#eventBus as DomainDispatcherPort,
+				programFileProcessorPort: programFileProcessor,
 			});
 
-			const fileItems = createFileItemsGenerator({
+			const programFileItems = createProgramFileItemsGenerator({
 				fSysPort,
 				paths: settings.paths,
 				pathFilter: domain.pathFilter,
 			});
 
-			const { modulesCollection, packagesCollection, summary, fSTree } = await domain.process(fileItems);
+			const { modulesCollection, packagesCollection, summary, fSTree } = await domain.process(programFileItems);
 
 			if (settings.report) {
 				await generateReport({
