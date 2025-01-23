@@ -3,8 +3,8 @@ import { expect } from "@jest/globals";
 import { Rec } from "~/lib/rec";
 import type { Module, ModulesCollection } from "../modules-collector";
 import type { Package, PackagesCollection } from "../packages-collector";
-import type { ProgramFileEntries, ProgramFileEntry } from "../program-file-items-processor";
 import type { Summary } from "../summary-collector";
+import type { ProgramFileEntries, ProgramFileEntry } from "../values";
 
 export function createProgramFileEntries(entriesList: ProgramFileEntry[]): ProgramFileEntries {
 	return Rec.fromEntries(entriesList.map((entry) => [entry.path, entry as ProgramFileEntry]));

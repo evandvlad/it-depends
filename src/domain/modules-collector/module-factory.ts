@@ -2,7 +2,7 @@ import { assert, assertNever } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
 import type { ImportSourceResolver } from "../program-file-expert";
-import { type ProgramFileEntry, ieValueAll } from "../program-file-items-processor";
+import { type ProgramFileEntry, ieValueAll } from "../values";
 import type { Module } from "./values";
 
 export class ModuleFactory {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { ProgramFileProcessor } from "..";
 
 describe("program-file-processor", () => {
-	describe("empty values", () => {
+	describe("ieItems empty values", () => {
 		it.each([
 			{
 				name: "should parse as empty if content is empty",
@@ -45,18 +45,19 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			const result = processor.process({
+				path: "/src/index.ts",
 				content,
-				programFileDetails: {
+				details: {
 					language: "javascript",
 					allowedJSXSyntax: false,
 				},
-			});
+			}).ieItems;
 
 			expect(result).toEqual([]);
 		});
 	});
 
-	describe("standard imports", () => {
+	describe("ieItems standard imports", () => {
 		it.each([
 			{
 				name: "should parse side effect import",
@@ -161,12 +162,16 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			expect(
-				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+				processor.process({
+					content,
+					path: "/src/index.ts",
+					details: { language: "typescript", allowedJSXSyntax: false },
+				}).ieItems,
 			).toEqual(result);
 		});
 	});
 
-	describe("dynamic imports", () => {
+	describe("ieItems dynamic imports", () => {
 		it.each([
 			{
 				name: "should parse import on root level",
@@ -206,12 +211,16 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			expect(
-				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+				processor.process({
+					path: "/src/index.ts",
+					content,
+					details: { language: "typescript", allowedJSXSyntax: false },
+				}).ieItems,
 			).toEqual(result);
 		});
 	});
 
-	describe("re-exports", () => {
+	describe("ieItems re-exports", () => {
 		it.each([
 			{
 				name: "should parse full re-export",
@@ -277,12 +286,16 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			expect(
-				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+				processor.process({
+					path: "/src/index.ts",
+					content,
+					details: { language: "typescript", allowedJSXSyntax: false },
+				}).ieItems,
 			).toEqual(result);
 		});
 	});
 
-	describe("exports", () => {
+	describe("ieItems exports", () => {
 		it.each([
 			{
 				name: "should parse default export of function",
@@ -535,12 +548,16 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			expect(
-				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+				processor.process({
+					path: "/src/index.ts",
+					content,
+					details: { language: "typescript", allowedJSXSyntax: false },
+				}).ieItems,
 			).toEqual(result);
 		});
 	});
 
-	describe("multi values", () => {
+	describe("ieItems multi values", () => {
 		it.each([
 			{
 				name: "should parse multi imports",
@@ -606,7 +623,11 @@ describe("program-file-processor", () => {
 			const processor = new ProgramFileProcessor();
 
 			expect(
-				processor.process({ content, programFileDetails: { language: "typescript", allowedJSXSyntax: false } }),
+				processor.process({
+					path: "/src/index.ts",
+					content,
+					details: { language: "typescript", allowedJSXSyntax: false },
+				}).ieItems,
 			).toEqual(result);
 		});
 	});

@@ -1,6 +1,6 @@
 import type { EventBusDispatcher } from "~/lib/event-bus";
-import type { Rec } from "~/lib/rec";
-import type { Language, ProgramFileDetails } from "../program-file-expert";
+import type { ProgramFileDetails } from "../program-file-expert";
+import type { ProgramFileEntry } from "../values";
 
 export interface ProgramFileItem {
 	path: string;
@@ -8,7 +8,7 @@ export interface ProgramFileItem {
 }
 
 export interface ProgramFileProcessorPort {
-	process: (params: { content: string; programFileDetails: ProgramFileDetails }) => IEItem[];
+	process: (params: { path: string; content: string; details: ProgramFileDetails }) => ProgramFileEntry;
 }
 
 export type DispatcherPort = EventBusDispatcher<{
@@ -19,22 +19,3 @@ export type DispatcherPort = EventBusDispatcher<{
 }>;
 
 export type ProgramFileItems = AsyncGenerator<ProgramFileItem>;
-
-export const ieValueAll = "*";
-
-export type IEItem =
-	| { type: "standard-import"; source: string; values: string[] }
-	| { type: "dynamic-import"; source: string | null }
-	| { type: "re-export"; source: string; inputValues: string[]; outputValues: string[] }
-	| { type: "standard-export"; values: string[] };
-
-export interface ProgramFileEntry {
-	path: string;
-	content: string;
-	language: Language;
-	ieItems: IEItem[];
-}
-
-export type ProgramFileEntries = Rec<string, ProgramFileEntry>;
-
-export type ProcessorErrors = Rec<string, Error>;

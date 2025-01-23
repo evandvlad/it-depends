@@ -1,5 +1,5 @@
 import type { ImportSourceResolver } from "../program-file-expert";
-import type { ProgramFileEntries } from "../program-file-items-processor";
+import type { ProgramFileEntries } from "../values";
 import { bindModules } from "./binder";
 import { ModuleFactory } from "./module-factory";
 import type { Module, ModulesCollection } from "./values";

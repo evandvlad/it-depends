@@ -10,14 +10,13 @@ import {
 } from "./program-file-expert";
 import {
 	type DispatcherPort,
-	type IEItem,
 	type ProgramFileItem,
 	type ProgramFileItems,
 	type ProgramFileProcessorPort,
-	ieValueAll,
 	processProgramFileItems,
 } from "./program-file-items-processor";
 import { type Summary, SummaryCollector } from "./summary-collector";
+import { type IEItem, type ProgramFileEntry, ieValueAll } from "./values";
 
 interface Settings {
 	aliases: Aliases;
@@ -43,6 +42,7 @@ export type {
 	Aliases,
 	ProgramFileItem,
 	ProgramFileItems,
+	ProgramFileEntry,
 	DispatcherPort,
 	ModulesCollection,
 	PackagesCollection,

@@ -1,16 +1,7 @@
 import { Rec } from "~/lib/rec";
 import type { ProgramFileExpert } from "../program-file-expert";
-import {
-	type DispatcherPort,
-	type IEItem,
-	type ProcessorErrors,
-	type ProgramFileEntries,
-	type ProgramFileEntry,
-	type ProgramFileItem,
-	type ProgramFileItems,
-	type ProgramFileProcessorPort,
-	ieValueAll,
-} from "./values";
+import type { ProcessorErrors, ProgramFileEntries } from "../values";
+import type { DispatcherPort, ProgramFileItem, ProgramFileItems, ProgramFileProcessorPort } from "./values";
 
 interface Params {
 	items: ProgramFileItems;
@@ -19,17 +10,7 @@ interface Params {
 	programFileProcessorPort: ProgramFileProcessorPort;
 }
 
-export {
-	ieValueAll,
-	type IEItem,
-	type ProgramFileEntries,
-	type ProgramFileEntry,
-	type ProgramFileItem,
-	type ProgramFileItems,
-	type ProcessorErrors,
-	type DispatcherPort,
-	type ProgramFileProcessorPort,
-};
+export type { ProgramFileItem, ProgramFileItems, DispatcherPort, ProgramFileProcessorPort };
 
 export async function processProgramFileItems({
 	items,
@@ -43,16 +24,10 @@ export async function processProgramFileItems({
 	dispatcherPort.dispatch("program-files-processing:started");
 
 	for await (const { path, content } of items) {
-		const programFileDetails = programFileExpert.getDetails(path);
+		const details = programFileExpert.getDetails(path);
 
 		try {
-			entries.set(path, {
-				path,
-				content,
-				language: programFileDetails.language,
-				ieItems: programFileProcessorPort.process({ content, programFileDetails }),
-			});
-
+			entries.set(path, programFileProcessorPort.process({ path, content, details }));
 			dispatcherPort.dispatch("program-files-processing:program-file-processed", { path });
 		} catch (e) {
 			const error = e as Error;

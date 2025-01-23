@@ -1,21 +1,22 @@
 import { type ParserPlugin, parse } from "@babel/parser";
-import type { ProgramFileDetails } from "~/domain";
+import type { ProgramFileDetails, ProgramFileEntry } from "~/domain";
 import { processAST } from "./ast-processor";
 
 interface ProcessParams {
+	path: string;
 	content: string;
-	programFileDetails: ProgramFileDetails;
+	details: ProgramFileDetails;
 }
 
 export class ProgramFileProcessor {
-	process({ content, programFileDetails }: ProcessParams) {
+	process({ path, content, details }: ProcessParams): ProgramFileEntry {
 		const plugins: ParserPlugin[] = ["decorators"];
 
-		if (programFileDetails.language === "typescript") {
+		if (details.language === "typescript") {
 			plugins.push("typescript");
 		}
 
-		if (programFileDetails.allowedJSXSyntax) {
+		if (details.allowedJSXSyntax) {
 			plugins.push("jsx");
 		}
 
@@ -26,6 +27,11 @@ export class ProgramFileProcessor {
 			plugins,
 		});
 
-		return processAST(ast);
+		return {
+			path,
+			content,
+			language: details.language,
+			ieItems: processAST(ast),
+		};
 	}
 }
