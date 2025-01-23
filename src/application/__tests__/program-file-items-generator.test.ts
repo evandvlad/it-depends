@@ -48,7 +48,7 @@ async function loadAllProgramFilesAndGetPathsImmediately({
 
 	for await (const entry of createProgramFileItemsGenerator({
 		pathFilter,
-		paths: paths,
+		paths,
 		fSysPort: {
 			getStatEntryType(path) {
 				return Promise.resolve(fsTestData.get(path)!.type as "file" | "dir");

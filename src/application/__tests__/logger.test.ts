@@ -10,12 +10,22 @@ function createTerminalPort() {
 	};
 }
 
+function createLogger({
+	eventBus = new EventBus<GlobalEventBusRecord>(),
+	terminalPort = createTerminalPort(),
+}: {
+	eventBus?: EventBus<GlobalEventBusRecord>;
+	terminalPort?: ReturnType<typeof createTerminalPort>;
+} = {}) {
+	return new Logger({ subscriberPort: eventBus, terminalPort });
+}
+
 describe("logger", () => {
 	it("should process events correctly", () => {
 		const eventBus = new EventBus<GlobalEventBusRecord>();
 		const terminalPort = createTerminalPort();
 
-		new Logger({ subscriberPort: eventBus, terminalPort });
+		createLogger({ eventBus, terminalPort });
 
 		eventBus.dispatch("app:started");
 		eventBus.dispatch("settings-preparation:started");
@@ -68,10 +78,8 @@ describe("logger", () => {
 	});
 
 	it("should write down about accepted error", () => {
-		const eventBus = new EventBus<GlobalEventBusRecord>();
 		const terminalPort = createTerminalPort();
-
-		const logger = new Logger({ subscriberPort: eventBus, terminalPort });
+		const logger = createLogger({ terminalPort });
 
 		logger.acceptAppLevelError(new Error("Oh("));
 

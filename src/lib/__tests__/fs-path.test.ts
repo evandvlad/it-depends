@@ -24,13 +24,37 @@ describe("fs-path", () => {
 	describe("joinPaths", () => {
 		it.each([
 			{
-				name: "should join paths",
-				path1: "/tmp/dir",
-				path2: "../file.txt",
+				name: "should change dir",
+				path: "/tmp/dir",
+				subpath: "../file.txt",
 				result: "/tmp/file.txt",
 			},
-		])("$name", ({ path1, path2, result }) => {
-			expect(joinPaths(path1, path2)).toEqual(result);
+			{
+				name: "should get parent path",
+				path: "/tmp/dir",
+				subpath: "..",
+				result: "/tmp",
+			},
+			{
+				name: "should get file path in current dir",
+				path: "/tmp/dir",
+				subpath: "./file.ts",
+				result: "/tmp/dir/file.ts",
+			},
+			{
+				name: "should get file path in current dir (without dot in the beginning)",
+				path: "/tmp/dir",
+				subpath: "file.ts",
+				result: "/tmp/dir/file.ts",
+			},
+			{
+				name: "should get file in root dir",
+				path: "/tmp/dir1/dir2",
+				subpath: "../../../file.ts",
+				result: "/file.ts",
+			},
+		])("$name", ({ path, subpath, result }) => {
+			expect(joinPaths(path, subpath)).toEqual(result);
 		});
 	});
 

@@ -53,6 +53,20 @@ describe("import-source-resolver", () => {
 		},
 
 		{
+			name: "should be resolved imported module by alias when it equals to path",
+			filePaths: ["C:/dir/file1.tsx", "C:/dir/index.jsx"],
+			aliases: {
+				"~": "C:/dir",
+			},
+			filePath: "C:/dir/file1.tsx",
+			importPath: "~",
+			result: {
+				filePath: "C:/dir/index.jsx",
+				importPath: "~",
+			},
+		},
+
+		{
 			name: "should be resolved sibling module",
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.js"],
 			filePath: "C:/dir/file1.ts",
@@ -301,17 +315,16 @@ describe("import-source-resolver", () => {
 			},
 		},
 	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
-		const fSTree = new FSTree(filePaths);
 		const importSourceResolver = new ImportSourceResolver({
-			fSTree,
+			fSTree: new FSTree(filePaths),
 			aliases: Rec.fromObject(aliases as Record<string, string>),
 		});
 
-		expect(
-			importSourceResolver.resolve({
-				filePath,
-				importPath,
-			}),
-		).toEqual(result);
+		const ret = importSourceResolver.resolve({
+			filePath,
+			importPath,
+		});
+
+		expect(ret).toEqual(result);
 	});
 });

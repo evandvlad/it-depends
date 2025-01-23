@@ -2,10 +2,19 @@ import { describe, expect, it } from "@jest/globals";
 import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import { ProgramFileExpert } from "..";
+import type { Aliases, ExtraPackageEntries } from "../values";
 
-const nullParams = {
-	settings: { aliases: new Rec<string, string>(), extraPackageEntries: { fileNames: [], filePaths: [] } },
-};
+function createProgramFileExpert({
+	aliases = new Rec(),
+	extraPackageEntries = { fileNames: [], filePaths: [] },
+}: {
+	aliases?: Aliases;
+	extraPackageEntries?: ExtraPackageEntries;
+} = {}) {
+	return new ProgramFileExpert({
+		settings: { aliases, extraPackageEntries },
+	});
+}
 
 describe("program-file-expert", () => {
 	describe("isAcceptableFile", () => {
@@ -30,12 +39,12 @@ describe("program-file-expert", () => {
 			{ name: "should be false for *.svg", path: "C:/dir/file.svg", result: false },
 			{ name: "should be false for *.json", path: "C:/dir/file.json", result: false },
 		])("$name", ({ path, result }) => {
-			const expert = new ProgramFileExpert(nullParams);
+			const expert = createProgramFileExpert();
 			expect(expert.isAcceptableFile(path)).toEqual(result);
 		});
 	});
 
-	describe("getModuleDetails", () => {
+	describe("getDetails", () => {
 		it.each([
 			{
 				name: "should get module details for *.d.ts",
@@ -63,15 +72,54 @@ describe("program-file-expert", () => {
 				result: { language: "javascript", allowedJSXSyntax: true },
 			},
 		])("$name", ({ path, result }) => {
-			const expert = new ProgramFileExpert(nullParams);
+			const expert = createProgramFileExpert();
 			expect(expert.getDetails(path)).toEqual(result);
 		});
 
 		it("should throw error for unsupported file extension", () => {
 			expect(() => {
-				const expert = new ProgramFileExpert(nullParams);
+				const expert = createProgramFileExpert();
 				expert.getDetails("/src/index.css");
 			}).toThrow(new AppError("Unsupported extension name for file '/src/index.css'"));
+		});
+	});
+
+	describe("getPackageEntryPoint", () => {
+		it("should be null for empty paths", () => {
+			const expert = createProgramFileExpert();
+			expect(expert.getPackageEntryPoint([])).toEqual(null);
+		});
+
+		it("should take index file", () => {
+			const expert = createProgramFileExpert();
+			expect(expert.getPackageEntryPoint(["/src/main.ts", "/src/index.ts"])).toEqual("/src/index.ts");
+		});
+
+		it("should take ts index file at first", () => {
+			const expert = createProgramFileExpert();
+			expect(expert.getPackageEntryPoint(["/src/index.js", "/src/index.ts"])).toEqual("/src/index.ts");
+		});
+
+		it("should take from extra entries file names if index doesn't exist", () => {
+			const expert = createProgramFileExpert({ extraPackageEntries: { filePaths: [], fileNames: ["main"] } });
+			expect(expert.getPackageEntryPoint(["/src/main.jsx", "/src/file.ts"])).toEqual("/src/main.jsx");
+		});
+
+		it("shouldn't take from extra entries file names if index exists", () => {
+			const expert = createProgramFileExpert({ extraPackageEntries: { filePaths: [], fileNames: ["main"] } });
+			expect(expert.getPackageEntryPoint(["/src/main.jsx", "/src/index.d.ts"])).toEqual("/src/index.d.ts");
+		});
+
+		it("should return null if entry point wasn't found", () => {
+			const expert = createProgramFileExpert();
+			expect(expert.getPackageEntryPoint(["/src/file1.ts", "/src/file2.ts"])).toEqual(null);
+		});
+
+		it("should take from extra entries file paths at first", () => {
+			const expert = createProgramFileExpert({
+				extraPackageEntries: { filePaths: ["/src/main.js"], fileNames: [] },
+			});
+			expect(expert.getPackageEntryPoint(["/src/main.js", "/src/index.ts"])).toEqual("/src/main.js");
 		});
 	});
 });

@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { ProgramFileProcessor } from "..";
 
 describe("program-file-processor", () => {
-	describe("ieItems empty values", () => {
+	describe("empty values", () => {
 		it.each([
 			{
 				name: "should parse as empty if content is empty",
@@ -51,18 +51,23 @@ describe("program-file-processor", () => {
 					language: "javascript",
 					allowedJSXSyntax: false,
 				},
-			}).ieItems;
+			});
 
-			expect(result).toEqual([]);
+			expect(result).toEqual({
+				content,
+				path: "/src/index.ts",
+				language: "javascript",
+				ieItems: [],
+			});
 		});
 	});
 
-	describe("ieItems standard imports", () => {
+	describe("standard imports", () => {
 		it.each([
 			{
 				name: "should parse side effect import",
 				content: `import "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -73,7 +78,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse empty import",
 				content: `import {} from "bar";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "bar",
@@ -84,7 +89,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse default import",
 				content: `import foo from "baz";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "baz",
@@ -95,7 +100,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse default import of type",
 				content: `import type foo from "baz";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "baz",
@@ -106,7 +111,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named import",
 				content: `import { bar, qux as quux, "corge" as grault } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -117,7 +122,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named import of types",
 				content: `import { type bar, type qux as quux } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -128,7 +133,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse namespace import",
 				content: `import * as bar from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -139,7 +144,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse mixed import (default & named)",
 				content: `import bar, { baz, default as qux, quux as corge } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -150,7 +155,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse mixed import (default & namespace)",
 				content: `import bar, * as baz from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-import",
 						source: "foo",
@@ -158,25 +163,29 @@ describe("program-file-processor", () => {
 					},
 				],
 			},
-		])("$name", ({ content, result }) => {
+		])("$name", ({ content, ieItems }) => {
 			const processor = new ProgramFileProcessor();
+			const result = processor.process({
+				content,
+				path: "/src/index.tsx",
+				details: { language: "typescript", allowedJSXSyntax: true },
+			});
 
-			expect(
-				processor.process({
-					content,
-					path: "/src/index.ts",
-					details: { language: "typescript", allowedJSXSyntax: false },
-				}).ieItems,
-			).toEqual(result);
+			expect(result).toEqual({
+				content,
+				path: "/src/index.tsx",
+				language: "typescript",
+				ieItems,
+			});
 		});
 	});
 
-	describe("ieItems dynamic imports", () => {
+	describe("dynamic imports", () => {
 		it.each([
 			{
 				name: "should parse import on root level",
 				content: `import("foo");`,
-				result: [
+				ieItems: [
 					{
 						type: "dynamic-import",
 						source: "foo",
@@ -190,7 +199,7 @@ describe("program-file-processor", () => {
 						return await import("foo").catch(() => ({}));
 					}
 				`,
-				result: [
+				ieItems: [
 					{
 						type: "dynamic-import",
 						source: "foo",
@@ -200,32 +209,36 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse with nullable source for no literal value",
 				content: `import(true ? "foo" : "bar");`,
-				result: [
+				ieItems: [
 					{
 						type: "dynamic-import",
 						source: null,
 					},
 				],
 			},
-		])("$name", ({ content, result }) => {
+		])("$name", ({ content, ieItems }) => {
 			const processor = new ProgramFileProcessor();
+			const result = processor.process({
+				path: "/src/index.ts",
+				content,
+				details: { language: "typescript", allowedJSXSyntax: false },
+			});
 
-			expect(
-				processor.process({
-					path: "/src/index.ts",
-					content,
-					details: { language: "typescript", allowedJSXSyntax: false },
-				}).ieItems,
-			).toEqual(result);
+			expect(result).toEqual({
+				content,
+				ieItems,
+				path: "/src/index.ts",
+				language: "typescript",
+			});
 		});
 	});
 
-	describe("ieItems re-exports", () => {
+	describe("re-exports", () => {
 		it.each([
 			{
 				name: "should parse full re-export",
 				content: `export * from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "re-export",
 						source: "foo",
@@ -237,7 +250,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse namespace re-export",
 				content: `export * as bar from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "re-export",
 						source: "foo",
@@ -249,7 +262,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named re-export",
 				content: `export { default, bar, baz as qux } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "re-export",
 						source: "foo",
@@ -261,7 +274,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named re-export of types (all)",
 				content: `export type { default, bar, baz as qux } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "re-export",
 						source: "foo",
@@ -273,7 +286,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named re-export of types (separated)",
 				content: `export { type Bar, type Baz as Qux } from "foo";`,
-				result: [
+				ieItems: [
 					{
 						type: "re-export",
 						source: "foo",
@@ -282,25 +295,29 @@ describe("program-file-processor", () => {
 					},
 				],
 			},
-		])("$name", ({ content, result }) => {
+		])("$name", ({ content, ieItems }) => {
 			const processor = new ProgramFileProcessor();
+			const result = processor.process({
+				path: "/src/index.ts",
+				content,
+				details: { language: "typescript", allowedJSXSyntax: false },
+			});
 
-			expect(
-				processor.process({
-					path: "/src/index.ts",
-					content,
-					details: { language: "typescript", allowedJSXSyntax: false },
-				}).ieItems,
-			).toEqual(result);
+			expect(result).toEqual({
+				content,
+				ieItems,
+				path: "/src/index.ts",
+				language: "typescript",
+			});
 		});
 	});
 
-	describe("ieItems exports", () => {
+	describe("exports", () => {
 		it.each([
 			{
 				name: "should parse default export of function",
 				content: "export default function Foo() {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["default"],
@@ -310,7 +327,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse default export of generator",
 				content: "export default function* foo() {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["default"],
@@ -320,7 +337,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse default export of class",
 				content: "export default class Foo {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["default"],
@@ -330,7 +347,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse default export of expression",
 				content: "export default new Foo();",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["default"],
@@ -347,7 +364,7 @@ describe("program-file-processor", () => {
 					
 					export { foo, bar as Bar, baz as default, qux as "quux" }; 
 				`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo", "Bar", "default", "quux"],
@@ -362,7 +379,7 @@ describe("program-file-processor", () => {
 					
 					export type { Foo, Bar as Baz }; 
 				`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo", "Baz"],
@@ -377,7 +394,7 @@ describe("program-file-processor", () => {
 					
 					export { type Foo, Bar as Baz }; 
 				`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo", "Baz"],
@@ -387,7 +404,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of defined variable",
 				content: `export const foo = "bar";`,
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo"],
@@ -397,7 +414,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of defined variables",
 				content: "export const foo = 1, bar = 2;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo", "bar"],
@@ -407,7 +424,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of undefined variables",
 				content: "export let foo, bar;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo", "bar"],
@@ -417,7 +434,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of object with destructuring assignment",
 				content: "export const { bar, baz: qux, quux = true } = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar", "qux", "quux"],
@@ -427,7 +444,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of object with destructuring assignment & rest element",
 				content: "export const { bar, ...baz } = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar", "baz"],
@@ -437,7 +454,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of array with destructuring assignment",
 				content: "export const [bar, baz = true] = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar", "baz"],
@@ -447,7 +464,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of array with destructuring assignment & rest element",
 				content: "export const [bar, ...baz] = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar", "baz"],
@@ -457,7 +474,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of array with holes",
 				content: "export const [bar,,,baz] = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar", "baz"],
@@ -467,7 +484,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of array & object with destructuring assignment",
 				content: "export const [{ bar }] = foo;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["bar"],
@@ -477,7 +494,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of function",
 				content: "export function foo() {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo"],
@@ -487,7 +504,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of generator",
 				content: "export function* foo() {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["foo"],
@@ -497,7 +514,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of class",
 				content: "export class Foo {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo"],
@@ -507,7 +524,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of complex class",
 				content: "export abstract class Foo extends Bar implements IFoo, IBar {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo"],
@@ -517,7 +534,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of type",
 				content: "export type Foo = string;",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo"],
@@ -527,7 +544,7 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of interface",
 				content: "export interface Foo {}",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo"],
@@ -537,27 +554,31 @@ describe("program-file-processor", () => {
 			{
 				name: "should parse named export of enum",
 				content: "export enum Foo { Bar, Baz }",
-				result: [
+				ieItems: [
 					{
 						type: "standard-export",
 						values: ["Foo"],
 					},
 				],
 			},
-		])("$name", ({ content, result }) => {
+		])("$name", ({ content, ieItems }) => {
 			const processor = new ProgramFileProcessor();
+			const result = processor.process({
+				path: "/src/index.ts",
+				content,
+				details: { language: "typescript", allowedJSXSyntax: false },
+			});
 
-			expect(
-				processor.process({
-					path: "/src/index.ts",
-					content,
-					details: { language: "typescript", allowedJSXSyntax: false },
-				}).ieItems,
-			).toEqual(result);
+			expect(result).toEqual({
+				content,
+				ieItems,
+				path: "/src/index.ts",
+				language: "typescript",
+			});
 		});
 	});
 
-	describe("ieItems multi values", () => {
+	describe("multi values", () => {
 		it.each([
 			{
 				name: "should parse multi imports",
@@ -572,7 +593,7 @@ describe("program-file-processor", () => {
 						import(waldo),
 					]);
 				`,
-				result: [
+				ieItems: [
 					{ type: "standard-import", source: "bar", values: ["default"] },
 					{ type: "standard-import", source: "qux", values: ["*"] },
 					{ type: "standard-import", source: "corge", values: ["baz"] },
@@ -593,7 +614,7 @@ describe("program-file-processor", () => {
 					export const [bar1, bar2] = bar;
 					export const { foo, bar: bar3 } = baz;
 				`,
-				result: [
+				ieItems: [
 					{ type: "standard-export", values: ["default"] },
 					{ type: "standard-export", values: ["qux"] },
 					{ type: "re-export", source: "quux", inputValues: ["*"], outputValues: ["quux"] },
@@ -612,23 +633,27 @@ describe("program-file-processor", () => {
 					export { Foo, Baz };
 					export const qux = new Qux();
 				`,
-				result: [
+				ieItems: [
 					{ type: "standard-import", source: "foo", values: [] },
 					{ type: "standard-import", source: "bar", values: ["foo", "bar", "baz"] },
 					{ type: "standard-export", values: ["Foo", "Baz"] },
 					{ type: "standard-export", values: ["qux"] },
 				],
 			},
-		])("$name", ({ content, result }) => {
+		])("$name", ({ content, ieItems }) => {
 			const processor = new ProgramFileProcessor();
+			const result = processor.process({
+				path: "/src/index.ts",
+				content,
+				details: { language: "typescript", allowedJSXSyntax: false },
+			});
 
-			expect(
-				processor.process({
-					path: "/src/index.ts",
-					content,
-					details: { language: "typescript", allowedJSXSyntax: false },
-				}).ieItems,
-			).toEqual(result);
+			expect(result).toEqual({
+				content,
+				ieItems,
+				path: "/src/index.ts",
+				language: "typescript",
+			});
 		});
 	});
 });

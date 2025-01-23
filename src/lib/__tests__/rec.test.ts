@@ -18,7 +18,7 @@ describe("rec", () => {
 
 		expect(rec.has("a")).toEqual(true);
 		expect(rec.has("d")).toEqual(false);
-		expect(rec.get("a")).toEqual(1);
+		expect(rec.getOrDefault("a", 123)).toEqual(1);
 		expect(rec.get("c")).toEqual(3);
 		expect(rec.getOrDefault("z", 999)).toEqual(999);
 
