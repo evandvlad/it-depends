@@ -4,8 +4,8 @@ import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { Terminal } from "~/adapters/terminal";
 import { Logger } from "~/application/logger";
 import {
+	ProgramFileEntriesCollector,
 	type DispatcherPort as ProgramFileEntriesCollectorDispatcherPort,
-	ProgramFilesEntriesCollector,
 } from "~/application/program-file-entries-collector";
 import { createProgramFileItemsGenerator } from "~/application/program-file-items-generator";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
@@ -63,7 +63,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 
 			const domain = new Domain({ settings });
 
-			const programFileEntriesCollector = new ProgramFilesEntriesCollector({
+			const programFileEntriesCollector = new ProgramFileEntriesCollector({
 				programFileDetailsGetter: domain.programFileDetailsGetter,
 				dispatcherPort: this.#eventBus as ProgramFileEntriesCollectorDispatcherPort,
 				programFileProcessorPort: programFileProcessor,

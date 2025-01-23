@@ -22,7 +22,7 @@ interface Params {
 	programFileDetailsGetter: (path: string) => ProgramFileDetails;
 }
 
-export class ProgramFilesEntriesCollector {
+export class ProgramFileEntriesCollector {
 	#dispatcherPort;
 	#programFileProcessorPort;
 	#programFileDetailsGetter;

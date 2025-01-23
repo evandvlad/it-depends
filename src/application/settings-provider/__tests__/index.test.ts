@@ -5,22 +5,20 @@ import { createSettings } from "..";
 
 const conf = { version: "999", reportStaticAssetsPath: "/assets" };
 
-const confLoaderPort = {
-	load() {
-		return Promise.resolve(conf);
-	},
-};
-
-function createFSysPort() {
+function createSutDependencies() {
 	return {
-		isAbsolutePath: jest.fn((path: string) => path.startsWith("/")),
-		checkAccess: jest.fn((_p: string) => Promise.resolve(true)),
-	};
-}
-
-function createDispatcherPort() {
-	return {
-		dispatch: jest.fn(),
+		confLoaderPort: {
+			load() {
+				return Promise.resolve(conf);
+			},
+		},
+		fSysPort: {
+			isAbsolutePath: jest.fn((path: string) => path.startsWith("/")),
+			checkAccess: jest.fn((_p: string) => Promise.resolve(true)),
+		},
+		dispatcherPort: {
+			dispatch: jest.fn(),
+		},
 	};
 }
 
@@ -29,9 +27,7 @@ describe("settings-provider", () => {
 		await expect(
 			createSettings({
 				options: { paths: [] },
-				confLoaderPort,
-				fSysPort: createFSysPort(),
-				dispatcherPort: createDispatcherPort(),
+				...createSutDependencies(),
 			}),
 		).rejects.toThrow(new AppError("Option 'paths' should be an array fulfilled with real absolute paths."));
 	});
@@ -40,9 +36,7 @@ describe("settings-provider", () => {
 		await expect(
 			createSettings({
 				options: { paths: ["/src", "../dir"] },
-				confLoaderPort,
-				fSysPort: createFSysPort(),
-				dispatcherPort: createDispatcherPort(),
+				...createSutDependencies(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -52,16 +46,14 @@ describe("settings-provider", () => {
 	});
 
 	it("should be error if not all paths are accessible", async () => {
-		const fSysPort = createFSysPort();
+		const deps = createSutDependencies();
 
-		fSysPort.checkAccess.mockImplementation(async (path) => path === "/src");
+		deps.fSysPort.checkAccess.mockImplementation(async (path) => path === "/src");
 
 		await expect(
 			createSettings({
 				options: { paths: ["/src", "/src2"] },
-				confLoaderPort,
-				fSysPort,
-				dispatcherPort: createDispatcherPort(),
+				...deps,
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -74,9 +66,7 @@ describe("settings-provider", () => {
 		await expect(
 			createSettings({
 				options: { paths: ["/src", "/src/dir"], aliases: { "@root": "/src", "@components": "./dir" } },
-				confLoaderPort,
-				fSysPort: createFSysPort(),
-				dispatcherPort: createDispatcherPort(),
+				...createSutDependencies(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -86,16 +76,13 @@ describe("settings-provider", () => {
 	});
 
 	it("should be error if not all paths in aliases are accessible", async () => {
-		const fSysPort = createFSysPort();
-
-		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/src/dir1");
+		const deps = createSutDependencies();
+		deps.fSysPort.checkAccess.mockImplementation(async (path) => path !== "/src/dir1");
 
 		await expect(
 			createSettings({
 				options: { paths: ["/src"], aliases: { "@root": "/src/dir1", "@components": "/src/dir2" } },
-				confLoaderPort,
-				fSysPort,
-				dispatcherPort: createDispatcherPort(),
+				...deps,
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -108,9 +95,7 @@ describe("settings-provider", () => {
 		await expect(
 			createSettings({
 				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "./dir2"] } },
-				confLoaderPort,
-				fSysPort: createFSysPort(),
-				dispatcherPort: createDispatcherPort(),
+				...createSutDependencies(),
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -120,16 +105,14 @@ describe("settings-provider", () => {
 	});
 
 	it("should be error if not all some extra package entry paths are accessible", async () => {
-		const fSysPort = createFSysPort();
+		const deps = createSutDependencies();
 
-		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/dir1");
+		deps.fSysPort.checkAccess.mockImplementation(async (path) => path !== "/dir1");
 
 		await expect(
 			createSettings({
 				options: { paths: ["/src"], extraPackageEntries: { filePaths: ["/dir1", "/dir2"] } },
-				confLoaderPort,
-				fSysPort,
-				dispatcherPort: createDispatcherPort(),
+				...deps,
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -142,9 +125,7 @@ describe("settings-provider", () => {
 		await expect(
 			createSettings({
 				options: { paths: ["/src"], report: { path: "../report" } },
-				confLoaderPort,
-				fSysPort: createFSysPort(),
-				dispatcherPort: createDispatcherPort(),
+				...createSutDependencies(),
 			}),
 		).rejects.toThrow(
 			new AppError("Option 'report.path' should be a real absolute path. Path '../report' is not absolute."),
@@ -152,16 +133,14 @@ describe("settings-provider", () => {
 	});
 
 	it("should be error if report path isn't accessible", async () => {
-		const fSysPort = createFSysPort();
+		const deps = createSutDependencies();
 
-		fSysPort.checkAccess.mockImplementation(async (path) => path !== "/report");
+		deps.fSysPort.checkAccess.mockImplementation(async (path) => path !== "/report");
 
 		await expect(
 			createSettings({
 				options: { paths: ["/src"], report: { path: "/report" } },
-				confLoaderPort,
-				fSysPort,
-				dispatcherPort: createDispatcherPort(),
+				...deps,
 			}),
 		).rejects.toThrow(
 			new AppError(
@@ -178,9 +157,7 @@ describe("settings-provider", () => {
 				extraPackageEntries: { filePaths: ["/src\\dir3//index.ts"] },
 				report: { path: "/report" },
 			},
-			confLoaderPort,
-			fSysPort: createFSysPort(),
-			dispatcherPort: createDispatcherPort(),
+			...createSutDependencies(),
 		});
 
 		expect(settings.paths).toEqual(["/src/dir1", "/src/dir2"]);
@@ -197,9 +174,7 @@ describe("settings-provider", () => {
 	it("should provide correct settings with default values", async () => {
 		const settings = await createSettings({
 			options: { paths: ["/src"] },
-			confLoaderPort,
-			fSysPort: createFSysPort(),
-			dispatcherPort: createDispatcherPort(),
+			...createSutDependencies(),
 		});
 
 		expect(settings).toEqual({
@@ -226,9 +201,7 @@ describe("settings-provider", () => {
 
 		const settings = await createSettings({
 			options,
-			confLoaderPort,
-			fSysPort: createFSysPort(),
-			dispatcherPort: createDispatcherPort(),
+			...createSutDependencies(),
 		});
 
 		expect(settings).toEqual({
@@ -245,16 +218,14 @@ describe("settings-provider", () => {
 	});
 
 	it("should dispatch events correctly", async () => {
-		const dispatcherPort = createDispatcherPort();
+		const deps = createSutDependencies();
 
 		await createSettings({
 			options: { paths: ["/src"] },
-			confLoaderPort,
-			fSysPort: createFSysPort(),
-			dispatcherPort,
+			...deps,
 		});
 
-		expect(dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "settings-preparation:started");
-		expect(dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "settings-preparation:finished");
+		expect(deps.dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "settings-preparation:started");
+		expect(deps.dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "settings-preparation:finished");
 	});
 });
