@@ -1,5 +1,5 @@
 import { type ParserPlugin, parse } from "@babel/parser";
-import type { ProgramFileDetails, ProgramFileEntry } from "~/domain";
+import type { ProgramFileDetails } from "~/domain";
 import { processAST } from "./ast-processor";
 
 interface ProcessParams {
@@ -9,7 +9,7 @@ interface ProcessParams {
 }
 
 export class ProgramFileProcessor {
-	process({ path, content, details }: ProcessParams): ProgramFileEntry {
+	process({ path, content, details }: ProcessParams) {
 		const plugins: ParserPlugin[] = ["decorators"];
 
 		if (details.language === "typescript") {

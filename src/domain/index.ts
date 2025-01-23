@@ -1,4 +1,3 @@
-import { assert } from "~/lib/errors";
 import { FSTree } from "~/lib/fs-tree";
 import { type ModulesCollection, collectModules } from "./modules-collector";
 import { type PackagesCollection, PackagesCollector } from "./packages-collector";
@@ -8,15 +7,14 @@ import {
 	type ProgramFileDetails,
 	ProgramFileExpert,
 } from "./program-file-expert";
-import {
-	type DispatcherPort,
-	type ProgramFileItem,
-	type ProgramFileItems,
-	type ProgramFileProcessorPort,
-	processProgramFileItems,
-} from "./program-file-items-processor";
 import { type Summary, SummaryCollector } from "./summary-collector";
-import { type IEItem, type ProgramFileEntry, ieValueAll } from "./values";
+import {
+	type IEItem,
+	type ProcessorErrors,
+	type ProgramFileEntries,
+	type ProgramFileEntry,
+	ieValueAll,
+} from "./values";
 
 interface Settings {
 	aliases: Aliases;
@@ -25,12 +23,10 @@ interface Settings {
 }
 
 interface Params {
-	dispatcherPort: DispatcherPort;
-	programFileProcessorPort: ProgramFileProcessorPort;
 	settings: Settings;
 }
 
-export interface Result {
+interface Result {
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 	summary: Summary;
@@ -40,15 +36,14 @@ export interface Result {
 export type {
 	IEItem,
 	Aliases,
-	ProgramFileItem,
-	ProgramFileItems,
 	ProgramFileEntry,
-	DispatcherPort,
 	ModulesCollection,
 	PackagesCollection,
 	Summary,
 	ExtraPackageEntries,
 	ProgramFileDetails,
+	ProcessorErrors,
+	ProgramFileEntries,
 };
 
 export { ieValueAll };
@@ -56,13 +51,9 @@ export { ieValueAll };
 export class Domain {
 	#settings;
 	#programFileExpert;
-	#dispatcherPort;
-	#programFileProcessorPort;
 
-	constructor({ settings, dispatcherPort, programFileProcessorPort }: Params) {
+	constructor({ settings }: Params) {
 		this.#settings = settings;
-		this.#dispatcherPort = dispatcherPort;
-		this.#programFileProcessorPort = programFileProcessorPort;
 		this.#programFileExpert = new ProgramFileExpert({ settings });
 	}
 
@@ -74,19 +65,12 @@ export class Domain {
 		return this.#settings.pathFilter(path);
 	};
 
-	async process(items: ProgramFileItems): Promise<Result> {
-		const { entries, processorErrors } = await processProgramFileItems({
-			items,
-			programFileExpert: this.#programFileExpert,
-			programFileProcessorPort: this.#programFileProcessorPort,
-			dispatcherPort: this.#dispatcherPort,
-		});
-		const allFilePaths = entries.toKeys();
+	programFileDetailsGetter = (path: string) => {
+		return this.#programFileExpert.getDetails(path);
+	};
 
-		assert(
-			allFilePaths.length > 0,
-			"No files have been found for processing. It seems like a problem with the configuration.",
-		);
+	process({ entries, processorErrors }: { entries: ProgramFileEntries; processorErrors: ProcessorErrors }): Result {
+		const allFilePaths = entries.toKeys();
 
 		const fSTree = new FSTree(allFilePaths);
 		const importSourceResolver = this.#programFileExpert.createImportSourceResolver({ fSTree });
@@ -99,7 +83,12 @@ export class Domain {
 		});
 		const packagesCollection = packagesCollector.collect();
 
-		const summaryCollector = new SummaryCollector({ fSTree, modulesCollection, packagesCollection, processorErrors });
+		const summaryCollector = new SummaryCollector({
+			fSTree,
+			modulesCollection,
+			packagesCollection,
+			processorErrors,
+		});
 		const summary = summaryCollector.collect();
 
 		return { modulesCollection, packagesCollection, summary, fSTree };

@@ -1,5 +1,5 @@
+import type { DispatcherPort as DomainDispatcherPort } from "~/application/program-file-entries-collector";
 import type { DispatcherPort as ReportGeneratorDispatcherPort } from "~/application/report-generator";
-import type { DispatcherPort as DomainDispatcherPort } from "~/domain";
 import type { EventBusDispatcher, EventBusSubscriber } from "~/lib/event-bus";
 import type { DispatcherPort as SettingsProviderDispatcherPort } from "./application/settings-provider";
 

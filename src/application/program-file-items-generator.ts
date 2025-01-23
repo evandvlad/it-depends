@@ -1,4 +1,4 @@
-import type { ProgramFileItems } from "~/domain";
+type ProgramFileItems = AsyncGenerator<{ path: string; content: string }>;
 
 interface FSysPort {
 	getStatEntryType: (path: string) => Promise<"file" | "dir" | "unknown">;

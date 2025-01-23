@@ -3,16 +3,14 @@ import { FSys } from "~/adapters/fsys";
 import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { Terminal } from "~/adapters/terminal";
 import { Logger } from "~/application/logger";
+import {
+	type DispatcherPort as ProgramFileEntriesCollectorDispatcherPort,
+	ProgramFilesEntriesCollector,
+} from "~/application/program-file-entries-collector";
 import { createProgramFileItemsGenerator } from "~/application/program-file-items-generator";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
 import { type Options, createSettings } from "~/application/settings-provider";
-import {
-	Domain,
-	type DispatcherPort as DomainDispatcherPort,
-	type ModulesCollection,
-	type PackagesCollection,
-	type Summary,
-} from "~/domain";
+import { Domain, type ModulesCollection, type PackagesCollection, type Summary } from "~/domain";
 import { AppError } from "~/lib/errors";
 import { EventBus } from "~/lib/event-bus";
 import type { GlobalEventBusRecord, GlobalEventBusSubscriber } from "./values";
@@ -63,9 +61,11 @@ export class ItDepends implements GlobalEventBusSubscriber {
 				dispatcherPort: this.#eventBus,
 			});
 
-			const domain = new Domain({
-				settings,
-				dispatcherPort: this.#eventBus as DomainDispatcherPort,
+			const domain = new Domain({ settings });
+
+			const programFileEntriesCollector = new ProgramFilesEntriesCollector({
+				programFileDetailsGetter: domain.programFileDetailsGetter,
+				dispatcherPort: this.#eventBus as ProgramFileEntriesCollectorDispatcherPort,
 				programFileProcessorPort: programFileProcessor,
 			});
 
@@ -75,7 +75,9 @@ export class ItDepends implements GlobalEventBusSubscriber {
 				pathFilter: domain.pathFilter,
 			});
 
-			const { modulesCollection, packagesCollection, summary, fSTree } = await domain.process(programFileItems);
+			const programFileEntries = await programFileEntriesCollector.collect(programFileItems);
+
+			const { modulesCollection, packagesCollection, summary, fSTree } = domain.process(programFileEntries);
 
 			if (settings.report) {
 				await generateReport({
