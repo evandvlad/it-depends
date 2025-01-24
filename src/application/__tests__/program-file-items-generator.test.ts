@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
+import type { PathFilter } from "~/values";
 import { createProgramFileItemsGenerator } from "../program-file-items-generator";
 
 const fsTestData = new Map([
@@ -42,7 +43,7 @@ async function loadAllProgramFilesAndGetPathsImmediately({
 	pathFilter = () => true,
 }: {
 	paths: string[];
-	pathFilter?: (path: string) => boolean;
+	pathFilter?: PathFilter;
 }) {
 	const entries: string[] = [];
 
@@ -113,7 +114,7 @@ describe("program-file-items-generator", () => {
 	it("should filter by file names", async () => {
 		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp"],
-			pathFilter: (path) => path.endsWith("file2.ts"),
+			pathFilter: ({ path, isFile }) => (isFile ? path.endsWith("file2.ts") : true),
 		});
 
 		expect(entries).toEqual(["/tmp/source2/file2.ts"]);
@@ -122,7 +123,7 @@ describe("program-file-items-generator", () => {
 	it("should filter by directory names", async () => {
 		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp"],
-			pathFilter: (path) => !/^\/tmp\/source[1-3]\/dir1\/dir2/.test(path),
+			pathFilter: ({ path }) => !/^\/tmp\/source[1-3]\/dir1\/dir2/.test(path),
 		});
 
 		expect(entries).toEqual([

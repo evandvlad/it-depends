@@ -1,3 +1,5 @@
+import type { PathFilter } from "~/values";
+
 type ProgramFileItems = AsyncGenerator<{ path: string; content: string }>;
 
 interface FSysPort {
@@ -9,7 +11,7 @@ interface FSysPort {
 interface Params {
 	paths: string[];
 	fSysPort: FSysPort;
-	pathFilter: (path: string) => boolean;
+	pathFilter: PathFilter;
 }
 
 class ProgramFileItemsGenerator {
@@ -40,12 +42,13 @@ class ProgramFileItemsGenerator {
 			this.#loadedPaths.add(path);
 
 			const statEntryType = await this.#fSysPort.getStatEntryType(path);
+			const isFile = statEntryType === "file";
 
-			if (statEntryType === "file") {
-				if (!this.#pathFilter(path)) {
-					continue;
-				}
+			if (!this.#pathFilter({ path, isFile })) {
+				continue;
+			}
 
+			if (isFile) {
 				const content = await this.#fSysPort.readFile(path);
 				yield { path, content };
 			}

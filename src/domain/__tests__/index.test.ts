@@ -10,13 +10,14 @@ import {
 } from "~/__test-utils__/components-factories";
 import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
+import type { PathFilter } from "~/values";
 import { Domain } from "..";
 
 function createSutComponents() {
 	const params = {
 		settings: {
 			aliases: new Rec<string, string>(),
-			pathFilter: (_path: string) => true,
+			pathFilter: ((_params) => true) as PathFilter,
 			extraPackageEntries: { fileNames: [] as string[], filePaths: [] as string[] },
 		},
 	};
@@ -41,7 +42,7 @@ describe("domain", () => {
 				"/tmp/file.js.orig",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter(path));
+			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
 			expect(result).toEqual([]);
 		});
 
@@ -61,7 +62,7 @@ describe("domain", () => {
 				"/tmp/file.d.cts",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter(path));
+			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
 			expect(result).toEqual([]);
 		});
 
@@ -69,7 +70,7 @@ describe("domain", () => {
 			const { instance } = createSutComponents();
 
 			const paths = ["/tmp/file.js", "/tmp/file.jsx", "/tmp/file.ts", "/tmp/file.tsx", "/tmp/file.d.ts"];
-			const result = paths.filter((path) => instance.pathFilter(path));
+			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
 
 			expect(result).toEqual(paths);
 		});
@@ -77,7 +78,7 @@ describe("domain", () => {
 		it("should apply user filter correcly", () => {
 			const { params, instance } = createSutComponents();
 
-			params.settings.pathFilter = (path) => !path.endsWith("x");
+			params.settings.pathFilter = ({ path }) => !path.endsWith("x");
 
 			const paths = [
 				"/tmp/file.css",
@@ -91,7 +92,7 @@ describe("domain", () => {
 				"/tmp/file.mtsx",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter(path));
+			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
 
 			expect(result).toEqual(["/tmp/file.js", "/tmp/file.ts", "/tmp/file.d.ts"]);
 		});

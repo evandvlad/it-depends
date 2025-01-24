@@ -1,6 +1,7 @@
 import type { ReportSettings } from "~/application/report-generator";
 import type { Aliases, ExtraPackageEntries } from "~/domain";
 import type { EventBusDispatcher } from "~/lib/event-bus";
+import type { PathFilter } from "~/values";
 
 interface Conf {
 	version: string;
@@ -23,7 +24,7 @@ export type DispatcherPort = EventBusDispatcher<{
 
 export interface Settings {
 	paths: string[];
-	pathFilter: (path: string) => boolean;
+	pathFilter: PathFilter;
 	aliases: Aliases;
 	extraPackageEntries: ExtraPackageEntries;
 	report: ReportSettings | null;

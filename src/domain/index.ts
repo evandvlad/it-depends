@@ -1,4 +1,5 @@
 import { FSTree } from "~/lib/fs-tree";
+import type { PathFilter } from "~/values";
 import { type Module, type ModulesCollection, collectModules } from "./modules-collector";
 import { type Package, type PackagesCollection, PackagesCollector } from "./packages-collector";
 import {
@@ -18,7 +19,7 @@ import {
 
 interface Settings {
 	aliases: Aliases;
-	pathFilter: (path: string) => boolean;
+	pathFilter: PathFilter;
 	extraPackageEntries: ExtraPackageEntries;
 }
 
@@ -59,12 +60,12 @@ export class Domain {
 		this.#programFileExpert = new ProgramFileExpert({ settings });
 	}
 
-	pathFilter = (path: string) => {
-		if (!this.#programFileExpert.isAcceptableFile(path)) {
+	pathFilter: PathFilter = (params) => {
+		if (params.isFile && !this.#programFileExpert.isAcceptableFile(params.path)) {
 			return false;
 		}
 
-		return this.#settings.pathFilter(path);
+		return this.#settings.pathFilter(params);
 	};
 
 	programFileDetailsGetter = (path: string) => {
