@@ -1,12 +1,7 @@
 import { describe, expect, it, jest } from "@jest/globals";
+import { createProgramFileItems } from "~/__test-utils__/components-factories";
 import { AppError } from "~/lib/errors";
 import { ProgramFileEntriesCollector } from "../program-file-entries-collector";
-
-async function* createProgramFileItems(items: Array<{ content: string; path: string }>) {
-	for await (const item of items) {
-		yield Promise.resolve(item);
-	}
-}
 
 function createSutComponents() {
 	const params = {
