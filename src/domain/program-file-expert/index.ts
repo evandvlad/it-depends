@@ -63,7 +63,7 @@ export class ProgramFileExpert {
 			}
 		}
 
-		const entryPointNames = [entryPointFileName, ...this.#settings.extraPackageEntries.fileNames];
+		const entryPointNames = [...this.#settings.extraPackageEntries.fileNames, entryPointFileName];
 		const orderedEntryPointFullNames = entryPointNames.flatMap((baseName) =>
 			orderedByResolvingPriorityAcceptableFileExtNames.map((extName) => `${baseName}${extName}`),
 		);

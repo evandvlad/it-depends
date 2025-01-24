@@ -107,11 +107,11 @@ describe("program-file-expert", () => {
 			expect(instance.getPackageEntryPoint(["/src/main.jsx", "/src/file.ts"])).toEqual("/src/main.jsx");
 		});
 
-		it("shouldn't take from extra entries file names if index exists", () => {
+		it("shouldn't take from extra entries file names at first", () => {
 			const { params, instance } = createSutComponents();
 			params.settings.extraPackageEntries.fileNames.push("main");
 
-			expect(instance.getPackageEntryPoint(["/src/main.jsx", "/src/index.d.ts"])).toEqual("/src/index.d.ts");
+			expect(instance.getPackageEntryPoint(["/src/main.jsx", "/src/index.d.ts"])).toEqual("/src/main.jsx");
 		});
 
 		it("should return null if entry point wasn't found", () => {
