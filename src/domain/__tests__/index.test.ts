@@ -27,6 +27,14 @@ function createSutComponents() {
 	return { params, instance };
 }
 
+function createPathFilterParams(path: string) {
+	return {
+		path,
+		name: path.split("/").at(-1)!,
+		isFile: true,
+	};
+}
+
 describe("domain", () => {
 	describe("path-filtration", () => {
 		it("should ignore non script files", () => {
@@ -42,7 +50,7 @@ describe("domain", () => {
 				"/tmp/file.js.orig",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
+			const result = paths.filter((path) => instance.pathFilter(createPathFilterParams(path)));
 			expect(result).toEqual([]);
 		});
 
@@ -62,7 +70,7 @@ describe("domain", () => {
 				"/tmp/file.d.cts",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
+			const result = paths.filter((path) => instance.pathFilter(createPathFilterParams(path)));
 			expect(result).toEqual([]);
 		});
 
@@ -70,7 +78,7 @@ describe("domain", () => {
 			const { instance } = createSutComponents();
 
 			const paths = ["/tmp/file.js", "/tmp/file.jsx", "/tmp/file.ts", "/tmp/file.tsx", "/tmp/file.d.ts"];
-			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
+			const result = paths.filter((path) => instance.pathFilter(createPathFilterParams(path)));
 
 			expect(result).toEqual(paths);
 		});
@@ -92,7 +100,7 @@ describe("domain", () => {
 				"/tmp/file.mtsx",
 			];
 
-			const result = paths.filter((path) => instance.pathFilter({ path, isFile: true }));
+			const result = paths.filter((path) => instance.pathFilter(createPathFilterParams(path)));
 
 			expect(result).toEqual(["/tmp/file.js", "/tmp/file.ts", "/tmp/file.d.ts"]);
 		});

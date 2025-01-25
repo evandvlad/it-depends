@@ -1,4 +1,5 @@
 import type { PathFilter } from "~/values";
+import { getName } from "~/lib/fs-path";
 
 type ProgramFileItems = AsyncGenerator<{ path: string; content: string }>;
 
@@ -44,7 +45,7 @@ class ProgramFileItemsGenerator {
 			const statEntryType = await this.#fSysPort.getStatEntryType(path);
 			const isFile = statEntryType === "file";
 
-			if (!this.#pathFilter({ path, isFile })) {
+			if (!this.#pathFilter({ path, isFile, name: getName(path) })) {
 				continue;
 			}
 

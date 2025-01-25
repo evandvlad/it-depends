@@ -11,7 +11,7 @@ export type GlobalEventBusRecord = ExtractEventBusRecord<DomainDispatcherPort> &
 
 export type GlobalEventBusSubscriber = EventBusSubscriber<GlobalEventBusRecord>;
 
-export type PathFilter = (params: { path: string; isFile: boolean }) => boolean;
+export type PathFilter = (params: { path: string; name: string; isFile: boolean }) => boolean;
 
 export interface Options {
 	paths: string[];
