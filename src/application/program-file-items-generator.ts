@@ -1,5 +1,5 @@
-import type { PathFilter } from "~/values";
 import { getName } from "~/lib/fs-path";
+import type { PathFilter } from "~/values";
 
 type ProgramFileItems = AsyncGenerator<{ path: string; content: string }>;
 

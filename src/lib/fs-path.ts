@@ -1,3 +1,5 @@
+import { assert } from "~/lib/errors";
+
 export const delimiter = "/";
 
 function splitPath(path: string) {
@@ -8,6 +10,10 @@ function splitPath(path: string) {
 	}
 
 	return parts.filter(Boolean);
+}
+
+function isRoot(path: string) {
+	return path === delimiter || !path.includes(delimiter);
 }
 
 export function normalizePath(path: string) {
@@ -23,13 +29,11 @@ export function normalizePath(path: string) {
 export function joinPaths(path: string, subPath: string) {
 	const parts = subPath.split(delimiter);
 
-	if (parts.length === 0) {
-		return path;
-	}
-
 	const [firstPart, ...otherParts] = parts;
 
 	if (firstPart === "..") {
+		assert(Boolean(path && !isRoot(path)), `Can't join path '${path || delimiter}' with sub-path '${subPath}'`);
+
 		const parentPath = path.split(delimiter).slice(0, -1).join(delimiter);
 		return joinPaths(parentPath, otherParts.join(delimiter));
 	}
@@ -42,6 +46,7 @@ export function joinPaths(path: string, subPath: string) {
 }
 
 export function getParentPath(path: string) {
+	assert(!isRoot(path), `Can't get parent path from root '${path}'`);
 	return joinPaths(path, "..");
 }
 

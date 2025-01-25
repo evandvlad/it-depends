@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
+import { AppError } from "~/lib/errors";
 import { getBreadcrumbs, getName, getParentPath, joinPaths, normalizePath } from "../fs-path";
 
 describe("fs-path", () => {
@@ -56,6 +57,18 @@ describe("fs-path", () => {
 		])("$name", ({ path, subpath, result }) => {
 			expect(joinPaths(path, subpath)).toEqual(result);
 		});
+
+		it("should be error for incorrect params for windows", () => {
+			expect(() => {
+				joinPaths("C:/src", "../../file.ts");
+			}).toThrow(new AppError("Can't join path 'C:' with sub-path '../file.ts'"));
+		});
+
+		it("should be error for incorrect params for unix", () => {
+			expect(() => {
+				joinPaths("/src", "../../file.ts");
+			}).toThrow(new AppError("Can't join path '/' with sub-path '../file.ts'"));
+		});
 	});
 
 	describe("getParentPath", () => {
@@ -71,14 +84,20 @@ describe("fs-path", () => {
 				path: "/tmp/dir",
 				result: "/tmp",
 			},
-
-			{
-				name: "should get parent path for root dir which is root dir",
-				path: "/",
-				result: "/",
-			},
 		])("$name", ({ path, result }) => {
 			expect(getParentPath(path)).toEqual(result);
+		});
+
+		it("should be error if path is unix root", () => {
+			expect(() => {
+				getParentPath("/");
+			}).toThrow(new AppError("Can't get parent path from root '/'"));
+		});
+
+		it("should be error if path is windows root", () => {
+			expect(() => {
+				getParentPath("C:");
+			}).toThrow(new AppError("Can't get parent path from root 'C:'"));
 		});
 	});
 

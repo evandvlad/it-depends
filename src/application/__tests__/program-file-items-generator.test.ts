@@ -114,7 +114,7 @@ describe("program-file-items-generator", () => {
 	it("should filter by file names", async () => {
 		const entries = await loadAllProgramFilesAndGetPathsImmediately({
 			paths: ["/tmp"],
-			pathFilter: ({ name, isFile }) => isFile ? name === "file2.ts" : true,
+			pathFilter: ({ name, isFile }) => (isFile ? name === "file2.ts" : true),
 		});
 
 		expect(entries).toEqual(["/tmp/source2/file2.ts"]);

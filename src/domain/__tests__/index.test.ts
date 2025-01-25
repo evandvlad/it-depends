@@ -209,7 +209,7 @@ describe("domain", () => {
 					}),
 					createProgramFileEntry({
 						path: "/file2.ts",
-						ieItems: [{ type: "standard-import", source: "../dir1/file1", values: ["foo", "default"] }],
+						ieItems: [{ type: "standard-import", source: "./dir1/file1", values: ["foo", "default"] }],
 					}),
 					createProgramFileEntry({
 						path: "/dir2/dir3/file3.ts",
@@ -299,13 +299,13 @@ describe("domain", () => {
 				name: "should be processed as out of scope named import",
 				entries: [
 					createProgramFileEntry({
-						path: "C:/file.ts",
+						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						ieItems: [{ type: "standard-import", source: "../../../../out-of-scope", values: ["qux", "quux"] }],
 					}),
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						name: "file.ts",
 						imports: [
 							{
@@ -321,13 +321,13 @@ describe("domain", () => {
 				name: "should be processed as out of scope full import",
 				entries: [
 					createProgramFileEntry({
-						path: "C:/file.ts",
+						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						ieItems: [{ type: "standard-import", source: "../../../../out-of-scope", values: ["*"] }],
 					}),
 				],
 				result: createModulesCollection([
 					createModule({
-						path: "C:/file.ts",
+						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						name: "file.ts",
 						unresolvedFullImports: [{ importPath: "../../../../out-of-scope" }],
 					}),
@@ -1373,7 +1373,7 @@ describe("domain", () => {
 					name: "should be correct import of out of scope module",
 					entries: [
 						createProgramFileEntry({
-							path: "/dir/index.ts",
+							path: "/dir1/dir2/dir3/index.ts",
 							ieItems: [{ type: "standard-import", source: "../../foo", values: ["default"] }],
 						}),
 					],
