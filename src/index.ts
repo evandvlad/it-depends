@@ -7,7 +7,10 @@ import {
 	ProgramFileEntriesCollector,
 	type DispatcherPort as ProgramFileEntriesCollectorDispatcherPort,
 } from "~/application/program-file-entries-collector";
-import { createProgramFileItemsGenerator } from "~/application/program-file-items-generator";
+import {
+	ProgramFilesLoader,
+	type DispatcherPort as ProgramFilesLoaderDispatcherPort,
+} from "~/application/program-files-loader";
 import { type DispatcherPort as ReportGeneratorDispatcherPort, generateReport } from "~/application/report-generator";
 import { type Options, createSettings } from "~/application/settings-provider";
 import { Domain, type ModulesCollection, type PackagesCollection, type Summary } from "~/domain";
@@ -69,13 +72,15 @@ export class ItDepends implements GlobalEventBusSubscriber {
 				programFileProcessorPort: programFileProcessor,
 			});
 
-			const programFileItems = createProgramFileItemsGenerator({
+			const programFilesLoader = new ProgramFilesLoader({
 				fSysPort,
-				paths: settings.paths,
+				dispatcherPort: this.#eventBus as ProgramFilesLoaderDispatcherPort,
 				pathFilter: domain.pathFilter,
 			});
 
-			const programFileEntries = await programFileEntriesCollector.collect(programFileItems);
+			const programFiles = await programFilesLoader.load(settings.paths);
+
+			const programFileEntries = programFileEntriesCollector.collect(programFiles);
 
 			const { modulesCollection, packagesCollection, summary, fSTree } = domain.process(programFileEntries);
 

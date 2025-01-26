@@ -10,8 +10,6 @@ export type DispatcherPort = EventBusDispatcher<{
 	"program-files-processing:finished": [];
 }>;
 
-type ProgramFileItems = AsyncGenerator<{ path: string; content: string }>;
-
 interface ProgramFileProcessorPort {
 	process: (params: { path: string; content: string; details: ProgramFileDetails }) => ProgramFileEntry;
 }
@@ -33,13 +31,13 @@ export class ProgramFileEntriesCollector {
 		this.#programFileDetailsGetter = programFileDetailsGetter;
 	}
 
-	async collect(items: ProgramFileItems) {
+	collect(programFiles: Rec<string, string>) {
 		const entries: ProgramFileEntries = new Rec();
 		const processorErrors: ProcessorErrors = new Rec();
 
 		this.#dispatcherPort.dispatch("program-files-processing:started");
 
-		for await (const { path, content } of items) {
+		programFiles.forEach((content, path) => {
 			const details = this.#programFileDetailsGetter(path);
 
 			try {
@@ -53,7 +51,7 @@ export class ProgramFileEntriesCollector {
 					error,
 				});
 			}
-		}
+		});
 
 		this.#dispatcherPort.dispatch("program-files-processing:finished");
 

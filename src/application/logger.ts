@@ -33,6 +33,14 @@ export class Logger {
 			this.#writeLine("Options was successfully checked");
 		});
 
+		subscriberPort.on("program-files-loading:started", () => {
+			this.#writeLine("Program files loading started");
+		});
+
+		subscriberPort.on("program-files-loading:finished", () => {
+			this.#writeLine("Program files loading finished");
+		});
+
 		subscriberPort.on("program-files-processing:started", () => {
 			this.#writeLine("Program files processing started");
 		});

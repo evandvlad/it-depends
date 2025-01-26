@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { createProgramFileItems } from "~/__test-utils__/components-factories";
 import { AppError } from "~/lib/errors";
+import { Rec } from "~/lib/rec";
 import { ProgramFileEntriesCollector } from "../program-file-entries-collector";
 
 function createSutComponents() {
@@ -25,15 +25,17 @@ function createSutComponents() {
 }
 
 describe("program-file-entries-collector", () => {
-	it("should throw error if no one file was processed", async () => {
+	it("should throw error if no one file was processed", () => {
 		const { instance } = createSutComponents();
 
-		await expect(instance.collect(createProgramFileItems([]))).rejects.toThrow(
+		expect(() => {
+			instance.collect(new Rec());
+		}).toThrow(
 			new AppError("No files have been found for processing. It seems like a problem with the configuration."),
 		);
 	});
 
-	it("should process one file correctly", async () => {
+	it("should process one file correctly", () => {
 		const events: string[] = [];
 		const { instance, params } = createSutComponents();
 
@@ -42,9 +44,7 @@ describe("program-file-entries-collector", () => {
 			events.push(args[0]);
 		};
 
-		const { entries, processorErrors } = await instance.collect(
-			createProgramFileItems([{ path: "/src/file.ts", content: "" }]),
-		);
+		const { entries, processorErrors } = instance.collect(Rec.fromObject({ "/src/file.ts": "" }));
 
 		expect(entries.size).toEqual(1);
 		expect(entries.get("/src/file.ts")).toEqual({
@@ -62,7 +62,7 @@ describe("program-file-entries-collector", () => {
 		]);
 	});
 
-	it("should process error from processor correctly", async () => {
+	it("should process error from processor correctly", () => {
 		const events: string[] = [];
 		const { instance, params } = createSutComponents();
 
@@ -84,12 +84,7 @@ describe("program-file-entries-collector", () => {
 			};
 		});
 
-		const { entries, processorErrors } = await instance.collect(
-			createProgramFileItems([
-				{ path: "/src/file1.ts", content: "" },
-				{ path: "/src/file2.ts", content: "" },
-			]),
-		);
+		const { entries, processorErrors } = instance.collect(Rec.fromObject({ "/src/file1.ts": "", "/src/file2.ts": "" }));
 
 		expect(entries.size).toEqual(1);
 		expect(entries.get("/src/file2.ts")).toEqual({

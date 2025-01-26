@@ -11,12 +11,6 @@ import {
 } from "~/domain";
 import { Rec } from "~/lib/rec";
 
-export async function* createProgramFileItems(items: Array<{ content: string; path: string }>) {
-	for await (const item of items) {
-		yield Promise.resolve(item);
-	}
-}
-
 export function createProgramFileEntry(parts: Partial<ProgramFileEntry>): ProgramFileEntry {
 	return {
 		path: "",
