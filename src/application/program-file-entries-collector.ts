@@ -10,7 +10,7 @@ export type DispatcherPort = EventBusDispatcher<{
 	"program-files-processing:finished": [];
 }>;
 
-interface ProgramFileProcessorPort {
+export interface ProgramFileProcessorPort {
 	process: (params: { path: string; content: string; details: ProgramFileDetails }) => ProgramFileEntry;
 }
 

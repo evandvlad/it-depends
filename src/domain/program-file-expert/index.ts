@@ -1,10 +1,10 @@
 import { AppError } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
+import type { ExtraPackageEntries } from "~/values";
 import { ImportSourceResolver } from "./import-source-resolver";
 import {
 	type Aliases,
-	type ExtraPackageEntries,
 	type ImportSource,
 	type Language,
 	type ProgramFileDetails,
@@ -21,7 +21,7 @@ interface Params {
 	};
 }
 
-export type { Language, Aliases, ImportSource, ExtraPackageEntries, ImportSourceResolver, ProgramFileDetails };
+export type { Language, ImportSource, ImportSourceResolver, ProgramFileDetails, Aliases };
 
 export class ProgramFileExpert {
 	#settings;

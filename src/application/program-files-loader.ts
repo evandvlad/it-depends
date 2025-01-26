@@ -13,7 +13,7 @@ export type DispatcherPort = EventBusDispatcher<{
 
 type Result = Rec<string, string>;
 
-interface FSysPort {
+export interface FSysPort {
 	getStatEntryType: (path: string) => Promise<"file" | "dir" | "unknown">;
 	readFile: (path: string) => Promise<string>;
 	readDir: (path: string) => Promise<string[]>;

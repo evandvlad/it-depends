@@ -1,8 +1,7 @@
-import type { ExtraPackageEntries } from "~/domain";
 import { assert } from "~/lib/errors";
 import { normalizePath } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
-import type { PathFilter } from "~/values";
+import type { ExtraPackageEntries, PathFilter } from "~/values";
 import type { FSysPort } from "./values";
 
 interface Params {
@@ -65,7 +64,7 @@ export class OptionProcessor {
 		return aliases;
 	}
 
-	async processExtraPackageEntries(rawEntries?: { filePaths?: string[]; fileNames?: string[] }) {
+	async processExtraPackageEntries(rawEntries?: Partial<ExtraPackageEntries>) {
 		const entries = {
 			fileNames: [],
 			filePaths: [],

@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { EventBus } from "~/lib/event-bus";
-import type { GlobalEventBusRecord } from "~/values";
 import { Logger } from "../logger";
+import type { GlobalEventBusRecord } from "../values";
 
 function createSutComponents() {
 	const params = {
@@ -9,7 +9,7 @@ function createSutComponents() {
 			writeLine: jest.fn(),
 			clearPreviousLine() {},
 		},
-		subscriberPort: new EventBus<GlobalEventBusRecord>(),
+		subscriber: new EventBus<GlobalEventBusRecord>(),
 	};
 
 	const instance = new Logger(params);
@@ -21,23 +21,23 @@ describe("logger", () => {
 	it("should process events correctly", () => {
 		const { params } = createSutComponents();
 
-		params.subscriberPort.dispatch("app:started");
-		params.subscriberPort.dispatch("settings-preparation:started");
-		params.subscriberPort.dispatch("settings-preparation:finished");
-		params.subscriberPort.dispatch("program-files-loading:started");
-		params.subscriberPort.dispatch("program-files-loading:finished");
-		params.subscriberPort.dispatch("program-files-processing:started");
-		params.subscriberPort.dispatch("program-files-processing:program-file-processed", { path: "src/file1.ts" });
-		params.subscriberPort.dispatch("program-files-processing:program-file-processed", { path: "src/file2.ts" });
-		params.subscriberPort.dispatch("program-files-processing:program-file-processing-failed", {
+		params.subscriber.dispatch("app:started");
+		params.subscriber.dispatch("settings-preparation:started");
+		params.subscriber.dispatch("settings-preparation:finished");
+		params.subscriber.dispatch("program-files-loading:started");
+		params.subscriber.dispatch("program-files-loading:finished");
+		params.subscriber.dispatch("program-files-processing:started");
+		params.subscriber.dispatch("program-files-processing:program-file-processed", { path: "src/file1.ts" });
+		params.subscriber.dispatch("program-files-processing:program-file-processed", { path: "src/file2.ts" });
+		params.subscriber.dispatch("program-files-processing:program-file-processing-failed", {
 			path: "src/file2.ts",
 			error: new Error("Ooops"),
 		});
-		params.subscriberPort.dispatch("program-files-processing:program-file-processed", { path: "src/file4.ts" });
-		params.subscriberPort.dispatch("program-files-processing:finished");
-		params.subscriberPort.dispatch("report-generation:started");
-		params.subscriberPort.dispatch("report-generation:finished", { path: "/report/index.html" });
-		params.subscriberPort.dispatch("app:finished");
+		params.subscriber.dispatch("program-files-processing:program-file-processed", { path: "src/file4.ts" });
+		params.subscriber.dispatch("program-files-processing:finished");
+		params.subscriber.dispatch("report-generation:started");
+		params.subscriber.dispatch("report-generation:finished", { path: "/report/index.html" });
+		params.subscriber.dispatch("app:finished");
 
 		expect(params.terminalPort.writeLine).toHaveBeenNthCalledWith(1, expect.stringContaining("Started"));
 		expect(params.terminalPort.writeLine).toHaveBeenNthCalledWith(2, expect.stringContaining("Options checking"));

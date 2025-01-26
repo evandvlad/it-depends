@@ -1,6 +1,7 @@
 import type { ReportSettings } from "~/application/report-generator";
-import type { Aliases, ExtraPackageEntries } from "~/domain";
+import type { Aliases } from "~/domain";
 import type { EventBusDispatcher } from "~/lib/event-bus";
+import type { ExtraPackageEntries } from "~/values";
 import type { PathFilter } from "~/values";
 
 interface Conf {

@@ -30,11 +30,6 @@ export type Language = "typescript" | "javascript";
 
 export type Aliases = Rec<string, string>;
 
-export interface ExtraPackageEntries {
-	fileNames: string[];
-	filePaths: string[];
-}
-
 export interface ImportSource {
 	importPath: string;
 	filePath?: string;

@@ -9,7 +9,7 @@ interface Params {
 	dispatcherPort: DispatcherPort;
 }
 
-export type { Options, DispatcherPort };
+export type { DispatcherPort, FSysPort, ConfLoaderPort };
 
 export async function createSettings({ options, fSysPort, confLoaderPort, dispatcherPort }: Params): Promise<Settings> {
 	dispatcherPort.dispatch("settings-preparation:started");

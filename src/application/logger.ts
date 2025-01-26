@@ -1,19 +1,19 @@
-import type { GlobalEventBusSubscriber } from "../values";
+import type { GlobalEventBusSubscriber } from "./values";
 
-interface TerminalPort {
+export interface TerminalPort {
 	writeLine: (text: string) => void;
 	clearPreviousLine: () => void;
 }
 
 interface Params {
 	terminalPort: TerminalPort;
-	subscriberPort: GlobalEventBusSubscriber;
+	subscriber: GlobalEventBusSubscriber;
 }
 
 export class Logger {
 	#terminalPort;
 
-	constructor({ terminalPort, subscriberPort }: Params) {
+	constructor({ terminalPort, subscriber }: Params) {
 		this.#terminalPort = terminalPort;
 
 		const state: { processedFiles: number; unprocessedFiles: 0 } = {
@@ -21,31 +21,31 @@ export class Logger {
 			unprocessedFiles: 0,
 		};
 
-		subscriberPort.on("app:started", () => {
+		subscriber.on("app:started", () => {
 			this.#writeLine("Started");
 		});
 
-		subscriberPort.on("settings-preparation:started", () => {
+		subscriber.on("settings-preparation:started", () => {
 			this.#writeLine("Options checking");
 		});
 
-		subscriberPort.on("settings-preparation:finished", () => {
+		subscriber.on("settings-preparation:finished", () => {
 			this.#writeLine("Options was successfully checked");
 		});
 
-		subscriberPort.on("program-files-loading:started", () => {
+		subscriber.on("program-files-loading:started", () => {
 			this.#writeLine("Program files loading started");
 		});
 
-		subscriberPort.on("program-files-loading:finished", () => {
+		subscriber.on("program-files-loading:finished", () => {
 			this.#writeLine("Program files loading finished");
 		});
 
-		subscriberPort.on("program-files-processing:started", () => {
+		subscriber.on("program-files-processing:started", () => {
 			this.#writeLine("Program files processing started");
 		});
 
-		subscriberPort.on("program-files-processing:program-file-processed", () => {
+		subscriber.on("program-files-processing:program-file-processed", () => {
 			if (state.processedFiles > 0) {
 				this.#terminalPort.clearPreviousLine();
 			}
@@ -55,11 +55,11 @@ export class Logger {
 			this.#writeLine(`Program files processing. Processed ${state.processedFiles} file(s).`);
 		});
 
-		subscriberPort.on("program-files-processing:program-file-processing-failed", () => {
+		subscriber.on("program-files-processing:program-file-processing-failed", () => {
 			state.unprocessedFiles += 1;
 		});
 
-		subscriberPort.on("program-files-processing:finished", () => {
+		subscriber.on("program-files-processing:finished", () => {
 			this.#writeLine(
 				`Program files processing finished.${
 					state.unprocessedFiles > 0 ? ` Unfortunately, ${state.unprocessedFiles} file(s) was/were not processed.` : ""
@@ -67,15 +67,15 @@ export class Logger {
 			);
 		});
 
-		subscriberPort.on("report-generation:started", () => {
+		subscriber.on("report-generation:started", () => {
 			this.#writeLine("Report generation started");
 		});
 
-		subscriberPort.on("report-generation:finished", ({ path }) => {
+		subscriber.on("report-generation:finished", ({ path }) => {
 			this.#writeLine(`Report generation finished. Path to the report - ${path}`);
 		});
 
-		subscriberPort.on("app:finished", () => {
+		subscriber.on("app:finished", () => {
 			this.#writeLine("Done");
 		});
 	}

@@ -17,7 +17,7 @@ interface Params {
 	packagesCollection: PackagesCollection;
 }
 
-export type { ReportSettings, DispatcherPort };
+export type { ReportSettings, DispatcherPort, FSysPort };
 
 export async function generateReport({
 	settings,
