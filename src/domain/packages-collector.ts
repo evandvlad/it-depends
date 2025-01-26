@@ -1,22 +1,13 @@
-import { getName } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { ModulesCollection } from "./modules-collector";
+import { Package } from "./package";
 import type { ProgramFileExpert } from "./program-file-expert";
 
 interface Params {
 	fSTree: FSTree;
 	programFileExpert: ProgramFileExpert;
 	modulesCollection: ModulesCollection;
-}
-
-export interface Package {
-	path: string;
-	name: string;
-	entryPoint: string;
-	parent: string | null;
-	modules: string[];
-	packages: string[];
 }
 
 export type PackagesCollection = Rec<string, Package>;
@@ -45,7 +36,7 @@ export class PackagesCollector {
 		const packageEntryPoint = this.#programFileExpert.getPackageEntryPoint(filePaths);
 
 		if (packageEntryPoint) {
-			const pack = this.#createPackage({ path: parentPath, entryPoint: packageEntryPoint });
+			const pack = new Package({ path: parentPath, entryPoint: packageEntryPoint });
 			packagesCollection.set(pack.path, pack);
 		}
 
@@ -69,14 +60,14 @@ export class PackagesCollector {
 
 		this.#fSTree.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
 			if (isFile) {
-				pack.modules.push(path);
+				pack.addModule(path);
 				this.#modulesCollection.get(path).package = pack.path;
 				return;
 			}
 
 			if (packagesCollection.has(path)) {
-				pack.packages.push(path);
-				packagesCollection.get(path).parent = pack.path;
+				pack.addPackage(path);
+				packagesCollection.get(path).setParent(pack.path);
 				return;
 			}
 
@@ -86,16 +77,5 @@ export class PackagesCollector {
 		subPaths.forEach((subPath) => {
 			this.#fillPackage(packagesCollection, pack, subPath);
 		});
-	}
-
-	#createPackage({ path, entryPoint }: { path: string; entryPoint: string }): Package {
-		return {
-			path,
-			entryPoint,
-			name: getName(path),
-			parent: null,
-			modules: [],
-			packages: [],
-		};
 	}
 }

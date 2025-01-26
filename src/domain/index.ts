@@ -1,7 +1,7 @@
 import { FSTree } from "~/lib/fs-tree";
 import type { ExtraPackageEntries, PathFilter } from "~/values";
-import { type Module, type ModulesCollection, collectModules } from "./modules-collector";
-import { type Package, type PackagesCollection, PackagesCollector } from "./packages-collector";
+import { type ModulesCollection, collectModules } from "./modules-collector";
+import { type PackagesCollection, PackagesCollector } from "./packages-collector";
 import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./program-file-expert";
 import { type Summary, SummaryCollector } from "./summary-collector";
 import {
@@ -32,8 +32,6 @@ interface Result {
 export type {
 	IEItem,
 	Aliases,
-	Module,
-	Package,
 	ProgramFileEntry,
 	ModulesCollection,
 	PackagesCollection,

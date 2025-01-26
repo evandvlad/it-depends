@@ -206,7 +206,7 @@ export class IndexPageViewModel extends PageViewModel {
 		});
 	}
 
-	#collectPackagesTree<T>(paths: string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectPackagesTree<T>(paths: readonly string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
 			const pack = this.#packagesCollection.get(path);
 

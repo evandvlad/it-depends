@@ -1,17 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
-import {
-	createModule,
-	createModulesCollection,
-	createPackage,
-	createPackagesCollection,
-	createProcessParams,
-	createProgramFileEntry,
-	createSummary,
-} from "~/__test-utils__/components-factories";
+import { createProcessParams, createProgramFileEntry } from "~/__test-utils__/components-factories";
 import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import type { PathFilter } from "~/values";
 import { Domain } from "..";
+import type { Module, ModulesCollection } from "../modules-collector";
+import { Package } from "../package";
+import type { PackagesCollection } from "../packages-collector";
+import type { Summary } from "../summary-collector";
 
 function createSutComponents() {
 	const params = {
@@ -33,6 +29,81 @@ function createPathFilterParams(path: string) {
 		name: path.split("/").at(-1)!,
 		isFile: true,
 	};
+}
+
+function createModule(parts: Partial<Module>): Module {
+	return {
+		path: "",
+		name: "",
+		package: null,
+		language: "typescript",
+		content: expect.any(String) as unknown as string,
+		imports: [],
+		exports: new Rec(),
+		unparsedDynamicImports: 0,
+		shadowedExportValues: [],
+		unresolvedFullImports: [],
+		unresolvedFullExports: [],
+		...parts,
+	};
+}
+
+function createModulesCollection(modulesList: Module[]): ModulesCollection {
+	return Rec.fromEntries(modulesList.map((module) => [module.path, module]));
+}
+
+function createSummary(parts: Partial<Summary>): Summary {
+	return {
+		packages: 0,
+		languages: Rec.fromObject({
+			typescript: 0,
+			javascript: 0,
+		}),
+		unparsedDynamicImports: new Rec(),
+		unresolvedFullImports: new Rec(),
+		unresolvedFullExports: new Rec(),
+		shadowedExportValues: new Rec(),
+		outOfScopeImports: new Rec(),
+		emptyExports: [],
+		possiblyUnusedExportValues: new Rec(),
+		incorrectImports: new Rec(),
+		processorErrors: new Rec(),
+		...parts,
+	};
+}
+
+function createPackagesCollection(
+	packageParams: Array<{
+		path: string;
+		entryPoint: string;
+		parent?: string;
+		modules?: string[];
+		packages?: string[];
+	}>,
+): PackagesCollection {
+	return Rec.fromEntries(
+		packageParams.map(({ path, entryPoint, parent, modules, packages }) => {
+			const pack = new Package({ path, entryPoint });
+
+			if (parent) {
+				pack.setParent(parent);
+			}
+
+			if (modules) {
+				modules.forEach((module) => {
+					pack.addModule(module);
+				});
+			}
+
+			if (packages) {
+				packages.forEach((p) => {
+					pack.addPackage(p);
+				});
+			}
+
+			return [path, pack];
+		}),
+	);
 }
 
 describe("domain", () => {
@@ -928,12 +999,11 @@ describe("domain", () => {
 					name: "should be single package with standard entry point",
 					filePaths: ["C:/dir/index.ts"],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "C:/dir",
-							name: "dir",
 							entryPoint: "C:/dir/index.ts",
 							modules: ["C:/dir/index.ts"],
-						}),
+						},
 					]),
 				},
 
@@ -942,12 +1012,11 @@ describe("domain", () => {
 					filePaths: ["/dir/index.entry.tsx"],
 					extraPackageEntries: { fileNames: ["index.entry"] },
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "/dir",
-							name: "dir",
 							entryPoint: "/dir/index.entry.tsx",
 							modules: ["/dir/index.entry.tsx"],
-						}),
+						},
 					]),
 				},
 
@@ -956,12 +1025,11 @@ describe("domain", () => {
 					filePaths: ["C:/dir/main.js"],
 					extraPackageEntries: { filePaths: ["C:/dir/main.js"] },
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "C:/dir",
-							name: "dir",
 							entryPoint: "C:/dir/main.js",
 							modules: ["C:/dir/main.js"],
-						}),
+						},
 					]),
 				},
 
@@ -969,12 +1037,11 @@ describe("domain", () => {
 					name: "should be single package with several flat modules",
 					filePaths: ["/dir/file1.ts", "/dir/file2.js", "/dir/index.tsx"],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "/dir",
-							name: "dir",
 							entryPoint: "/dir/index.tsx",
 							modules: ["/dir/file1.ts", "/dir/file2.js", "/dir/index.tsx"],
-						}),
+						},
 					]),
 				},
 
@@ -982,12 +1049,11 @@ describe("domain", () => {
 					name: "should be correct resolution package's entry point",
 					filePaths: ["/dir/index.d.ts", "/dir/index.ts", "/dir/index.js"],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "/dir",
-							name: "dir",
 							entryPoint: "/dir/index.ts",
 							modules: ["/dir/index.d.ts", "/dir/index.ts", "/dir/index.js"],
-						}),
+						},
 					]),
 				},
 
@@ -1001,9 +1067,8 @@ describe("domain", () => {
 						"C:/dir/dir2/dir3/file.jsx",
 					],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "C:/dir",
-							name: "dir",
 							entryPoint: "C:/dir/index.tsx",
 							modules: [
 								"C:/dir/file1.ts",
@@ -1012,7 +1077,7 @@ describe("domain", () => {
 								"C:/dir/dir2/file.d.ts",
 								"C:/dir/dir2/dir3/file.jsx",
 							],
-						}),
+						},
 					]),
 				},
 
@@ -1026,27 +1091,24 @@ describe("domain", () => {
 						"/dir/dir2/index.ts",
 					],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "/dir",
-							name: "dir",
 							entryPoint: "/dir/index.ts",
 							modules: ["/dir/index.ts"],
 							packages: ["/dir/dir1", "/dir/dir2"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir1",
-							name: "dir1",
 							parent: "/dir",
 							entryPoint: "/dir/dir1/index.js",
 							modules: ["/dir/dir1/file.tsx", "/dir/dir1/index.js"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir2",
-							name: "dir2",
 							parent: "/dir",
 							entryPoint: "/dir/dir2/index.ts",
 							modules: ["/dir/dir2/file.jsx", "/dir/dir2/index.ts"],
-						}),
+						},
 					]),
 				},
 
@@ -1060,28 +1122,25 @@ describe("domain", () => {
 						"C:/dir/index.ts",
 					],
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "C:/dir",
-							name: "dir",
 							entryPoint: "C:/dir/index.ts",
 							modules: ["C:/dir/index.ts"],
 							packages: ["C:/dir/dir1"],
-						}),
-						createPackage({
+						},
+						{
 							path: "C:/dir/dir1",
-							name: "dir1",
 							parent: "C:/dir",
 							entryPoint: "C:/dir/dir1/index.js",
 							modules: ["C:/dir/dir1/index.js", "C:/dir/dir1/file.tsx"],
 							packages: ["C:/dir/dir1/dir2"],
-						}),
-						createPackage({
+						},
+						{
 							path: "C:/dir/dir1/dir2",
-							name: "dir2",
 							parent: "C:/dir/dir1",
 							entryPoint: "C:/dir/dir1/dir2/index.ts",
 							modules: ["C:/dir/dir1/dir2/index.ts", "C:/dir/dir1/dir2/file.jsx"],
-						}),
+						},
 					]),
 				},
 
@@ -1101,49 +1160,43 @@ describe("domain", () => {
 					],
 					extraPackageEntries: { filePaths: ["/dir/main.ts"] },
 					packages: createPackagesCollection([
-						createPackage({
+						{
 							path: "/dir",
-							name: "dir",
 							entryPoint: "/dir/main.ts",
 							modules: ["/dir/index.ts", "/dir/main.ts"],
 							packages: ["/dir/dir1", "/dir/dir2"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir1",
-							name: "dir1",
 							parent: "/dir",
 							entryPoint: "/dir/dir1/index.js",
 							modules: ["/dir/dir1/index.js", "/dir/dir1/file.tsx"],
 							packages: ["/dir/dir1/dir1", "/dir/dir1/dir2", "/dir/dir1/dir3"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir1/dir1",
-							name: "dir1",
 							parent: "/dir/dir1",
 							entryPoint: "/dir/dir1/dir1/index.ts",
 							modules: ["/dir/dir1/dir1/index.ts", "/dir/dir1/dir1/file.jsx"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir1/dir2",
-							name: "dir2",
 							parent: "/dir/dir1",
 							entryPoint: "/dir/dir1/dir2/index.tsx",
 							modules: ["/dir/dir1/dir2/index.tsx"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir1/dir3",
-							name: "dir3",
 							parent: "/dir/dir1",
 							entryPoint: "/dir/dir1/dir3/index.jsx",
 							modules: ["/dir/dir1/dir3/index.jsx"],
-						}),
-						createPackage({
+						},
+						{
 							path: "/dir/dir2",
-							name: "dir2",
 							parent: "/dir",
 							entryPoint: "/dir/dir2/index.js",
 							modules: ["/dir/dir2/index.d.ts", "/dir/dir2/index.js"],
-						}),
+						},
 					]),
 				},
 			])("$name", ({ filePaths, packages, extraPackageEntries = {} }) => {
