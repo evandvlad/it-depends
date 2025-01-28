@@ -1,6 +1,7 @@
 import { assert, assertNever } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
 import { Rec } from "~/lib/rec";
+import { Import } from "../import";
 import type { ImportSourceResolver } from "../program-file-expert";
 import { type ProgramFileEntry, ieValueAll } from "../values";
 import type { Module } from "./values";
@@ -22,17 +23,24 @@ export class ModuleFactory {
 				case "standard-import": {
 					const { source, values } = ieItem;
 
-					const importSource = this.#importSourceResolver.resolve({
+					const filePath = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
+					const imp = new Import({
+						sourcePath: entry.path,
+						importPath: source,
+						filePath,
+						values,
+					});
+
 					if (values.includes(ieValueAll)) {
-						module.unresolvedFullImports.push(importSource);
+						module.unresolvedFullImports.push(imp);
 						return;
 					}
 
-					module.imports.push({ importSource, values });
+					module.imports.push(imp);
 
 					return;
 				}
@@ -45,20 +53,27 @@ export class ModuleFactory {
 				case "re-export": {
 					const { source, inputValues, outputValues } = ieItem;
 
-					const importSource = this.#importSourceResolver.resolve({
+					const filePath = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
+					const imp = new Import({
+						sourcePath: entry.path,
+						importPath: source,
+						values: inputValues,
+						filePath,
+					});
+
 					if (inputValues.includes(ieValueAll)) {
-						module.unresolvedFullImports.push(importSource);
+						module.unresolvedFullImports.push(imp);
 
 						if (outputValues.includes(ieValueAll)) {
-							module.unresolvedFullExports.push(importSource);
+							module.unresolvedFullExports.push(imp);
 							return;
 						}
 					} else {
-						module.imports.push({ importSource, values: inputValues });
+						module.imports.push(imp);
 					}
 
 					assert(
@@ -79,12 +94,19 @@ export class ModuleFactory {
 						return;
 					}
 
-					const importSource = this.#importSourceResolver.resolve({
+					const filePath = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
-					module.unresolvedFullImports.push(importSource);
+					const imp = new Import({
+						sourcePath: entry.path,
+						importPath: source,
+						values: [ieValueAll],
+						filePath,
+					});
+
+					module.unresolvedFullImports.push(imp);
 
 					return;
 				}

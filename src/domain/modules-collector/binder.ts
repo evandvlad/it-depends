@@ -1,14 +1,14 @@
-import type { ImportSource } from "../program-file-expert";
+import type { Import } from "../import";
 import type { Module, ModulesCollection } from "./values";
 
 class ResolvedMarks {
-	#resolvedItems: ImportSource[] = [];
+	#resolvedItems: Import[] = [];
 
-	markResolved(item: ImportSource) {
+	markResolved(item: Import) {
 		this.#resolvedItems.push(item);
 	}
 
-	removeResolved(items: ImportSource[]) {
+	removeResolved(items: Import[]) {
 		this.#resolvedItems.forEach((resolvedItem) => {
 			const index = items.indexOf(resolvedItem);
 
@@ -19,12 +19,12 @@ class ResolvedMarks {
 	}
 }
 
-function isImportSourceInScope(importSource: ImportSource) {
-	return importSource.filePath !== undefined;
+function isImportInScope({ filePath }: Import) {
+	return filePath !== null;
 }
 
-function getImportSourcesInScope(importSources: ImportSource[]) {
-	return importSources.filter((importSource) => isImportSourceInScope(importSource));
+function getImportsInScope(imports: Import[]) {
+	return imports.filter((imp) => isImportInScope(imp));
 }
 
 function createFullExportsResolver() {
@@ -32,7 +32,7 @@ function createFullExportsResolver() {
 
 	function canProcessExportValues({ currentModule, sourceModule }: { currentModule: Module; sourceModule: Module }) {
 		const hasOutOfScopeUnresolvedFullExportsOnCurrentModule = currentModule.unresolvedFullExports.some(
-			(importSource) => !isImportSourceInScope(importSource),
+			(imp) => !isImportInScope(imp),
 		);
 
 		if (hasOutOfScopeUnresolvedFullExportsOnCurrentModule) {
@@ -43,7 +43,7 @@ function createFullExportsResolver() {
 	}
 
 	function hasFullExportsForResolving(module: Module) {
-		return module.unresolvedFullExports.some((importSource) => isImportSourceInScope(importSource));
+		return module.unresolvedFullExports.some((imp) => isImportInScope(imp));
 	}
 
 	return function tryResolveFullExports(module: Module, modulesCollection: ModulesCollection) {
@@ -61,8 +61,8 @@ function createFullExportsResolver() {
 
 		const resolvedMarks = new ResolvedMarks();
 
-		getImportSourcesInScope(unresolvedFullExports).forEach((importSource) => {
-			const sourceModule = modulesCollection.get(importSource.filePath!);
+		getImportsInScope(unresolvedFullExports).forEach((imp) => {
+			const sourceModule = modulesCollection.get(imp.filePath!);
 
 			if (hasFullExportsForResolving(sourceModule)) {
 				tryResolveFullExports(sourceModule, modulesCollection);
@@ -83,7 +83,7 @@ function createFullExportsResolver() {
 				}
 			});
 
-			resolvedMarks.markResolved(importSource);
+			resolvedMarks.markResolved(imp);
 		});
 
 		resolvedMarks.removeResolved(unresolvedFullExports);
@@ -99,19 +99,18 @@ function tryResolveFullImports(module: Module, modulesCollection: ModulesCollect
 
 	const resolvedMarks = new ResolvedMarks();
 
-	getImportSourcesInScope(unresolvedFullImports).forEach((importSource) => {
-		const sourceModule = modulesCollection.get(importSource.filePath!);
+	getImportsInScope(unresolvedFullImports).forEach((imp) => {
+		const sourceModule = modulesCollection.get(imp.filePath!);
 
 		if (sourceModule.unresolvedFullExports.length > 0) {
 			return;
 		}
 
-		module.imports.push({
-			importSource,
-			values: sourceModule.exports.toKeys(),
-		});
+		imp.resetValues(sourceModule.exports.toKeys());
 
-		resolvedMarks.markResolved(importSource);
+		module.imports.push(imp);
+
+		resolvedMarks.markResolved(imp);
 	});
 
 	resolvedMarks.removeResolved(unresolvedFullImports);
@@ -119,12 +118,12 @@ function tryResolveFullImports(module: Module, modulesCollection: ModulesCollect
 
 function bindExportValues({ path, imports }: Module, modulesCollection: ModulesCollection) {
 	imports
-		.filter(({ importSource }) => isImportSourceInScope(importSource))
-		.forEach(({ importSource, values }) => {
-			const importedFilePath = importSource.filePath!;
+		.filter((imp) => isImportInScope(imp))
+		.forEach((imp) => {
+			const importedFilePath = imp.filePath!;
 			const { exports } = modulesCollection.get(importedFilePath);
 
-			values
+			imp.values
 				.filter((value) => exports.has(value) && !exports.get(value).includes(path))
 				.forEach((value) => {
 					exports.get(value).push(path);

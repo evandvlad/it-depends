@@ -1,8 +1,9 @@
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
+import type { Import } from "../import";
 import type { Module, ModulesCollection } from "../modules-collector";
 import type { PackagesCollection } from "../packages-collector";
-import type { ImportSource, Language } from "../program-file-expert";
+import type { Language } from "../program-file-expert";
 import type { ProcessorErrors } from "../values";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
@@ -22,7 +23,7 @@ export interface Summary {
 	shadowedExportValues: Rec<string, number>;
 	outOfScopeImports: Rec<string, string[]>;
 	possiblyUnusedExportValues: Rec<string, string[]>;
-	incorrectImports: Rec<string, ImportSource[]>;
+	incorrectImports: Rec<string, Import[]>;
 	emptyExports: string[];
 	processorErrors: ProcessorErrors;
 }
@@ -99,13 +100,13 @@ export class SummaryCollector {
 			shadowedExportValues.set(path, module.shadowedExportValues.length);
 		}
 
-		imports.forEach(({ importSource }) => {
-			if (importSource.filePath === undefined) {
+		imports.forEach(({ filePath, importPath }) => {
+			if (filePath === null) {
 				if (!outOfScopeImports.has(path)) {
 					outOfScopeImports.set(path, []);
 				}
 
-				outOfScopeImports.get(path).push(importSource.importPath);
+				outOfScopeImports.get(path).push(importPath);
 			}
 		});
 

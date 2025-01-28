@@ -10,9 +10,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts"],
 			filePath: "/dir/index.ts",
 			importPath: "../out-of-scope",
-			result: {
-				importPath: "../out-of-scope",
-			},
+			result: null,
 		},
 
 		{
@@ -20,9 +18,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/index.ts"],
 			filePath: "C:/dir/index.ts",
 			importPath: "out-of-scope",
-			result: {
-				importPath: "out-of-scope",
-			},
+			result: null,
 		},
 
 		{
@@ -33,9 +29,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "/dir/index.ts",
 			importPath: "~/dir2/foo",
-			result: {
-				importPath: "~/dir2/foo",
-			},
+			result: null,
 		},
 
 		{
@@ -46,10 +40,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "C:/dir/file1.tsx",
 			importPath: "~/file2",
-			result: {
-				filePath: "C:/dir/file2.jsx",
-				importPath: "~/file2",
-			},
+			result: "C:/dir/file2.jsx",
 		},
 
 		{
@@ -60,10 +51,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "C:/dir/file1.tsx",
 			importPath: "~",
-			result: {
-				filePath: "C:/dir/index.jsx",
-				importPath: "~",
-			},
+			result: "C:/dir/index.jsx",
 		},
 
 		{
@@ -71,10 +59,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.js"],
 			filePath: "C:/dir/file1.ts",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.js",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.js",
 		},
 
 		{
@@ -82,10 +67,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts", "/dir/file.ts"],
 			filePath: "/dir/file.ts",
 			importPath: ".",
-			result: {
-				filePath: "/dir/index.ts",
-				importPath: ".",
-			},
+			result: "/dir/index.ts",
 		},
 
 		{
@@ -93,10 +75,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts", "/dir/file.ts"],
 			filePath: "/dir/file.ts",
 			importPath: "./index",
-			result: {
-				filePath: "/dir/index.ts",
-				importPath: "./index",
-			},
+			result: "/dir/index.ts",
 		},
 
 		{
@@ -104,10 +83,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/file.d.ts"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2/file",
-			result: {
-				filePath: "C:/dir/dir2/file.d.ts",
-				importPath: "./dir2/file",
-			},
+			result: "C:/dir/dir2/file.d.ts",
 		},
 
 		{
@@ -115,10 +91,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/index.tsx"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2",
-			result: {
-				filePath: "C:/dir/dir2/index.tsx",
-				importPath: "./dir2",
-			},
+			result: "C:/dir/dir2/index.tsx",
 		},
 
 		{
@@ -126,10 +99,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/index.tsx"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2/index",
-			result: {
-				filePath: "C:/dir/dir2/index.tsx",
-				importPath: "./dir2/index",
-			},
+			result: "C:/dir/dir2/index.tsx",
 		},
 
 		{
@@ -137,10 +107,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/dir2/file.ts",
 			importPath: "../file",
-			result: {
-				filePath: "/dir/file.jsx",
-				importPath: "../file",
-			},
+			result: "/dir/file.jsx",
 		},
 
 		{
@@ -148,10 +115,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/file.ts", "C:/dir/index.jsx"],
 			filePath: "C:/dir/dir2/file.ts",
 			importPath: "..",
-			result: {
-				filePath: "C:/dir/index.jsx",
-				importPath: "..",
-			},
+			result: "C:/dir/index.jsx",
 		},
 
 		{
@@ -159,10 +123,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/file.ts", "/dir/index.jsx"],
 			filePath: "/dir/dir2/file.ts",
 			importPath: "../index",
-			result: {
-				filePath: "/dir/index.jsx",
-				importPath: "../index",
-			},
+			result: "/dir/index.jsx",
 		},
 
 		{
@@ -170,10 +131,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4/file",
-			result: {
-				filePath: "/dir/dir2/dir3/dir4/file.ts",
-				importPath: "./dir2/dir3/dir4/file",
-			},
+			result: "/dir/dir2/dir3/dir4/file.ts",
 		},
 
 		{
@@ -181,10 +139,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/index.ts", "C:/dir/file.jsx"],
 			filePath: "C:/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4",
-			result: {
-				filePath: "C:/dir/dir2/dir3/dir4/index.ts",
-				importPath: "./dir2/dir3/dir4",
-			},
+			result: "C:/dir/dir2/dir3/dir4/index.ts",
 		},
 
 		{
@@ -192,10 +147,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/index.ts", "/dir/file.jsx"],
 			filePath: "/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4/index",
-			result: {
-				filePath: "/dir/dir2/dir3/dir4/index.ts",
-				importPath: "./dir2/dir3/dir4/index",
-			},
+			result: "/dir/dir2/dir3/dir4/index.ts",
 		},
 
 		{
@@ -203,10 +155,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/file.ts", "C:/dir/file.jsx"],
 			filePath: "C:/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../file",
-			result: {
-				filePath: "C:/dir/file.jsx",
-				importPath: "../../../file",
-			},
+			result: "C:/dir/file.jsx",
 		},
 
 		{
@@ -214,10 +163,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/index.jsx"],
 			filePath: "/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../..",
-			result: {
-				filePath: "/dir/index.jsx",
-				importPath: "../../..",
-			},
+			result: "/dir/index.jsx",
 		},
 
 		{
@@ -225,10 +171,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/file.ts", "C:/dir/index.jsx"],
 			filePath: "C:/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../index",
-			result: {
-				filePath: "C:/dir/index.jsx",
-				importPath: "../../../index",
-			},
+			result: "C:/dir/index.jsx",
 		},
 
 		{
@@ -236,10 +179,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../../dir/file",
-			result: {
-				filePath: "/dir/file.jsx",
-				importPath: "../../../../dir/file",
-			},
+			result: "/dir/file.jsx",
 		},
 
 		{
@@ -254,10 +194,7 @@ describe("import-source-resolver", () => {
 			],
 			filePath: "C:/dir/file1.ts",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.ts",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.ts",
 		},
 
 		{
@@ -265,10 +202,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.js", "C:/dir/file2.tsx", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.tsx",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.tsx",
 		},
 
 		{
@@ -276,10 +210,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.js", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.js",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.js",
 		},
 
 		{
@@ -287,10 +218,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.jsx",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.jsx",
 		},
 
 		{
@@ -298,10 +226,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.d.ts",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.d.ts",
 		},
 
 		{
@@ -309,10 +234,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.d.ts", "C:/dir/file2/index.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: {
-				filePath: "C:/dir/file2.d.ts",
-				importPath: "./file2",
-			},
+			result: "C:/dir/file2.d.ts",
 		},
 	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
 		const importSourceResolver = new ImportSourceResolver({

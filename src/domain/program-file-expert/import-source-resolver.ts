@@ -1,11 +1,6 @@
 import { delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
-import {
-	type Aliases,
-	type ImportSource,
-	entryPointFileName,
-	orderedByResolvingPriorityAcceptableFileExtNames,
-} from "./values";
+import { type Aliases, entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./values";
 
 interface Params {
 	fSTree: FSTree;
@@ -22,29 +17,6 @@ export class ImportSourceResolver {
 	}
 
 	resolve({ filePath, importPath }: { filePath: string; importPath: string }) {
-		const importSource: ImportSource = {
-			importPath,
-		};
-
-		const resolvedFilePath = this.#resolvePath(filePath, importPath);
-
-		if (resolvedFilePath) {
-			importSource.filePath = resolvedFilePath;
-		}
-
-		return importSource;
-	}
-
-	#isRelativeImport(importPath: string) {
-		return (
-			importPath === "." ||
-			importPath === ".." ||
-			importPath.startsWith(`.${delimiter}`) ||
-			importPath.startsWith(`..${delimiter}`)
-		);
-	}
-
-	#resolvePath(filePath: string, importPath: string) {
 		const absoluteImportPath = this.#calcAbsoluteImportPath(filePath, importPath);
 
 		if (!absoluteImportPath) {
@@ -54,6 +26,15 @@ export class ImportSourceResolver {
 		const candidates = this.#getImportResolutionFSPaths(absoluteImportPath);
 
 		return candidates.find((importPathCandidate) => this.#fSTree.hasNodeByPath(importPathCandidate)) ?? null;
+	}
+
+	#isRelativeImport(importPath: string) {
+		return (
+			importPath === "." ||
+			importPath === ".." ||
+			importPath.startsWith(`.${delimiter}`) ||
+			importPath.startsWith(`..${delimiter}`)
+		);
 	}
 
 	#calcAbsoluteImportPath(filePath: string, importPath: string) {

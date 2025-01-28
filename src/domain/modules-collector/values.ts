@@ -1,10 +1,6 @@
 import type { Rec } from "~/lib/rec";
-import type { ImportSource, Language } from "../program-file-expert";
-
-interface ImportData {
-	importSource: ImportSource;
-	values: string[];
-}
+import type { Import } from "../import";
+import type { Language } from "../program-file-expert";
 
 export interface Module {
 	path: string;
@@ -12,10 +8,10 @@ export interface Module {
 	package: string | null;
 	language: Language;
 	content: string;
-	imports: ImportData[];
+	imports: Import[];
 	exports: Rec<string, string[]>;
-	unresolvedFullImports: ImportSource[];
-	unresolvedFullExports: ImportSource[];
+	unresolvedFullImports: Import[];
+	unresolvedFullExports: Import[];
 	shadowedExportValues: string[];
 	unparsedDynamicImports: number;
 }

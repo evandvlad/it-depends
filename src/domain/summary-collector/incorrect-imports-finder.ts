@@ -1,8 +1,8 @@
 import type { FSTree } from "~/lib/fs-tree";
+import type { Import } from "../import";
 import type { Module } from "../modules-collector";
 import type { Package } from "../package";
 import type { PackagesCollection } from "../packages-collector";
-import type { ImportSource } from "../program-file-expert";
 
 interface Params {
 	fSTree: FSTree;
@@ -18,23 +18,20 @@ export class IncorrectImportsFinder {
 		this.#packagesCollection = packagesCollection;
 	}
 
-	find({ path, imports, unresolvedFullImports }: Module): ImportSource[] {
+	find({ path, imports, unresolvedFullImports }: Module): Import[] {
 		const pack = this.#findPackageByFilePath(path);
 
 		return imports
-			.map(({ importSource }) => importSource)
 			.concat(unresolvedFullImports)
-			.filter((importSource) =>
-				pack
-					? !this.#isCorrectImportFromPackage(pack, importSource)
-					: !this.#isCorrectImportWithoutPackage(importSource),
+			.filter((imp) =>
+				pack ? !this.#isCorrectImportFromPackage(pack, imp) : !this.#isCorrectImportWithoutPackage(imp),
 			);
 	}
 
-	#isCorrectImportFromPackage(pack: Package, importSource: ImportSource) {
-		const { filePath } = importSource;
+	#isCorrectImportFromPackage(pack: Package, imp: Import) {
+		const { filePath } = imp;
 
-		if (filePath === undefined) {
+		if (filePath === null) {
 			return true;
 		}
 
@@ -67,10 +64,10 @@ export class IncorrectImportsFinder {
 		return false;
 	}
 
-	#isCorrectImportWithoutPackage(importSource: ImportSource) {
-		const { filePath } = importSource;
+	#isCorrectImportWithoutPackage(imp: Import) {
+		const { filePath } = imp;
 
-		if (filePath !== undefined) {
+		if (filePath !== null) {
 			const importPackage = this.#findPackageByFilePath(filePath);
 
 			if (importPackage) {

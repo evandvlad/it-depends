@@ -53,11 +53,11 @@ export class ModulePageViewModel extends PageViewModel {
 	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
 		return this.#module.imports
 			.toSorted((first, second) => second.values.length - first.values.length)
-			.map(({ importSource, values }) =>
+			.map((imp) =>
 				handler({
-					name: importSource.importPath,
-					linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
-					values,
+					name: imp.importPath,
+					linkData: imp.filePath ? this.getModuleLinkData(imp.filePath) : null,
+					values: imp.values,
 				}),
 			);
 	}

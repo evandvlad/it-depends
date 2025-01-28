@@ -4,6 +4,7 @@ import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import type { PathFilter } from "~/values";
 import { Domain } from "..";
+import { Import } from "../import";
 import type { Module, ModulesCollection } from "../modules-collector";
 import { Package } from "../package";
 import type { PackagesCollection } from "../packages-collector";
@@ -29,6 +30,25 @@ function createPathFilterParams(path: string) {
 		name: path.split("/").at(-1)!,
 		isFile: true,
 	};
+}
+
+function createImport({
+	sourcePath,
+	importPath,
+	filePath = null,
+	values = [],
+}: {
+	sourcePath: string;
+	importPath: string;
+	filePath?: string | null;
+	values?: string[];
+}) {
+	return new Import({
+		sourcePath,
+		importPath,
+		filePath,
+		values,
+	});
 }
 
 function createModule(parts: Partial<Module>): Module {
@@ -219,12 +239,7 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file.ts",
 						name: "file.ts",
-						imports: [
-							{
-								importSource: { importPath: "foo" },
-								values: ["bar", "baz"],
-							},
-						],
+						imports: [createImport({ sourcePath: "C:/file.ts", importPath: "foo", values: ["bar", "baz"] })],
 					}),
 				]),
 			},
@@ -259,13 +274,12 @@ describe("domain", () => {
 						name: "file2.jsx",
 						language: "javascript",
 						imports: [
-							{
-								importSource: {
-									filePath: "/file1.js",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "/file2.tsx",
+								filePath: "/file1.js",
+								importPath: "./file1",
 								values: ["default", "foo", "bar"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -302,26 +316,24 @@ describe("domain", () => {
 						path: "/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "/dir1/file1.ts",
-									importPath: "../dir1/file1",
-								},
+							createImport({
+								sourcePath: "/file2.ts",
+								filePath: "/dir1/file1.ts",
+								importPath: "../dir1/file1",
 								values: ["foo", "default"],
-							},
+							}),
 						],
 					}),
 					createModule({
 						path: "/dir2/dir3/file3.ts",
 						name: "file3.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "/dir1/file1.ts",
-									importPath: "../../dir1/file1",
-								},
+							createImport({
+								sourcePath: "/dir2/dir3/file3.ts",
+								filePath: "/dir1/file1.ts",
+								importPath: "../../dir1/file1",
 								values: ["default", "foo", "bar"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -354,13 +366,12 @@ describe("domain", () => {
 						path: "C:/file2.tsx",
 						name: "file2.tsx",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file1.tsx",
-									importPath: "~/file1",
-								},
+							createImport({
+								sourcePath: "C:/file2.tsx",
+								filePath: "C:/file1.tsx",
+								importPath: "~/file1",
 								values: ["default"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -379,10 +390,11 @@ describe("domain", () => {
 						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						name: "file.ts",
 						imports: [
-							{
-								importSource: { importPath: "../../../../out-of-scope" },
+							createImport({
+								sourcePath: "C:/dir1/dir2/dir3/dir4/file.ts",
+								importPath: "../../../../out-of-scope",
 								values: ["qux", "quux"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -400,7 +412,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/dir1/dir2/dir3/dir4/file.ts",
 						name: "file.ts",
-						unresolvedFullImports: [{ importPath: "../../../../out-of-scope" }],
+						unresolvedFullImports: [
+							createImport({
+								sourcePath: "C:/dir1/dir2/dir3/dir4/file.ts",
+								importPath: "../../../../out-of-scope",
+							}),
+						],
 					}),
 				]),
 			},
@@ -429,13 +446,11 @@ describe("domain", () => {
 						path: "C:/dir1/dir2/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir1/dir2/file1.ts",
-									importPath: "./file1",
-								},
-								values: [],
-							},
+							createImport({
+								sourcePath: "C:/dir1/dir2/file2.ts",
+								filePath: "C:/dir1/dir2/file1.ts",
+								importPath: "./file1",
+							}),
 						],
 					}),
 				]),
@@ -466,13 +481,11 @@ describe("domain", () => {
 						path: "/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "/file1.ts",
-									importPath: "./file1",
-								},
-								values: [],
-							},
+							createImport({
+								sourcePath: "/file2.ts",
+								filePath: "/file1.ts",
+								importPath: "./file1",
+							}),
 						],
 					}),
 				]),
@@ -501,13 +514,11 @@ describe("domain", () => {
 						path: "C:/file.ts",
 						name: "file.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/index.jsx",
-									importPath: "./dir",
-								},
-								values: [],
-							},
+							createImport({
+								sourcePath: "C:/file.ts",
+								filePath: "C:/dir/index.jsx",
+								importPath: "./dir",
+							}),
 						],
 					}),
 				]),
@@ -540,13 +551,12 @@ describe("domain", () => {
 						name: "file.ts",
 						package: "C:/dir",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/index.ts",
-									importPath: ".",
-								},
+							createImport({
+								sourcePath: "C:/dir/file.ts",
+								filePath: "C:/dir/index.ts",
+								importPath: ".",
 								values: ["foo", "bar"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -613,13 +623,12 @@ describe("domain", () => {
 						path: "C:/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file1.ts",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1.ts",
+								importPath: "./file1",
 								values: ["Bar"],
-							},
+							}),
 						],
 						exports: Rec.fromObject({
 							Baz: ["C:/dir/file3.ts"],
@@ -629,20 +638,18 @@ describe("domain", () => {
 						path: "C:/dir/file3.ts",
 						name: "file3.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file2.ts",
-									importPath: "../file2",
-								},
+							createImport({
+								sourcePath: "C:/dir/file3.ts",
+								filePath: "C:/file2.ts",
+								importPath: "../file2",
 								values: ["Baz"],
-							},
-							{
-								importSource: {
-									filePath: "C:/file1.ts",
-									importPath: "../file1",
-								},
+							}),
+							createImport({
+								sourcePath: "C:/dir/file3.ts",
+								filePath: "C:/file1.ts",
+								importPath: "../file1",
 								values: ["default"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -678,13 +685,12 @@ describe("domain", () => {
 						name: "index.ts",
 						package: "C:/file2",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file1.d.ts",
-									importPath: "../file1",
-								},
+							createImport({
+								sourcePath: "C:/file2/index.ts",
+								filePath: "C:/file1.d.ts",
+								importPath: "../file1",
 								values: ["Qux", "Quux"],
-							},
+							}),
 						],
 						exports: Rec.fromObject({
 							Qux: ["C:/file3.tsx"],
@@ -695,13 +701,12 @@ describe("domain", () => {
 						path: "C:/file3.tsx",
 						name: "file3.tsx",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file2/index.ts",
-									importPath: "./file2",
-								},
+							createImport({
+								sourcePath: "C:/file3.tsx",
+								filePath: "C:/file2/index.ts",
+								importPath: "./file2",
 								values: ["Qux", "Quux"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -735,13 +740,12 @@ describe("domain", () => {
 						path: "C:/dir/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/file1.ts",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "C:/dir/file2.ts",
+								filePath: "C:/dir/file1.ts",
+								importPath: "./file1",
 								values: ["foo", "bar"],
-							},
+							}),
 						],
 						exports: Rec.fromObject({
 							bar: ["C:/dir/file3.ts"],
@@ -753,13 +757,12 @@ describe("domain", () => {
 						path: "C:/dir/file3.ts",
 						name: "file3.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/file2.ts",
-									importPath: "./file2",
-								},
+							createImport({
+								sourcePath: "C:/dir/file3.ts",
+								filePath: "C:/dir/file2.ts",
+								importPath: "./file2",
 								values: ["bar", "foo"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -781,20 +784,19 @@ describe("domain", () => {
 					createModule({
 						path: "/file1.ts",
 						name: "file1.ts",
-						unresolvedFullExports: [{ importPath: "foo" }],
-						unresolvedFullImports: [{ importPath: "foo" }],
+						unresolvedFullExports: [createImport({ sourcePath: "/file1.ts", importPath: "foo" })],
+						unresolvedFullImports: [createImport({ sourcePath: "/file1.ts", importPath: "foo" })],
 					}),
 					createModule({
 						path: "/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "/file1.ts",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "/file2.ts",
+								filePath: "/file1.ts",
+								importPath: "./file1",
 								values: ["bar"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -827,28 +829,40 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file4.ts",
 						name: "file4.ts",
-						unresolvedFullImports: [{ filePath: "C:/file3.ts", importPath: "./file3" }],
+						unresolvedFullImports: [
+							createImport({ sourcePath: "C:/file4.ts", filePath: "C:/file3.ts", importPath: "./file3" }),
+						],
 					}),
 					createModule({
 						path: "C:/file3.ts",
 						name: "file3.ts",
-						unresolvedFullExports: [{ filePath: "C:/file2.ts", importPath: "./file2" }],
-						unresolvedFullImports: [{ filePath: "C:/file2.ts", importPath: "./file2" }],
+						unresolvedFullExports: [
+							createImport({ sourcePath: "C:/file3.ts", filePath: "C:/file2.ts", importPath: "./file2" }),
+						],
+						unresolvedFullImports: [
+							createImport({ sourcePath: "C:/file3.ts", filePath: "C:/file2.ts", importPath: "./file2" }),
+						],
 					}),
 					createModule({
 						path: "C:/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file1.tsx",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1.tsx",
+								importPath: "./file1",
 								values: ["foo", "default"],
-							},
+							}),
 						],
-						unresolvedFullExports: [{ filePath: "C:/file1.tsx", importPath: "./file1" }, { importPath: "bar" }],
-						unresolvedFullImports: [{ importPath: "bar" }],
+						unresolvedFullExports: [
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1.tsx",
+								importPath: "./file1",
+							}),
+							createImport({ sourcePath: "C:/file2.ts", importPath: "bar" }),
+						],
+						unresolvedFullImports: [createImport({ sourcePath: "C:/file2.ts", importPath: "bar" })],
 					}),
 					createModule({
 						path: "C:/file1.tsx",
@@ -889,13 +903,12 @@ describe("domain", () => {
 							default: [],
 						}),
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/dir2/file.ts",
-									importPath: "./dir2/file",
-								},
+							createImport({
+								sourcePath: "C:/dir/index.ts",
+								filePath: "C:/dir/dir2/file.ts",
+								importPath: "./dir2/file",
 								values: ["Foo"],
-							},
+							}),
 						],
 					}),
 					createModule({
@@ -906,13 +919,12 @@ describe("domain", () => {
 							Foo: ["C:/dir/index.ts"],
 						}),
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/dir/index.ts",
-									importPath: "..",
-								},
+							createImport({
+								sourcePath: "C:/dir/dir2/file.ts",
+								filePath: "C:/dir/index.ts",
+								importPath: "..",
 								values: ["Bar"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -953,27 +965,24 @@ describe("domain", () => {
 						path: "C:/file2.ts",
 						name: "file2.ts",
 						imports: [
-							{
-								importSource: {
-									filePath: "C:/file1/index.ts",
-									importPath: "./file1",
-								},
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1/index.ts",
+								importPath: "./file1",
 								values: ["foo", "default"],
-							},
-							{
-								importSource: {
-									filePath: "C:/file1/index.ts",
-									importPath: "~/file1",
-								},
+							}),
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1/index.ts",
+								importPath: "~/file1",
 								values: ["default"],
-							},
-							{
-								importSource: {
-									filePath: "C:/file1/index.ts",
-									importPath: "./file1/index",
-								},
+							}),
+							createImport({
+								sourcePath: "C:/file2.ts",
+								filePath: "C:/file1/index.ts",
+								importPath: "./file1/index",
 								values: ["bar", "baz"],
-							},
+							}),
 						],
 					}),
 				]),
@@ -1363,7 +1372,16 @@ describe("domain", () => {
 						}),
 						emptyExports: ["/dir1/index.ts", "/dir2/index.ts"],
 						incorrectImports: Rec.fromEntries([
-							["/dir2/index.ts", [{ filePath: "/dir1/file.ts", importPath: "../dir1/file" }]],
+							[
+								"/dir2/index.ts",
+								[
+									createImport({
+										sourcePath: "/dir2/index.ts",
+										filePath: "/dir1/file.ts",
+										importPath: "../dir1/file",
+									}),
+								],
+							],
 						]),
 					}),
 				},
