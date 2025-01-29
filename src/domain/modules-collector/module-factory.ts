@@ -23,15 +23,16 @@ export class ModuleFactory {
 				case "standard-import": {
 					const { source, values } = ieItem;
 
-					const filePath = this.#importSourceResolver.resolve({
+					const details = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
 					const imp = new Import({
+						...details,
 						sourcePath: entry.path,
 						importPath: source,
-						filePath,
+						isDynamic: false,
 						values,
 					});
 
@@ -53,16 +54,17 @@ export class ModuleFactory {
 				case "re-export": {
 					const { source, inputValues, outputValues } = ieItem;
 
-					const filePath = this.#importSourceResolver.resolve({
+					const details = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
 					const imp = new Import({
+						...details,
 						sourcePath: entry.path,
 						importPath: source,
+						isDynamic: false,
 						values: inputValues,
-						filePath,
 					});
 
 					if (inputValues.includes(ieValueAll)) {
@@ -94,16 +96,17 @@ export class ModuleFactory {
 						return;
 					}
 
-					const filePath = this.#importSourceResolver.resolve({
+					const details = this.#importSourceResolver.resolve({
 						filePath: entry.path,
 						importPath: source,
 					});
 
 					const imp = new Import({
+						...details,
 						sourcePath: entry.path,
 						importPath: source,
+						isDynamic: true,
 						values: [ieValueAll],
-						filePath,
 					});
 
 					module.unresolvedFullImports.push(imp);

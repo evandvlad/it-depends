@@ -100,8 +100,8 @@ export class SummaryCollector {
 			shadowedExportValues.set(path, module.shadowedExportValues.length);
 		}
 
-		imports.forEach(({ filePath, importPath }) => {
-			if (filePath === null) {
+		imports.forEach(({ isInScope, importPath }) => {
+			if (!isInScope) {
 				if (!outOfScopeImports.has(path)) {
 					outOfScopeImports.set(path, []);
 				}

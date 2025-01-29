@@ -19,12 +19,8 @@ class ResolvedMarks {
 	}
 }
 
-function isImportInScope({ filePath }: Import) {
-	return filePath !== null;
-}
-
 function getImportsInScope(imports: Import[]) {
-	return imports.filter((imp) => isImportInScope(imp));
+	return imports.filter((imp) => imp.isInScope);
 }
 
 function createFullExportsResolver() {
@@ -32,7 +28,7 @@ function createFullExportsResolver() {
 
 	function canProcessExportValues({ currentModule, sourceModule }: { currentModule: Module; sourceModule: Module }) {
 		const hasOutOfScopeUnresolvedFullExportsOnCurrentModule = currentModule.unresolvedFullExports.some(
-			(imp) => !isImportInScope(imp),
+			(imp) => !imp.isInScope,
 		);
 
 		if (hasOutOfScopeUnresolvedFullExportsOnCurrentModule) {
@@ -43,7 +39,7 @@ function createFullExportsResolver() {
 	}
 
 	function hasFullExportsForResolving(module: Module) {
-		return module.unresolvedFullExports.some((imp) => isImportInScope(imp));
+		return module.unresolvedFullExports.some((imp) => imp.isInScope);
 	}
 
 	return function tryResolveFullExports(module: Module, modulesCollection: ModulesCollection) {
@@ -106,7 +102,7 @@ function tryResolveFullImports(module: Module, modulesCollection: ModulesCollect
 			return;
 		}
 
-		imp.resetValues(sourceModule.exports.toKeys());
+		imp.changeValues(sourceModule.exports.toKeys());
 
 		module.imports.push(imp);
 
@@ -117,18 +113,15 @@ function tryResolveFullImports(module: Module, modulesCollection: ModulesCollect
 }
 
 function bindExportValues({ path, imports }: Module, modulesCollection: ModulesCollection) {
-	imports
-		.filter((imp) => isImportInScope(imp))
-		.forEach((imp) => {
-			const importedFilePath = imp.filePath!;
-			const { exports } = modulesCollection.get(importedFilePath);
+	getImportsInScope(imports).forEach((imp) => {
+		const { exports } = modulesCollection.get(imp.filePath!);
 
-			imp.values
-				.filter((value) => exports.has(value) && !exports.get(value).includes(path))
-				.forEach((value) => {
-					exports.get(value).push(path);
-				});
-		});
+		imp.values
+			.filter((value) => exports.has(value) && !exports.get(value).includes(path))
+			.forEach((value) => {
+				exports.get(value).push(path);
+			});
+	});
 }
 
 export function bindModules(modulesCollection: ModulesCollection): ModulesCollection {

@@ -2,6 +2,17 @@ import { delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
 import type { FSTree } from "~/lib/fs-tree";
 import { type Aliases, entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./values";
 
+interface PathInfo {
+	filePath: string;
+	importPath: string;
+}
+
+interface ResolvingDetails {
+	filePath: string | null;
+	isRelative: boolean;
+	isAlias: boolean;
+}
+
 interface Params {
 	fSTree: FSTree;
 	aliases: Aliases;
@@ -16,16 +27,28 @@ export class ImportSourceResolver {
 		this.#aliases = aliases;
 	}
 
-	resolve({ filePath, importPath }: { filePath: string; importPath: string }) {
-		const absoluteImportPath = this.#calcAbsoluteImportPath(filePath, importPath);
+	resolve(pathInfo: PathInfo): ResolvingDetails {
+		const isRelative = this.#isRelativeImport(pathInfo.importPath);
 
-		if (!absoluteImportPath) {
-			return null;
+		const details: ResolvingDetails = {
+			isRelative,
+			filePath: null,
+			isAlias: false,
+		};
+
+		const absoluteImportPath = isRelative
+			? this.#calcAbsoluteImportPathFromRelativeImportPath(pathInfo)
+			: this.#calcAbsoluteImportPathFromNonRelativeImportPath(pathInfo);
+
+		if (absoluteImportPath) {
+			const candidates = this.#getImportResolutionPaths(absoluteImportPath);
+
+			details.isAlias = !isRelative;
+			details.filePath =
+				candidates.find((importPathCandidate) => this.#fSTree.hasNodeByPath(importPathCandidate)) ?? null;
 		}
 
-		const candidates = this.#getImportResolutionFSPaths(absoluteImportPath);
-
-		return candidates.find((importPathCandidate) => this.#fSTree.hasNodeByPath(importPathCandidate)) ?? null;
+		return details;
 	}
 
 	#isRelativeImport(importPath: string) {
@@ -37,14 +60,12 @@ export class ImportSourceResolver {
 		);
 	}
 
-	#calcAbsoluteImportPath(filePath: string, importPath: string) {
-		const isRelativeImport = this.#isRelativeImport(importPath);
+	#calcAbsoluteImportPathFromRelativeImportPath({ filePath, importPath }: PathInfo) {
+		const dirPath = getParentPath(filePath);
+		return joinPaths(dirPath, importPath);
+	}
 
-		if (isRelativeImport) {
-			const dirPath = getParentPath(filePath);
-			return joinPaths(dirPath, importPath);
-		}
-
+	#calcAbsoluteImportPathFromNonRelativeImportPath({ importPath }: PathInfo) {
 		for (const [name, path] of this.#aliases.toEntries()) {
 			if (importPath === name) {
 				return path;
@@ -60,7 +81,7 @@ export class ImportSourceResolver {
 		return null;
 	}
 
-	#getImportResolutionFSPaths(absoluteImportPath: string) {
+	#getImportResolutionPaths(absoluteImportPath: string) {
 		return [
 			...orderedByResolvingPriorityAcceptableFileExtNames.map((extName) => `${absoluteImportPath}${extName}`),
 			...orderedByResolvingPriorityAcceptableFileExtNames.map((extName) =>

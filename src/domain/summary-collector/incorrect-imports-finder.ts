@@ -29,12 +29,11 @@ export class IncorrectImportsFinder {
 	}
 
 	#isCorrectImportFromPackage(pack: Package, imp: Import) {
-		const { filePath } = imp;
-
-		if (filePath === null) {
+		if (!imp.isInScope) {
 			return true;
 		}
 
+		const filePath = imp.filePath!;
 		const importPackage = this.#findPackageByFilePath(filePath);
 
 		if (!importPackage) {
@@ -65,14 +64,15 @@ export class IncorrectImportsFinder {
 	}
 
 	#isCorrectImportWithoutPackage(imp: Import) {
-		const { filePath } = imp;
+		if (!imp.isInScope) {
+			return true;
+		}
 
-		if (filePath !== null) {
-			const importPackage = this.#findPackageByFilePath(filePath);
+		const filePath = imp.filePath!;
+		const importPackage = this.#findPackageByFilePath(filePath);
 
-			if (importPackage) {
-				return importPackage.entryPoint === filePath && importPackage.parent === null;
-			}
+		if (importPackage) {
+			return importPackage.entryPoint === filePath && importPackage.parent === null;
 		}
 
 		return true;

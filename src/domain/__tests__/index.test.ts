@@ -36,10 +36,16 @@ function createImport({
 	sourcePath,
 	importPath,
 	filePath = null,
+	isDynamic = false,
+	isRelative = true,
+	isAlias = false,
 	values = [],
 }: {
 	sourcePath: string;
 	importPath: string;
+	isDynamic?: boolean;
+	isRelative?: boolean;
+	isAlias?: boolean;
 	filePath?: string | null;
 	values?: string[];
 }) {
@@ -47,6 +53,9 @@ function createImport({
 		sourcePath,
 		importPath,
 		filePath,
+		isDynamic,
+		isRelative,
+		isAlias,
 		values,
 	});
 }
@@ -555,6 +564,7 @@ describe("domain", () => {
 								sourcePath: "C:/dir/file.ts",
 								filePath: "C:/dir/index.ts",
 								importPath: ".",
+								isDynamic: true,
 								values: ["foo", "bar"],
 							}),
 						],
