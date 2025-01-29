@@ -68,9 +68,9 @@ function createFullExportsResolver() {
 				return;
 			}
 
-			sourceModule.exports.forEach((_, value) => {
-				if (!module.exports.has(value)) {
-					module.exports.set(value, []);
+			sourceModule.exports.values.forEach((value) => {
+				if (!module.exports.isValueDefined(value)) {
+					module.exports.defineValue(value);
 					return;
 				}
 
@@ -102,7 +102,7 @@ function tryResolveFullImports(module: Module, modulesCollection: ModulesCollect
 			return;
 		}
 
-		imp.changeValues(sourceModule.exports.toKeys());
+		imp.changeValues(sourceModule.exports.values);
 
 		module.imports.push(imp);
 
@@ -116,11 +116,9 @@ function bindExportValues({ path, imports }: Module, modulesCollection: ModulesC
 	getImportsInScope(imports).forEach((imp) => {
 		const { exports } = modulesCollection.get(imp.filePath!);
 
-		imp.values
-			.filter((value) => exports.has(value) && !exports.get(value).includes(path))
-			.forEach((value) => {
-				exports.get(value).push(path);
-			});
+		imp.values.forEach((value) => {
+			exports.attachPathToValue(value, path);
+		});
 	});
 }
 

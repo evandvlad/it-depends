@@ -110,7 +110,9 @@ export class SummaryCollector {
 			}
 		});
 
-		exports.forEach((paths, value) => {
+		exports.values.forEach((value) => {
+			const paths = exports.getPathsByValue(value);
+
 			if (paths.length === 0) {
 				if (!possiblyUnusedExportValues.has(path)) {
 					possiblyUnusedExportValues.set(path, []);
@@ -120,7 +122,7 @@ export class SummaryCollector {
 			}
 		});
 
-		if (exports.size === 0 && module.unresolvedFullExports.length === 0) {
+		if (exports.values.length === 0 && module.unresolvedFullExports.length === 0) {
 			emptyExports.push(path);
 		}
 

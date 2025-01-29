@@ -115,7 +115,7 @@ export class IndexPageViewModel extends PageViewModel {
 				handler({
 					values,
 					linkData: this.getModuleLinkData(path),
-					isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
+					isFullyUnused: this.#modulesCollection.get(path).exports.values.length === values.length,
 				}),
 			);
 	}

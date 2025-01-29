@@ -4,6 +4,7 @@ import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import type { PathFilter } from "~/values";
 import { Domain } from "..";
+import { Exports } from "../exports";
 import { Import } from "../import";
 import type { Module, ModulesCollection } from "../modules-collector";
 import { Package } from "../package";
@@ -60,6 +61,20 @@ function createImport({
 	});
 }
 
+function createExports({ sourcePath, data = {} }: { sourcePath: string; data?: Record<string, string[]> }) {
+	const exp = new Exports({ sourcePath });
+
+	Object.entries(data).forEach(([value, paths]) => {
+		exp.defineValue(value);
+
+		paths.forEach((path) => {
+			exp.attachPathToValue(value, path);
+		});
+	});
+
+	return exp;
+}
+
 function createModule(parts: Partial<Module>): Module {
 	return {
 		path: "",
@@ -68,7 +83,7 @@ function createModule(parts: Partial<Module>): Module {
 		language: "typescript",
 		content: expect.any(String) as unknown as string,
 		imports: [],
-		exports: new Rec(),
+		exports: new Exports({ sourcePath: parts.path ?? "" }),
 		unparsedDynamicImports: 0,
 		shadowedExportValues: [],
 		unresolvedFullImports: [],
@@ -272,10 +287,13 @@ describe("domain", () => {
 						path: "/file1.js",
 						name: "file1.js",
 						language: "javascript",
-						exports: Rec.fromObject({
-							foo: ["/file2.jsx"],
-							bar: ["/file2.jsx"],
-							default: ["/file2.jsx"],
+						exports: createExports({
+							sourcePath: "/file1.js",
+							data: {
+								foo: ["/file2.jsx"],
+								bar: ["/file2.jsx"],
+								default: ["/file2.jsx"],
+							},
 						}),
 					}),
 					createModule({
@@ -314,11 +332,14 @@ describe("domain", () => {
 					createModule({
 						path: "/dir1/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							foo: ["/file2.ts", "/dir2/dir3/file3.ts"],
-							bar: ["/dir2/dir3/file3.ts"],
-							baz: [],
-							default: ["/file2.ts", "/dir2/dir3/file3.ts"],
+						exports: createExports({
+							sourcePath: "/dir1/file1.ts",
+							data: {
+								foo: ["/file2.ts", "/dir2/dir3/file3.ts"],
+								bar: ["/dir2/dir3/file3.ts"],
+								baz: [],
+								default: ["/file2.ts", "/dir2/dir3/file3.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -367,8 +388,11 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file1.tsx",
 						name: "file1.tsx",
-						exports: Rec.fromObject({
-							default: ["C:/file2.tsx"],
+						exports: createExports({
+							sourcePath: "C:/file1.tsx",
+							data: {
+								default: ["C:/file2.tsx"],
+							},
 						}),
 					}),
 					createModule({
@@ -447,8 +471,11 @@ describe("domain", () => {
 					createModule({
 						path: "C:/dir1/dir2/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							default: [],
+						exports: createExports({
+							sourcePath: "C:/dir1/dir2/file1.ts",
+							data: {
+								default: [],
+							},
 						}),
 					}),
 					createModule({
@@ -482,8 +509,11 @@ describe("domain", () => {
 					createModule({
 						path: "/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							foo: [],
+						exports: createExports({
+							sourcePath: "/file1.ts",
+							data: {
+								foo: [],
+							},
 						}),
 					}),
 					createModule({
@@ -550,9 +580,12 @@ describe("domain", () => {
 						path: "C:/dir/index.ts",
 						name: "index.ts",
 						package: "C:/dir",
-						exports: Rec.fromObject({
-							foo: ["C:/dir/file.ts"],
-							bar: ["C:/dir/file.ts"],
+						exports: createExports({
+							sourcePath: "C:/dir/index.ts",
+							data: {
+								foo: ["C:/dir/file.ts"],
+								bar: ["C:/dir/file.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -588,9 +621,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							foo: [],
-							bar: [],
+						exports: createExports({
+							sourcePath: "C:/file1.ts",
+							data: {
+								foo: [],
+								bar: [],
+							},
 						}),
 					}),
 					createModule({
@@ -624,9 +660,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							default: ["C:/dir/file3.ts"],
-							Bar: ["C:/file2.ts"],
+						exports: createExports({
+							sourcePath: "C:/file1.ts",
+							data: {
+								default: ["C:/dir/file3.ts"],
+								Bar: ["C:/file2.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -640,8 +679,11 @@ describe("domain", () => {
 								values: ["Bar"],
 							}),
 						],
-						exports: Rec.fromObject({
-							Baz: ["C:/dir/file3.ts"],
+						exports: createExports({
+							sourcePath: "C:/file2.ts",
+							data: {
+								Baz: ["C:/dir/file3.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -685,9 +727,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file1.d.ts",
 						name: "file1.d.ts",
-						exports: Rec.fromObject({
-							Qux: ["C:/file2/index.ts"],
-							Quux: ["C:/file2/index.ts"],
+						exports: createExports({
+							sourcePath: "C:/file1.d.ts",
+							data: {
+								Qux: ["C:/file2/index.ts"],
+								Quux: ["C:/file2/index.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -702,9 +747,12 @@ describe("domain", () => {
 								values: ["Qux", "Quux"],
 							}),
 						],
-						exports: Rec.fromObject({
-							Qux: ["C:/file3.tsx"],
-							Quux: ["C:/file3.tsx"],
+						exports: createExports({
+							sourcePath: "C:/file2/index.ts",
+							data: {
+								Qux: ["C:/file3.tsx"],
+								Quux: ["C:/file3.tsx"],
+							},
 						}),
 					}),
 					createModule({
@@ -741,9 +789,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/dir/file1.ts",
 						name: "file1.ts",
-						exports: Rec.fromObject({
-							foo: ["C:/dir/file2.ts"],
-							bar: ["C:/dir/file2.ts"],
+						exports: createExports({
+							sourcePath: "C:/dir/file1.ts",
+							data: {
+								foo: ["C:/dir/file2.ts"],
+								bar: ["C:/dir/file2.ts"],
+							},
 						}),
 					}),
 					createModule({
@@ -757,9 +808,12 @@ describe("domain", () => {
 								values: ["foo", "bar"],
 							}),
 						],
-						exports: Rec.fromObject({
-							bar: ["C:/dir/file3.ts"],
-							foo: ["C:/dir/file3.ts"],
+						exports: createExports({
+							sourcePath: "C:/dir/file2.ts",
+							data: {
+								bar: ["C:/dir/file3.ts"],
+								foo: ["C:/dir/file3.ts"],
+							},
 						}),
 						shadowedExportValues: ["bar"],
 					}),
@@ -877,9 +931,12 @@ describe("domain", () => {
 					createModule({
 						path: "C:/file1.tsx",
 						name: "file1.tsx",
-						exports: Rec.fromObject({
-							foo: ["C:/file2.ts"],
-							default: ["C:/file2.ts"],
+						exports: createExports({
+							sourcePath: "C:/file1.tsx",
+							data: {
+								foo: ["C:/file2.ts"],
+								default: ["C:/file2.ts"],
+							},
 						}),
 					}),
 				]),
@@ -908,9 +965,12 @@ describe("domain", () => {
 						path: "C:/dir/index.ts",
 						name: "index.ts",
 						package: "C:/dir",
-						exports: Rec.fromObject({
-							Bar: ["C:/dir/dir2/file.ts"],
-							default: [],
+						exports: createExports({
+							sourcePath: "C:/dir/index.ts",
+							data: {
+								Bar: ["C:/dir/dir2/file.ts"],
+								default: [],
+							},
 						}),
 						imports: [
 							createImport({
@@ -925,8 +985,11 @@ describe("domain", () => {
 						path: "C:/dir/dir2/file.ts",
 						name: "file.ts",
 						package: "C:/dir",
-						exports: Rec.fromObject({
-							Foo: ["C:/dir/index.ts"],
+						exports: createExports({
+							sourcePath: "C:/dir/dir2/file.ts",
+							data: {
+								Foo: ["C:/dir/index.ts"],
+							},
 						}),
 						imports: [
 							createImport({
@@ -964,11 +1027,14 @@ describe("domain", () => {
 						path: "C:/file1/index.ts",
 						name: "index.ts",
 						package: "C:/file1",
-						exports: Rec.fromObject({
-							foo: ["C:/file2.ts"],
-							bar: ["C:/file2.ts"],
-							baz: ["C:/file2.ts"],
-							default: ["C:/file2.ts"],
+						exports: createExports({
+							sourcePath: "C:/file1/index.ts",
+							data: {
+								foo: ["C:/file2.ts"],
+								bar: ["C:/file2.ts"],
+								baz: ["C:/file2.ts"],
+								default: ["C:/file2.ts"],
+							},
 						}),
 					}),
 					createModule({

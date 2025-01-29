@@ -1,6 +1,6 @@
 import { assert, assertNever } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
-import { Rec } from "~/lib/rec";
+import { Exports } from "../exports";
 import { Import } from "../import";
 import type { ImportSourceResolver } from "../program-file-expert";
 import { type ProgramFileEntry, ieValueAll } from "../values";
@@ -47,7 +47,7 @@ export class ModuleFactory {
 				}
 
 				case "standard-export": {
-					this.#fillExportValuesToModule(module, ieItem.values);
+					module.exports.defineValues(ieItem.values);
 					return;
 				}
 
@@ -83,8 +83,7 @@ export class ModuleFactory {
 						"Incorrect result processing of the parser for the re-export case",
 					);
 
-					this.#fillExportValuesToModule(module, outputValues);
-
+					module.exports.defineValues(outputValues);
 					return;
 				}
 
@@ -130,17 +129,11 @@ export class ModuleFactory {
 			name: getName(path),
 			package: null,
 			imports: [],
-			exports: new Rec(),
+			exports: new Exports({ sourcePath: path }),
 			unparsedDynamicImports: 0,
 			unresolvedFullImports: [],
 			unresolvedFullExports: [],
 			shadowedExportValues: [],
 		};
-	}
-
-	#fillExportValuesToModule(module: Module, values: string[]) {
-		values.forEach((value) => {
-			module.exports.set(value, []);
-		});
 	}
 }
