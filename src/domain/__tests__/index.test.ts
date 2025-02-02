@@ -126,25 +126,8 @@ function createPackagesCollection(
 	}>,
 ): PackagesCollection {
 	return Rec.fromEntries(
-		packageParams.map(({ path, entryPoint, parent, modules, packages }) => {
-			const pack = new Package({ path, entryPoint });
-
-			if (parent) {
-				pack.setParent(parent);
-			}
-
-			if (modules) {
-				modules.forEach((module) => {
-					pack.addModule(module);
-				});
-			}
-
-			if (packages) {
-				packages.forEach((p) => {
-					pack.addPackage(p);
-				});
-			}
-
+		packageParams.map(({ path, entryPoint, parent = null, modules = [], packages = [] }) => {
+			const pack = new Package({ path, entryPoint, parent, modules, packages });
 			return [path, pack];
 		}),
 	);

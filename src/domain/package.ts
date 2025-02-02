@@ -3,44 +3,25 @@ import { getName } from "~/lib/fs-path";
 interface Params {
 	path: string;
 	entryPoint: string;
+	parent: string | null;
+	modules: readonly string[];
+	packages: readonly string[];
 }
 
 export class Package {
 	readonly path;
 	readonly entryPoint;
 	readonly name;
+	readonly parent;
+	readonly modules;
+	readonly packages;
 
-	#parent: string | null = null;
-	#modules: string[] = [];
-	#packages: string[] = [];
-
-	constructor({ path, entryPoint }: Params) {
+	constructor({ path, entryPoint, parent, modules, packages }: Params) {
 		this.path = path;
 		this.entryPoint = entryPoint;
 		this.name = getName(path);
-	}
-
-	get parent() {
-		return this.#parent;
-	}
-
-	get modules(): readonly string[] {
-		return this.#modules;
-	}
-
-	get packages(): readonly string[] {
-		return this.#packages;
-	}
-
-	setParent(path: string) {
-		this.#parent = path;
-	}
-
-	addModule(path: string) {
-		this.#modules.push(path);
-	}
-
-	addPackage(path: string) {
-		this.#packages.push(path);
+		this.parent = parent;
+		this.modules = modules;
+		this.packages = packages;
 	}
 }
