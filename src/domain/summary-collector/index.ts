@@ -1,10 +1,9 @@
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { Import } from "../import";
-import type { Module, ModulesCollection } from "../modules-collector";
-import type { PackagesCollection } from "../packages-collector";
+import type { Module } from "../module";
 import type { Language } from "../program-file-expert";
-import type { ProcessorErrors } from "../values";
+import type { ModulesCollection, PackagesCollection, ProcessorErrors } from "../values";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {

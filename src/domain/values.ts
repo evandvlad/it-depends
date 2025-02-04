@@ -1,4 +1,6 @@
 import type { Rec } from "~/lib/rec";
+import type { Module } from "./module";
+import type { Package } from "./package";
 import type { Language } from "./program-file-expert";
 
 export const ieValueAll = "*";
@@ -19,3 +21,16 @@ export interface ProgramFileEntry {
 export type ProgramFileEntries = Rec<string, ProgramFileEntry>;
 
 export type ProcessorErrors = Rec<string, Error>;
+
+export interface ImportData {
+	importPath: string;
+	filePath: string | null;
+	isDynamic: boolean;
+	isRelative: boolean;
+	isAlias: boolean;
+	values: string[];
+}
+
+export type ModulesCollection = Rec<string, Module>;
+
+export type PackagesCollection = Rec<string, Package>;

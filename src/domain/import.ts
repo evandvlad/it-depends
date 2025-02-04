@@ -1,15 +1,6 @@
-interface Params {
-	sourcePath: string;
-	importPath: string;
-	filePath: string | null;
-	isDynamic: boolean;
-	isRelative: boolean;
-	isAlias: boolean;
-	values: string[];
-}
+import type { ImportData } from "./values";
 
 export class Import {
-	readonly sourcePath;
 	readonly importPath;
 	readonly filePath;
 	readonly isInScope;
@@ -17,11 +8,9 @@ export class Import {
 	readonly isRelative;
 	readonly isAlias;
 	readonly isExternal;
+	readonly values;
 
-	#values;
-
-	constructor({ sourcePath, importPath, filePath, isDynamic, isRelative, isAlias, values }: Params) {
-		this.sourcePath = sourcePath;
+	constructor({ importPath, filePath, isDynamic, isRelative, isAlias, values }: ImportData) {
 		this.importPath = importPath;
 		this.filePath = filePath;
 		this.isDynamic = isDynamic;
@@ -29,15 +18,6 @@ export class Import {
 		this.isAlias = isAlias;
 		this.isExternal = !(isRelative || isAlias);
 		this.isInScope = filePath !== null;
-
-		this.#values = values;
-	}
-
-	get values() {
-		return this.#values;
-	}
-
-	changeValues(values: string[]) {
-		this.#values = values;
+		this.values = values;
 	}
 }

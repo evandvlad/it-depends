@@ -1,11 +1,13 @@
 import { FSTree } from "~/lib/fs-tree";
 import type { ExtraPackageEntries, PathFilter } from "~/values";
-import { type ModulesCollection, collectModules } from "./modules-collector";
-import { type PackagesCollection, PackagesCollector } from "./packages-collector";
+import { ModulesCollector } from "./modules-collector";
+import { PackagesCollector } from "./packages-collector";
 import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./program-file-expert";
 import { type Summary, SummaryCollector } from "./summary-collector";
 import {
 	type IEItem,
+	type ModulesCollection,
+	type PackagesCollection,
 	type ProcessorErrors,
 	type ProgramFileEntries,
 	type ProgramFileEntry,
@@ -69,7 +71,9 @@ export class Domain {
 
 		const fSTree = new FSTree(allFilePaths);
 		const importSourceResolver = this.#programFileExpert.createImportSourceResolver({ fSTree });
-		const modulesCollection = collectModules({ entries, importSourceResolver });
+
+		const modulesCollector = new ModulesCollector({ importSourceResolver });
+		const modulesCollection = modulesCollector.collect(entries);
 
 		const packagesCollector = new PackagesCollector({
 			fSTree,
