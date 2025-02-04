@@ -31,6 +31,8 @@ export interface ImportData {
 	values: string[];
 }
 
+export type Exports = Rec<string, string[]>;
+
 export type ModulesCollection = Rec<string, Module>;
 
 export type PackagesCollection = Rec<string, Package>;

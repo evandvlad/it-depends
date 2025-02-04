@@ -47,11 +47,7 @@ export class ModulePageViewModel extends PageViewModel {
 		this.code = this.#module.content;
 
 		this.numOfImports = this.#module.imports.reduce((acc, { values }) => acc + values.length, 0);
-
-		this.numOfExports = this.#module.exports.values.reduce(
-			(acc, value) => acc + this.#module.exports.getPathsByValue(value).length,
-			0,
-		);
+		this.numOfExports = this.#module.exports.reduce((acc, paths) => acc + paths.length, 0);
 	}
 
 	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
@@ -67,8 +63,8 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectExportItemsByValues<T>(handler: (params: { linksData: LinkData[]; value: string }) => T) {
-		return this.#module.exports.values
-			.map((value) => [value, this.#module.exports.getPathsByValue(value)] as const)
+		return this.#module.exports
+			.toEntries()
 			.toSorted((first, second) => second[1].length - first[1].length)
 			.map(([value, paths]) =>
 				handler({
@@ -79,8 +75,8 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectExportItemsByModules<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
-		const rec = this.#module.exports.values.reduce((acc, value) => {
-			this.#module.exports.getPathsByValue(value).forEach((path) => {
+		const rec = this.#module.exports.reduce((acc, paths, value) => {
+			paths.forEach((path) => {
 				const values = acc.getOrDefault(path, []);
 				values.push(value);
 				acc.set(path, values);

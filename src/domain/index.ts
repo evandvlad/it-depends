@@ -80,6 +80,7 @@ export class Domain {
 			modulesCollection,
 			programFileExpert: this.#programFileExpert,
 		});
+
 		const packagesCollection = packagesCollector.collect();
 
 		const summaryCollector = new SummaryCollector({

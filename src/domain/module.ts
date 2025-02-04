@@ -1,16 +1,14 @@
 import { getName } from "~/lib/fs-path";
-import type { Rec } from "~/lib/rec";
-import { Exports } from "./exports";
 import { Import } from "./import";
 import type { Language } from "./program-file-expert";
-import type { ImportData } from "./values";
+import type { Exports, ImportData } from "./values";
 
 interface Params {
 	path: string;
 	language: Language;
 	content: string;
 	imports: ImportData[];
-	exports: Rec<string, string[]>;
+	exports: Exports;
 	unresolvedFullImports: ImportData[];
 	unresolvedFullExports: ImportData[];
 	shadowedExportValues: string[];
@@ -47,7 +45,7 @@ export class Module {
 		this.language = language;
 		this.content = content;
 		this.imports = imports.map((importData) => new Import(importData));
-		this.exports = new Exports({ data: exports });
+		this.exports = exports;
 		this.unresolvedFullImports = unresolvedFullImports.map((importData) => new Import(importData));
 		this.unresolvedFullExports = unresolvedFullExports.map((importData) => new Import(importData));
 		this.shadowedExportValues = shadowedExportValues;
