@@ -5,7 +5,6 @@ import type { ExtraPackageEntries } from "~/values";
 import { ImportSourceResolver } from "./import-source-resolver";
 import {
 	type Aliases,
-	type Language,
 	type ProgramFileDetails,
 	declarationFileExtName,
 	entryPointFileName,
@@ -20,7 +19,7 @@ interface Params {
 	};
 }
 
-export type { Language, ImportSourceResolver, ProgramFileDetails, Aliases };
+export type { ImportSourceResolver, ProgramFileDetails, Aliases };
 
 export class ProgramFileExpert {
 	#settings;

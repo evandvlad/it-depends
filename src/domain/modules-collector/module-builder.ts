@@ -1,7 +1,6 @@
 import { Rec } from "~/lib/rec";
 import { Module } from "../module";
-import type { Language } from "../program-file-expert";
-import type { ImportData } from "../values";
+import type { ImportData, Language } from "../values";
 
 interface Params {
 	path: string;

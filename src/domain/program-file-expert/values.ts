@@ -1,4 +1,5 @@
 import type { Rec } from "~/lib/rec";
+import type { Language } from "../values";
 
 export const declarationFileExtName = ".d.ts";
 export const entryPointFileName = "index";
@@ -25,7 +26,5 @@ export interface ProgramFileDetails {
 	language: Language;
 	allowedJSXSyntax: boolean;
 }
-
-export type Language = "typescript" | "javascript";
 
 export type Aliases = Rec<string, string>;

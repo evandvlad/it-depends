@@ -1,7 +1,6 @@
 import { getName } from "~/lib/fs-path";
 import { Import } from "./import";
-import type { Language } from "./program-file-expert";
-import type { Exports, ImportData } from "./values";
+import type { Exports, ImportData, Language } from "./values";
 
 interface Params {
 	path: string;

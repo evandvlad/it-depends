@@ -1,7 +1,8 @@
 import type { Rec } from "~/lib/rec";
 import type { Module } from "./module";
 import type { Package } from "./package";
-import type { Language } from "./program-file-expert";
+
+export type Language = "typescript" | "javascript";
 
 export const ieValueAll = "*";
 

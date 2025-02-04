@@ -7,9 +7,8 @@ import { Domain } from "..";
 import { Import } from "../import";
 import { Module } from "../module";
 import { Package } from "../package";
-import type { Language } from "../program-file-expert";
 import type { Summary } from "../summary-collector";
-import type { ImportData, ModulesCollection, PackagesCollection } from "../values";
+import type { ImportData, Language, ModulesCollection, PackagesCollection } from "../values";
 
 function createSutComponents() {
 	const params = {
