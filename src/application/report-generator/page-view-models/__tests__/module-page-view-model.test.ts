@@ -6,7 +6,7 @@ import { ModulePageViewModel } from "../module-page-view-model";
 function createSutComponents() {
 	const domain = createDomain();
 
-	const { modulesCollection, fSTree, summary } = domain.process(
+	const output = domain.process(
 		createProcessParams({
 			entries: [
 				createProgramFileEntry({
@@ -36,12 +36,10 @@ function createSutComponents() {
 	);
 
 	return new ModulePageViewModel({
-		fSTree,
+		output,
 		path: "/src/lib/a/index.ts",
 		version: "999",
-		modulesCollection,
-		summary,
-		pathInformer: new PathInformer({ rootPath: "/report", fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fSTree: output.fSTree }),
 	});
 }
 

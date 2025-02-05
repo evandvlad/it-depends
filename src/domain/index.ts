@@ -1,13 +1,12 @@
 import { FSTree } from "~/lib/fs-tree";
 import type { ExtraPackageEntries, PathFilter } from "~/values";
 import { ModuleBuildersCollector } from "./module-builders-collector";
+import { Output } from "./output";
 import { PackagesCollector } from "./packages-collector";
 import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./program-file-expert";
-import { type Summary, SummaryCollector } from "./summary-collector";
+import { SummaryCollector } from "./summary-collector";
 import {
 	type IEItem,
-	type ModulesCollection,
-	type PackagesCollection,
 	type ProcessorErrors,
 	type ProgramFileEntries,
 	type ProgramFileEntry,
@@ -24,24 +23,7 @@ interface Params {
 	settings: Settings;
 }
 
-interface Result {
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
-	summary: Summary;
-	fSTree: FSTree;
-}
-
-export type {
-	IEItem,
-	Aliases,
-	ProgramFileEntry,
-	ModulesCollection,
-	PackagesCollection,
-	Summary,
-	ProgramFileDetails,
-	ProcessorErrors,
-	ProgramFileEntries,
-};
+export type { IEItem, Aliases, ProgramFileEntry, ProgramFileDetails, ProcessorErrors, ProgramFileEntries, Output };
 
 export { ieValueAll };
 
@@ -66,7 +48,7 @@ export class Domain {
 		return this.#programFileExpert.getDetails(path);
 	};
 
-	process({ entries, processorErrors }: { entries: ProgramFileEntries; processorErrors: ProcessorErrors }): Result {
+	process({ entries, processorErrors }: { entries: ProgramFileEntries; processorErrors: ProcessorErrors }): Output {
 		const allFilePaths = entries.toKeys();
 
 		const fSTree = new FSTree(allFilePaths);
@@ -92,6 +74,6 @@ export class Domain {
 		});
 		const summary = summaryCollector.collect();
 
-		return { modulesCollection, packagesCollection, summary, fSTree };
+		return new Output({ modulesCollection, packagesCollection, summary, fSTree });
 	}
 }

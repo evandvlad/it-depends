@@ -1,5 +1,4 @@
-import type { ModulesCollection, Summary } from "~/domain";
-import type { FSTree } from "~/lib/fs-tree";
+import type { Output } from "~/domain";
 import { Rec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
@@ -8,10 +7,8 @@ import type { LinkData } from "./values";
 interface Params {
 	version: string;
 	path: string;
-	fSTree: FSTree;
 	pathInformer: PathInformer;
-	modulesCollection: ModulesCollection;
-	summary: Summary;
+	output: Output;
 }
 
 export class ModulePageViewModel extends PageViewModel {
@@ -25,19 +22,19 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly unparsedDynamicImports;
 	readonly shadowedExportValues;
 
-	#summary;
+	#output;
 	#pathInformer;
 	#module;
 
-	constructor({ version, path, pathInformer, fSTree, modulesCollection, summary }: Params) {
-		super({ version, pathInformer, fSTree });
+	constructor({ version, path, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-		this.#summary = summary;
+		this.#output = output;
 		this.#pathInformer = pathInformer;
-		this.#module = modulesCollection.get(path);
+		this.#module = this.#output.modulesCollection.get(path);
 
 		this.fullPath = path;
-		this.shortPath = fSTree.getShortPathByPath(path);
+		this.shortPath = this.#output.fSTree.getShortPathByPath(path);
 		this.language = this.#module.language;
 
 		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;
@@ -97,7 +94,7 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectIncorrectImportItems<T>(handler: (linkData: LinkData) => T) {
-		return this.#summary.incorrectImports.getOrDefault(this.fullPath, []).map(({ importPath, filePath }) =>
+		return this.#output.summary.incorrectImports.getOrDefault(this.fullPath, []).map(({ importPath, filePath }) =>
 			handler({
 				url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
 				content: importPath,
@@ -106,7 +103,7 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	collectOutOfScopeImports<T>(handler: (path: string) => T) {
-		return this.#summary.outOfScopeImports.getOrDefault(this.fullPath, []).map((path) => handler(path));
+		return this.#output.summary.outOfScopeImports.getOrDefault(this.fullPath, []).map((path) => handler(path));
 	}
 
 	collectUnresolvedFullImports<T>(handler: (path: string) => T) {

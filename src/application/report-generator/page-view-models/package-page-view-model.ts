@@ -1,5 +1,4 @@
-import type { PackagesCollection } from "~/domain";
-import type { FSTree } from "~/lib/fs-tree";
+import type { Output } from "~/domain";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData } from "./values";
@@ -7,9 +6,8 @@ import type { LinkData } from "./values";
 interface Params {
 	version: string;
 	path: string;
-	fSTree: FSTree;
 	pathInformer: PathInformer;
-	packagesCollection: PackagesCollection;
+	output: Output;
 }
 
 export class PackagePageViewModel extends PageViewModel {
@@ -20,13 +18,13 @@ export class PackagePageViewModel extends PageViewModel {
 
 	#package;
 
-	constructor({ version, path, pathInformer, fSTree, packagesCollection }: Params) {
-		super({ version, pathInformer, fSTree });
+	constructor({ version, path, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-		this.#package = packagesCollection.get(path);
+		this.#package = output.packagesCollection.get(path);
 
 		this.fullPath = path;
-		this.shortPath = fSTree.getShortPathByPath(path);
+		this.shortPath = output.fSTree.getShortPathByPath(path);
 		this.entryPointLinkData = this.getModuleLinkData(this.#package.entryPoint);
 		this.parentPackageLinkData = this.#package.parent ? this.getPackageLinkData(this.#package.parent) : null;
 	}

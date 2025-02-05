@@ -1,5 +1,4 @@
-import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { FSTree } from "~/lib/fs-tree";
+import type { Output } from "~/domain";
 import { Rec } from "~/lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
 import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
@@ -11,48 +10,32 @@ interface Params {
 	settings: ReportSettings;
 	dispatcherPort: DispatcherPort;
 	fSysPort: FSysPort;
-	summary: Summary;
-	fSTree: FSTree;
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
+	output: Output;
 }
 
 export type { ReportSettings, DispatcherPort, FSysPort };
 
-export async function generateReport({
-	settings,
-	dispatcherPort,
-	fSysPort,
-	summary,
-	fSTree,
-	modulesCollection,
-	packagesCollection,
-}: Params) {
-	const pathInformer = new PathInformer({ rootPath: settings.path, fSTree });
+export async function generateReport({ settings, dispatcherPort, fSysPort, output }: Params) {
+	const pathInformer = new PathInformer({ rootPath: settings.path, fSTree: output.fSTree });
 
 	dispatcherPort.dispatch("report-generation:started");
 
 	const { version } = settings;
 	const htmlPages = new Rec<string, string>();
 
-	htmlPages.set(
-		pathInformer.indexHtmlPagePath,
-		indexPage(
-			new IndexPageViewModel({ version, pathInformer, fSTree, summary, modulesCollection, packagesCollection }),
-		),
-	);
+	htmlPages.set(pathInformer.indexHtmlPagePath, indexPage(new IndexPageViewModel({ version, pathInformer, output })));
 
-	modulesCollection.forEach(({ path }) => {
+	output.modulesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
-			modulePage(new ModulePageViewModel({ version, path, pathInformer, fSTree, modulesCollection, summary })),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, output })),
 		);
 	});
 
-	packagesCollection.forEach(({ path }) => {
+	output.packagesCollection.forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getPackageHtmlPagePathByRealPath(path),
-			packagePage(new PackagePageViewModel({ version, path, pathInformer, fSTree, packagesCollection })),
+			packagePage(new PackagePageViewModel({ version, path, pathInformer, output })),
 		);
 	});
 

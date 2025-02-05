@@ -6,7 +6,7 @@ import { PackagePageViewModel } from "../package-page-view-model";
 function createSutComponents() {
 	const domain = createDomain();
 
-	const { packagesCollection, fSTree } = domain.process(
+	const output = domain.process(
 		createProcessParams({
 			entries: [
 				createProgramFileEntry({
@@ -35,11 +35,10 @@ function createSutComponents() {
 	);
 
 	return new PackagePageViewModel({
-		fSTree,
+		output,
 		path: "/src/lib/a",
 		version: "999",
-		packagesCollection,
-		pathInformer: new PathInformer({ rootPath: "/report", fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fSTree: output.fSTree }),
 	});
 }
 

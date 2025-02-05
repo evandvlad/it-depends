@@ -1,16 +1,12 @@
-import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { FSTree } from "~/lib/fs-tree";
+import type { Output } from "~/domain";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 import type { LinkData, LinkTreeItem, LinkTreeNode } from "./values";
 
 interface Params {
 	version: string;
-	fSTree: FSTree;
 	pathInformer: PathInformer;
-	summary: Summary;
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
+	output: Output;
 }
 
 export class IndexPageViewModel extends PageViewModel {
@@ -24,62 +20,65 @@ export class IndexPageViewModel extends PageViewModel {
 	readonly numOfUnresolvedFullIE;
 	readonly numOfShadowedExportValues;
 
-	#modulesCollection;
-	#packagesCollection;
-	#summary;
-	#fSTree;
+	#output;
 	#pathInformer;
 
-	constructor({ version, pathInformer, fSTree, summary, modulesCollection, packagesCollection }: Params) {
-		super({ version, pathInformer, fSTree });
+	constructor({ version, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-		this.#modulesCollection = modulesCollection;
-		this.#packagesCollection = packagesCollection;
-		this.#summary = summary;
-		this.#fSTree = fSTree;
+		this.#output = output;
 		this.#pathInformer = pathInformer;
 
-		this.numOfModules = summary.languages.reduce((acc, num) => acc + num, 0);
-		this.numOfPackages = summary.packages;
+		this.numOfModules = this.#output.summary.languages.reduce((acc, num) => acc + num, 0);
+		this.numOfPackages = this.#output.summary.packages;
 
-		this.langCountList = summary.languages
+		this.langCountList = this.#output.summary.languages
 			.toEntries()
 			.map(([lang, value]) => ({ label: lang, value: value.toString() }));
 
-		this.numOfIncorrectImports = summary.incorrectImports.reduce((acc, importSources) => acc + importSources.length, 0);
-		this.numOfOutOfScopeImports = summary.outOfScopeImports.reduce((acc, importPaths) => acc + importPaths.length, 0);
+		this.numOfIncorrectImports = this.#output.summary.incorrectImports.reduce(
+			(acc, imports) => acc + imports.length,
+			0,
+		);
+		this.numOfOutOfScopeImports = this.#output.summary.outOfScopeImports.reduce(
+			(acc, importPaths) => acc + importPaths.length,
+			0,
+		);
 
-		this.numOfPossiblyUnusedExports = summary.possiblyUnusedExportValues.reduce(
+		this.numOfPossiblyUnusedExports = this.#output.summary.possiblyUnusedExportValues.reduce(
 			(acc, values) => acc + values.length,
 			0,
 		);
 
 		this.numOfUnresolvedFullIE =
-			summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0) +
-			summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
+			this.#output.summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0) +
+			this.#output.summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
 
-		this.numOfUnparsedDynamicImports = summary.unparsedDynamicImports.reduce((acc, value) => acc + value, 0);
-		this.numOfShadowedExportValues = summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
+		this.numOfUnparsedDynamicImports = this.#output.summary.unparsedDynamicImports.reduce(
+			(acc, value) => acc + value,
+			0,
+		);
+		this.numOfShadowedExportValues = this.#output.summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
 	}
 
 	collectModulesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
+		return this.#output.modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectModulesTree(this.#fSTree.shortRootPath, handler);
+		return this.#collectModulesTree(this.#output.fSTree.shortRootPath, handler);
 	}
 
 	collectPackagesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
+		return this.#output.packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
 	}
 
 	collectPackagesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectPackagesTree(this.#findRootPackages(this.#fSTree.shortRootPath), handler);
+		return this.#collectPackagesTree(this.#findRootPackages(this.#output.fSTree.shortRootPath), handler);
 	}
 
 	collectProcessorErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
-		return this.#summary.processorErrors.toEntries().map(([path, error]) =>
+		return this.#output.summary.processorErrors.toEntries().map(([path, error]) =>
 			handler({
 				error,
 				linkData: this.getModuleLinkData(path),
@@ -90,7 +89,7 @@ export class IndexPageViewModel extends PageViewModel {
 	collectIncorrectImports<T>(
 		handler: (params: { linkData: LinkData; importItems: Array<{ name: string; linkData: LinkData | null }> }) => T,
 	) {
-		return this.#summary.incorrectImports
+		return this.#output.summary.incorrectImports
 			.toEntries()
 			.toSorted((first, second) => second[1].length - first[1].length)
 			.map(([path, importSources]) => {
@@ -108,20 +107,20 @@ export class IndexPageViewModel extends PageViewModel {
 	collectPossiblyUnusedExports<T>(
 		handler: (params: { linkData: LinkData; values: string[]; isFullyUnused: boolean }) => T,
 	) {
-		return this.#summary.possiblyUnusedExportValues
+		return this.#output.summary.possiblyUnusedExportValues
 			.toEntries()
 			.toSorted((first, second) => second[1].length - first[1].length)
 			.map(([path, values]) =>
 				handler({
 					values,
 					linkData: this.getModuleLinkData(path),
-					isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
+					isFullyUnused: this.#output.modulesCollection.get(path).exports.size === values.length,
 				}),
 			);
 	}
 
 	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
-		return this.#summary.outOfScopeImports
+		return this.#output.summary.outOfScopeImports
 			.toEntries()
 			.toSorted((first, second) => second[1].length - first[1].length)
 			.map(([path, values]) =>
@@ -133,11 +132,11 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectEmptyExports<T>(handler: (linkData: LinkData) => T) {
-		return this.#summary.emptyExports.map((path) => handler(this.getModuleLinkData(path)));
+		return this.#output.summary.emptyExports.map((path) => handler(this.getModuleLinkData(path)));
 	}
 
 	collectUnparsedDynamicImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unparsedDynamicImports
+		return this.#output.summary.unparsedDynamicImports
 			.toEntries()
 			.toSorted((first, second) => second[1] - first[1])
 			.map(([path, num]) =>
@@ -149,7 +148,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectUnresolvedFullImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullImports
+		return this.#output.summary.unresolvedFullImports
 			.toEntries()
 			.toSorted((first, second) => second[1] - first[1])
 			.map(([path, num]) =>
@@ -161,7 +160,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectUnresolvedFullExports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullExports
+		return this.#output.summary.unresolvedFullExports
 			.toEntries()
 			.toSorted((first, second) => second[1] - first[1])
 			.map(([path, num]) =>
@@ -173,7 +172,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectShadowedExportValues<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.shadowedExportValues
+		return this.#output.summary.shadowedExportValues
 			.toEntries()
 			.toSorted((first, second) => second[1] - first[1])
 			.map(([path, num]) =>
@@ -185,11 +184,11 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	#collectModulesTree<T>(path: string, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
-		return this.#fSTree.getNodeChildrenByPath(path).map(({ path, name }) => {
+		return this.#output.fSTree.getNodeChildrenByPath(path).map(({ path, name }) => {
 			const content = handler(
-				this.#modulesCollection.has(path)
+				this.#output.modulesCollection.has(path)
 					? {
-							name: this.#modulesCollection.get(path).name,
+							name: this.#output.modulesCollection.get(path).name,
 							linkData: {
 								...this.getModuleLinkData(path),
 								content: name,
@@ -200,7 +199,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 			return {
 				content,
-				title: this.#fSTree.getShortPathByPath(path),
+				title: this.#output.fSTree.getShortPathByPath(path),
 				children: this.#collectModulesTree<T>(path, handler),
 			};
 		});
@@ -208,7 +207,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 	#collectPackagesTree<T>(paths: readonly string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
-			const pack = this.#packagesCollection.get(path);
+			const pack = this.#output.packagesCollection.get(path);
 
 			return {
 				content: handler({
@@ -219,20 +218,20 @@ export class IndexPageViewModel extends PageViewModel {
 						content: pack.name,
 					},
 				}),
-				title: this.#fSTree.getShortPathByPath(path),
+				title: this.#output.fSTree.getShortPathByPath(path),
 				children: this.#collectPackagesTree<T>(pack.packages, handler),
 			};
 		});
 	}
 
 	#findRootPackages(path: string): string[] {
-		const node = this.#fSTree.getNodeByPath(path);
+		const node = this.#output.fSTree.getNodeByPath(path);
 
-		if (this.#packagesCollection.has(node.path)) {
+		if (this.#output.packagesCollection.has(node.path)) {
 			return [node.path];
 		}
 
-		return this.#fSTree
+		return this.#output.fSTree
 			.getNodeChildrenByPath(path)
 			.filter(({ isFile }) => !isFile)
 			.flatMap((child) => this.#findRootPackages(child.path));

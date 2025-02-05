@@ -2,7 +2,8 @@ import { ConfLoader } from "~/adapters/conf-loader";
 import { FSys } from "~/adapters/fsys";
 import { ProgramFileProcessor } from "~/adapters/program-file-processor";
 import { Terminal } from "~/adapters/terminal";
-import { Application, type GlobalEventBusSubscriber, type Result } from "~/application";
+import { Application, type GlobalEventBusSubscriber } from "~/application";
+import type { Output } from "~/domain";
 import { AppError } from "~/lib/errors";
 import type { Options } from "~/values";
 
@@ -25,7 +26,7 @@ export class ItDepends implements GlobalEventBusSubscriber {
 		this.on = this.#application.on;
 	}
 
-	run = (): Promise<Result> => {
+	run = (): Promise<Output> => {
 		return this.#application.run();
 	};
 }

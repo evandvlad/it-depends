@@ -6,7 +6,7 @@ import { generateReport } from "..";
 function createSutComponents() {
 	const domain = createDomain();
 
-	const { packagesCollection, fSTree, summary, modulesCollection } = domain.process(
+	const output = domain.process(
 		createProcessParams({
 			entries: [
 				createProgramFileEntry({
@@ -54,10 +54,7 @@ function createSutComponents() {
 			copy: jest.fn(() => Promise.resolve()),
 			writeFile: jest.fn<(path: string, html: string) => Promise<void>>(() => Promise.resolve()),
 		},
-		modulesCollection,
-		packagesCollection,
-		fSTree,
-		summary,
+		output,
 	};
 
 	const instance = () => generateReport(params);

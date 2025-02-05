@@ -7,7 +7,7 @@ import { IndexPageViewModel } from "../index-page-view-model";
 function createSutComponents() {
 	const domain = createDomain();
 
-	const { modulesCollection, packagesCollection, fSTree, summary } = domain.process(
+	const output = domain.process(
 		createProcessParams({
 			entries: [
 				createProgramFileEntry({
@@ -41,12 +41,9 @@ function createSutComponents() {
 	);
 
 	return new IndexPageViewModel({
-		fSTree,
+		output,
 		version: "999",
-		modulesCollection,
-		packagesCollection,
-		summary,
-		pathInformer: new PathInformer({ rootPath: "/report", fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fSTree: output.fSTree }),
 	});
 }
 

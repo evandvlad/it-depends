@@ -1,4 +1,4 @@
-import { Domain, type ModulesCollection, type PackagesCollection, type Summary } from "~/domain";
+import { Domain, type Output } from "~/domain";
 import { EventBus } from "~/lib/event-bus";
 import type { Options } from "~/values";
 import { Logger, type TerminalPort } from "./logger";
@@ -23,12 +23,6 @@ import type { GlobalEventBusRecord, GlobalEventBusSubscriber } from "./values";
 interface FSysPort extends SettingsProviderFSysPort, ProgramFilesLoaderFSysPort, ReportGeneratorFSysPort {}
 
 export type { GlobalEventBusSubscriber };
-
-export interface Result {
-	summary: Summary;
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
-}
 
 interface Params {
 	options: Options;
@@ -60,7 +54,7 @@ export class Application {
 		this.on = this.#eventBus.on;
 	}
 
-	async run(): Promise<Result> {
+	async run(): Promise<Output> {
 		let logger: Logger | null = null;
 
 		try {
@@ -98,14 +92,11 @@ export class Application {
 
 			const programFileEntries = programFileEntriesCollector.collect(programFiles);
 
-			const { modulesCollection, packagesCollection, summary, fSTree } = domain.process(programFileEntries);
+			const output = domain.process(programFileEntries);
 
 			if (settings.report) {
 				await generateReport({
-					summary,
-					fSTree,
-					modulesCollection,
-					packagesCollection,
+					output,
 					fSysPort: this.#fSysPort,
 					settings: settings.report,
 					dispatcherPort: this.#eventBus as ReportGeneratorDispatcherPort,
@@ -114,7 +105,7 @@ export class Application {
 
 			this.#eventBus.dispatch("app:finished");
 
-			return { modulesCollection, packagesCollection, summary };
+			return output;
 		} catch (e) {
 			logger?.acceptAppLevelError(e as Error);
 			throw e;

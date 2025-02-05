@@ -1,23 +1,23 @@
+import type { Output } from "~/domain";
 import { joinPaths } from "~/lib/fs-path";
-import type { FSTree } from "~/lib/fs-tree";
 import type { PathInformer } from "../path-informer";
 import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
 	pathInformer: PathInformer;
-	fSTree: FSTree;
+	output: Output;
 }
 
 export abstract class PageViewModel {
 	readonly version;
 	readonly layoutParams;
 
-	#fSTree;
+	#output;
 	#pathInformer;
 
-	constructor({ version, pathInformer, fSTree }: Params) {
-		this.#fSTree = fSTree;
+	constructor({ version, pathInformer, output }: Params) {
+		this.#output = output;
 		this.#pathInformer = pathInformer;
 
 		this.version = version;
@@ -32,14 +32,14 @@ export abstract class PageViewModel {
 	protected getModuleLinkData(path: string): LinkData {
 		return {
 			url: this.#pathInformer.getModuleHtmlPagePathByRealPath(path),
-			content: this.#fSTree.getShortPathByPath(path),
+			content: this.#output.fSTree.getShortPathByPath(path),
 		};
 	}
 
 	protected getPackageLinkData(path: string): LinkData {
 		return {
 			url: this.#pathInformer.getPackageHtmlPagePathByRealPath(path),
-			content: this.#fSTree.getShortPathByPath(path),
+			content: this.#output.fSTree.getShortPathByPath(path),
 		};
 	}
 }
