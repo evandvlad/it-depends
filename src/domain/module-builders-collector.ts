@@ -1,16 +1,13 @@
 import { assert, assertNever } from "~/lib/errors";
-import type { Rec } from "~/lib/rec";
-import type { ImportSourceResolver } from "../program-file-expert";
-import { type IEItem, type ImportData, type ProgramFileEntries, ieValueAll } from "../values";
 import { ModuleBuilder } from "./module-builder";
-
-type BuildersCollection = Rec<string, ModuleBuilder>;
+import type { ImportSourceResolver } from "./program-file-expert";
+import { type IEItem, type ModuleBuildersCollection, type ProgramFileEntries, ieValueAll } from "./values";
 
 interface Params {
 	importSourceResolver: ImportSourceResolver;
 }
 
-export class ModulesCollector {
+export class ModuleBuildersCollector {
 	#importSourceResolver;
 
 	constructor({ importSourceResolver }: Params) {
@@ -30,13 +27,13 @@ export class ModulesCollector {
 
 		const enteredFilePaths = new Set<string>();
 
-		return buildersCollection.mapValue((builder) => {
+		buildersCollection.forEach((builder) => {
 			this.#tryToResolveFullExports(builder, buildersCollection, enteredFilePaths);
 			this.#tryToResolveFullImports(builder, buildersCollection);
 			this.#bindExportValues(builder, buildersCollection);
-
-			return builder.build();
 		});
+
+		return buildersCollection;
 	}
 
 	#processIEItem(builder: ModuleBuilder, ieItem: IEItem) {
@@ -135,7 +132,7 @@ export class ModulesCollector {
 
 	#tryToResolveFullExports(
 		builder: ModuleBuilder,
-		buildersCollection: BuildersCollection,
+		buildersCollection: ModuleBuildersCollection,
 		enteredFilePaths: Set<string>,
 	) {
 		if (enteredFilePaths.has(builder.path)) {
@@ -143,8 +140,6 @@ export class ModulesCollector {
 		}
 
 		enteredFilePaths.add(builder.path);
-
-		const resolvedFullExports: ImportData[] = [];
 
 		builder.getInScopeUnresolvedFullExports().forEach((importData) => {
 			const sourceBuilder = buildersCollection.get(importData.filePath!);
@@ -166,15 +161,11 @@ export class ModulesCollector {
 				builder.setShadowExportValue(exportValue);
 			});
 
-			resolvedFullExports.push(importData);
+			builder.removeResolvedFullExport(importData);
 		});
-
-		builder.removeResolvedFullExports(resolvedFullExports);
 	}
 
-	#tryToResolveFullImports(builder: ModuleBuilder, buildersCollection: BuildersCollection) {
-		const resolvedFullImports: ImportData[] = [];
-
+	#tryToResolveFullImports(builder: ModuleBuilder, buildersCollection: ModuleBuildersCollection) {
 		builder.getInScopeUnresolvedFullImports().forEach((importData) => {
 			const sourceBuilder = buildersCollection.get(importData.filePath!);
 
@@ -183,14 +174,11 @@ export class ModulesCollector {
 			}
 
 			builder.replaceImportValues(importData, sourceBuilder.getExportValues());
-
-			resolvedFullImports.push(importData);
+			builder.removeResolvedFullImport(importData);
 		});
-
-		builder.removeResolvedFullImports(resolvedFullImports);
 	}
 
-	#bindExportValues(builder: ModuleBuilder, buildersCollection: BuildersCollection) {
+	#bindExportValues(builder: ModuleBuilder, buildersCollection: ModuleBuildersCollection) {
 		builder.getInScopeImports().forEach((importData) => {
 			const sourceBuilder = buildersCollection.get(importData.filePath!);
 

@@ -1,5 +1,6 @@
 import type { Rec } from "~/lib/rec";
 import type { Module } from "./module";
+import type { ModuleBuilder } from "./module-builder";
 import type { Package } from "./package";
 
 export type Language = "typescript" | "javascript";
@@ -27,12 +28,13 @@ export interface ImportData {
 	importPath: string;
 	filePath: string | null;
 	isDynamic: boolean;
-	isRelative: boolean;
 	isAlias: boolean;
 	values: string[];
 }
 
 export type Exports = Rec<string, string[]>;
+
+export type ModuleBuildersCollection = Rec<string, ModuleBuilder>;
 
 export type ModulesCollection = Rec<string, Module>;
 

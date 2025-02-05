@@ -10,7 +10,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts"],
 			filePath: "/dir/index.ts",
 			importPath: "../out-of-scope",
-			result: { filePath: null, isRelative: true, isAlias: false },
+			result: { filePath: null, isAlias: false },
 		},
 
 		{
@@ -18,7 +18,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/index.ts"],
 			filePath: "C:/dir/index.ts",
 			importPath: "out-of-scope",
-			result: { filePath: null, isRelative: false, isAlias: false },
+			result: { filePath: null, isAlias: false },
 		},
 
 		{
@@ -29,7 +29,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "/dir/index.ts",
 			importPath: "~/dir2/foo",
-			result: { filePath: null, isRelative: false, isAlias: true },
+			result: { filePath: null, isAlias: true },
 		},
 
 		{
@@ -40,7 +40,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "C:/dir/file1.tsx",
 			importPath: "~/file2",
-			result: { filePath: "C:/dir/file2.jsx", isRelative: false, isAlias: true },
+			result: { filePath: "C:/dir/file2.jsx", isAlias: true },
 		},
 
 		{
@@ -51,7 +51,7 @@ describe("import-source-resolver", () => {
 			},
 			filePath: "C:/dir/file1.tsx",
 			importPath: "~",
-			result: { filePath: "C:/dir/index.jsx", isRelative: false, isAlias: true },
+			result: { filePath: "C:/dir/index.jsx", isAlias: true },
 		},
 
 		{
@@ -59,7 +59,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.js"],
 			filePath: "C:/dir/file1.ts",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.js", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.js", isAlias: false },
 		},
 
 		{
@@ -67,7 +67,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts", "/dir/file.ts"],
 			filePath: "/dir/file.ts",
 			importPath: ".",
-			result: { filePath: "/dir/index.ts", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/index.ts", isAlias: false },
 		},
 
 		{
@@ -75,7 +75,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/index.ts", "/dir/file.ts"],
 			filePath: "/dir/file.ts",
 			importPath: "./index",
-			result: { filePath: "/dir/index.ts", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/index.ts", isAlias: false },
 		},
 
 		{
@@ -83,7 +83,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/file.d.ts"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2/file",
-			result: { filePath: "C:/dir/dir2/file.d.ts", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/dir2/file.d.ts", isAlias: false },
 		},
 
 		{
@@ -91,7 +91,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/index.tsx"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2",
-			result: { filePath: "C:/dir/dir2/index.tsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/dir2/index.tsx", isAlias: false },
 		},
 
 		{
@@ -99,7 +99,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file.ts", "C:/dir/dir2/index.tsx"],
 			filePath: "C:/dir/file.ts",
 			importPath: "./dir2/index",
-			result: { filePath: "C:/dir/dir2/index.tsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/dir2/index.tsx", isAlias: false },
 		},
 
 		{
@@ -107,7 +107,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/dir2/file.ts",
 			importPath: "../file",
-			result: { filePath: "/dir/file.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/file.jsx", isAlias: false },
 		},
 
 		{
@@ -115,7 +115,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/file.ts", "C:/dir/index.jsx"],
 			filePath: "C:/dir/dir2/file.ts",
 			importPath: "..",
-			result: { filePath: "C:/dir/index.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/index.jsx", isAlias: false },
 		},
 
 		{
@@ -123,7 +123,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/file.ts", "/dir/index.jsx"],
 			filePath: "/dir/dir2/file.ts",
 			importPath: "../index",
-			result: { filePath: "/dir/index.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/index.jsx", isAlias: false },
 		},
 
 		{
@@ -131,7 +131,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4/file",
-			result: { filePath: "/dir/dir2/dir3/dir4/file.ts", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/dir2/dir3/dir4/file.ts", isAlias: false },
 		},
 
 		{
@@ -139,7 +139,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/index.ts", "C:/dir/file.jsx"],
 			filePath: "C:/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4",
-			result: { filePath: "C:/dir/dir2/dir3/dir4/index.ts", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/dir2/dir3/dir4/index.ts", isAlias: false },
 		},
 
 		{
@@ -147,7 +147,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/index.ts", "/dir/file.jsx"],
 			filePath: "/dir/file.jsx",
 			importPath: "./dir2/dir3/dir4/index",
-			result: { filePath: "/dir/dir2/dir3/dir4/index.ts", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/dir2/dir3/dir4/index.ts", isAlias: false },
 		},
 
 		{
@@ -155,7 +155,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/file.ts", "C:/dir/file.jsx"],
 			filePath: "C:/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../file",
-			result: { filePath: "C:/dir/file.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file.jsx", isAlias: false },
 		},
 
 		{
@@ -163,7 +163,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/index.jsx"],
 			filePath: "/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../..",
-			result: { filePath: "/dir/index.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/index.jsx", isAlias: false },
 		},
 
 		{
@@ -171,7 +171,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/dir2/dir3/dir4/file.ts", "C:/dir/index.jsx"],
 			filePath: "C:/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../index",
-			result: { filePath: "C:/dir/index.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/index.jsx", isAlias: false },
 		},
 
 		{
@@ -179,7 +179,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["/dir/dir2/dir3/dir4/file.ts", "/dir/file.jsx"],
 			filePath: "/dir/dir2/dir3/dir4/file.ts",
 			importPath: "../../../../dir/file",
-			result: { filePath: "/dir/file.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "/dir/file.jsx", isAlias: false },
 		},
 
 		{
@@ -194,7 +194,7 @@ describe("import-source-resolver", () => {
 			],
 			filePath: "C:/dir/file1.ts",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.ts", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.ts", isAlias: false },
 		},
 
 		{
@@ -202,7 +202,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.js", "C:/dir/file2.tsx", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.tsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.tsx", isAlias: false },
 		},
 
 		{
@@ -210,7 +210,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.js", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.js", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.js", isAlias: false },
 		},
 
 		{
@@ -218,7 +218,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.jsx", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.jsx", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.jsx", isAlias: false },
 		},
 
 		{
@@ -226,7 +226,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.d.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.d.ts", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.d.ts", isAlias: false },
 		},
 
 		{
@@ -234,7 +234,7 @@ describe("import-source-resolver", () => {
 			filePaths: ["C:/dir/file1.ts", "C:/dir/file2.d.ts", "C:/dir/file2/index.ts"],
 			filePath: "C:/dir/file1.tsx",
 			importPath: "./file2",
-			result: { filePath: "C:/dir/file2.d.ts", isRelative: true, isAlias: false },
+			result: { filePath: "C:/dir/file2.d.ts", isAlias: false },
 		},
 	])("$name", ({ filePaths, filePath, aliases = {}, importPath, result }) => {
 		const importSourceResolver = new ImportSourceResolver({

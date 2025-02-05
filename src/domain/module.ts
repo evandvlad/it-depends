@@ -4,6 +4,7 @@ import type { Exports, ImportData, Language } from "./values";
 
 interface Params {
 	path: string;
+	package: string | null;
 	language: Language;
 	content: string;
 	imports: ImportData[];
@@ -17,6 +18,7 @@ interface Params {
 export class Module {
 	readonly path;
 	readonly name;
+	readonly package;
 	readonly language;
 	readonly content;
 	readonly imports;
@@ -26,10 +28,9 @@ export class Module {
 	readonly shadowedExportValues;
 	readonly unparsedDynamicImports;
 
-	#package: string | null = null;
-
 	constructor({
 		path,
+		package: pack,
 		language,
 		content,
 		imports,
@@ -40,22 +41,15 @@ export class Module {
 		unparsedDynamicImports,
 	}: Params) {
 		this.path = path;
+		this.package = pack;
 		this.name = getName(path);
 		this.language = language;
 		this.content = content;
-		this.imports = imports.map((importData) => new Import(importData));
 		this.exports = exports;
+		this.imports = imports.map((importData) => new Import(importData));
 		this.unresolvedFullImports = unresolvedFullImports.map((importData) => new Import(importData));
 		this.unresolvedFullExports = unresolvedFullExports.map((importData) => new Import(importData));
 		this.shadowedExportValues = shadowedExportValues;
 		this.unparsedDynamicImports = unparsedDynamicImports;
-	}
-
-	get package() {
-		return this.#package;
-	}
-
-	setPackage(path: string) {
-		this.#package = path;
 	}
 }

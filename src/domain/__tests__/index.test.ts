@@ -36,13 +36,11 @@ function createImportData({
 	importPath,
 	filePath = null,
 	isDynamic = false,
-	isRelative = true,
 	isAlias = false,
 	values = [],
 }: {
 	importPath: string;
 	isDynamic?: boolean;
-	isRelative?: boolean;
 	isAlias?: boolean;
 	filePath?: string | null;
 	values?: string[];
@@ -51,7 +49,6 @@ function createImportData({
 		importPath,
 		filePath,
 		isDynamic,
-		isRelative,
 		isAlias,
 		values,
 	};
@@ -96,15 +93,12 @@ function createModulesCollection(
 					content,
 					imports,
 					exports,
+					package: pack,
 					unparsedDynamicImports,
 					unresolvedFullExports,
 					unresolvedFullImports,
 					shadowedExportValues,
 				});
-
-				if (pack) {
-					module.setPackage(pack);
-				}
 
 				return [module.path, module];
 			},

@@ -1,26 +1,26 @@
 import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
 import type { ProgramFileExpert } from "../program-file-expert";
-import type { ModulesCollection } from "../values";
+import type { ModuleBuildersCollection } from "../values";
 import { PackageBuilder } from "./package-builder";
 
 interface Params {
 	fSTree: FSTree;
 	programFileExpert: ProgramFileExpert;
-	modulesCollection: ModulesCollection;
+	moduleBuildersCollection: ModuleBuildersCollection;
 }
 
 type PackageBuildersCollection = Rec<string, PackageBuilder>;
 
 export class PackagesCollector {
 	#fSTree;
-	#modulesCollection;
 	#programFileExpert;
+	#moduleBuildersCollection;
 
-	constructor({ fSTree, programFileExpert, modulesCollection }: Params) {
+	constructor({ fSTree, programFileExpert, moduleBuildersCollection }: Params) {
 		this.#fSTree = fSTree;
 		this.#programFileExpert = programFileExpert;
-		this.#modulesCollection = modulesCollection;
+		this.#moduleBuildersCollection = moduleBuildersCollection;
 	}
 
 	collect() {
@@ -65,7 +65,7 @@ export class PackagesCollector {
 		this.#fSTree.getNodeChildrenByPath(currentPath).forEach(({ path, isFile }) => {
 			if (isFile) {
 				builder.addModule(path);
-				this.#modulesCollection.get(path).setPackage(builder.path);
+				this.#moduleBuildersCollection.get(path).setPackage(builder.path);
 				return;
 			}
 

@@ -1,6 +1,6 @@
 import { Rec } from "~/lib/rec";
-import { Module } from "../module";
-import type { ImportData, Language } from "../values";
+import { Module } from "./module";
+import type { ImportData, Language } from "./values";
 
 interface Params {
 	path: string;
@@ -13,6 +13,7 @@ export class ModuleBuilder {
 
 	#language;
 	#content;
+	#package: string | null = null;
 	#imports: ImportData[] = [];
 	#unresolvedFullImports: ImportData[] = [];
 	#unresolvedFullExports: ImportData[] = [];
@@ -24,6 +25,10 @@ export class ModuleBuilder {
 		this.path = path;
 		this.#language = language;
 		this.#content = content;
+	}
+
+	setPackage(path: string) {
+		this.#package = path;
 	}
 
 	addImport(importData: ImportData) {
@@ -102,12 +107,12 @@ export class ModuleBuilder {
 		importData.values = exportValues;
 	}
 
-	removeResolvedFullExports(importDataList: ImportData[]) {
-		this.#unresolvedFullExports = this.#unresolvedFullExports.filter((item) => !importDataList.includes(item));
+	removeResolvedFullExport(importData: ImportData) {
+		this.#unresolvedFullExports = this.#unresolvedFullExports.filter((item) => item !== importData);
 	}
 
-	removeResolvedFullImports(importDataList: ImportData[]) {
-		this.#unresolvedFullImports = this.#unresolvedFullImports.filter((item) => !importDataList.includes(item));
+	removeResolvedFullImport(importData: ImportData) {
+		this.#unresolvedFullImports = this.#unresolvedFullImports.filter((item) => item !== importData);
 	}
 
 	setShadowExportValue(value: string) {
@@ -119,6 +124,7 @@ export class ModuleBuilder {
 	build() {
 		return new Module({
 			path: this.path,
+			package: this.#package,
 			language: this.#language,
 			content: this.#content,
 			imports: this.#imports,
