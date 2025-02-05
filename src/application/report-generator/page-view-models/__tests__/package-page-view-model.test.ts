@@ -38,7 +38,7 @@ function createSutComponents() {
 		output,
 		path: "/src/lib/a",
 		version: "999",
-		pathInformer: new PathInformer({ rootPath: "/report", fSTree: output.fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fs: output.fs }),
 	});
 }
 

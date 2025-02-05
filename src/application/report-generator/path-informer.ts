@@ -2,8 +2,8 @@ import { joinPaths } from "~/lib/fs-path";
 
 interface Params {
 	rootPath: string;
-	fSTree: {
-		getShortPathByPath: (path: string) => string;
+	fs: {
+		getShortPath: (path: string) => string;
 	};
 }
 
@@ -12,12 +12,12 @@ export class PathInformer {
 	readonly assetsPath;
 	readonly indexHtmlPagePath;
 
-	#fSTree;
+	#fs;
 	#modulesFolderPath;
 	#packagesFolderPath;
 
-	constructor({ rootPath, fSTree }: Params) {
-		this.#fSTree = fSTree;
+	constructor({ rootPath, fs }: Params) {
+		this.#fs = fs;
 
 		this.rootPath = rootPath;
 		this.assetsPath = joinPaths(this.rootPath, "assets");
@@ -31,12 +31,12 @@ export class PathInformer {
 	}
 
 	getModuleHtmlPagePathByRealPath(path: string) {
-		const shortPath = this.#fSTree.getShortPathByPath(path);
+		const shortPath = this.#fs.getShortPath(path);
 		return joinPaths(this.#modulesFolderPath, `${shortPath}.html`);
 	}
 
 	getPackageHtmlPagePathByRealPath(path: string) {
-		const shortPath = this.#fSTree.getShortPathByPath(path);
+		const shortPath = this.#fs.getShortPath(path);
 		return joinPaths(this.#packagesFolderPath, `${shortPath}.html`);
 	}
 }

@@ -16,7 +16,7 @@ interface Params {
 export type { ReportSettings, DispatcherPort, FSysPort };
 
 export async function generateReport({ settings, dispatcherPort, fSysPort, output }: Params) {
-	const pathInformer = new PathInformer({ rootPath: settings.path, fSTree: output.fSTree });
+	const pathInformer = new PathInformer({ rootPath: settings.path, fs: output.fs });
 
 	dispatcherPort.dispatch("report-generation:started");
 
@@ -25,14 +25,14 @@ export async function generateReport({ settings, dispatcherPort, fSysPort, outpu
 
 	htmlPages.set(pathInformer.indexHtmlPagePath, indexPage(new IndexPageViewModel({ version, pathInformer, output })));
 
-	output.modulesCollection.forEach(({ path }) => {
+	output.modules.getAllModules().forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
 			modulePage(new ModulePageViewModel({ version, path, pathInformer, output })),
 		);
 	});
 
-	output.packagesCollection.forEach(({ path }) => {
+	output.packages.getAllPackages().forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getPackageHtmlPagePathByRealPath(path),
 			packagePage(new PackagePageViewModel({ version, path, pathInformer, output })),

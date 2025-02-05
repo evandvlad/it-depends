@@ -99,20 +99,13 @@ export class ModuleBuilder {
 		return this.#unresolvedFullImports.filter((importData) => this.#isInScopeImport(importData));
 	}
 
-	hasOutOfScopeUnresolvedFullExports() {
-		return this.#unresolvedFullExports.some((importData) => !this.#isInScopeImport(importData));
-	}
-
-	replaceImportValues(importData: ImportData, exportValues: string[]) {
-		importData.values = exportValues;
+	removeResolvedFullImport(importData: ImportData, exportValues: string[]) {
+		this.#unresolvedFullImports = this.#unresolvedFullImports.filter((item) => item !== importData);
+		this.addImport({ ...importData, values: exportValues });
 	}
 
 	removeResolvedFullExport(importData: ImportData) {
 		this.#unresolvedFullExports = this.#unresolvedFullExports.filter((item) => item !== importData);
-	}
-
-	removeResolvedFullImport(importData: ImportData) {
-		this.#unresolvedFullImports = this.#unresolvedFullImports.filter((item) => item !== importData);
 	}
 
 	setShadowExportValue(value: string) {

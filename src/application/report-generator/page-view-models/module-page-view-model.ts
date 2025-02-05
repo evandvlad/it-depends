@@ -31,10 +31,10 @@ export class ModulePageViewModel extends PageViewModel {
 
 		this.#output = output;
 		this.#pathInformer = pathInformer;
-		this.#module = this.#output.modulesCollection.get(path);
+		this.#module = this.#output.modules.getModule(path);
 
 		this.fullPath = path;
-		this.shortPath = this.#output.fSTree.getShortPathByPath(path);
+		this.shortPath = this.#output.fs.getShortPath(path);
 		this.language = this.#module.language;
 
 		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;

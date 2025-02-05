@@ -148,7 +148,7 @@ export class ModuleBuildersCollector {
 				this.#tryToResolveFullExports(sourceBuilder, buildersCollection, enteredFilePaths);
 			}
 
-			if (!this.#canTransferFullExportValues(builder, sourceBuilder)) {
+			if (sourceBuilder.hasUnresolvedFullExports()) {
 				return;
 			}
 
@@ -173,8 +173,7 @@ export class ModuleBuildersCollector {
 				return;
 			}
 
-			builder.replaceImportValues(importData, sourceBuilder.getExportValues());
-			builder.removeResolvedFullImport(importData);
+			builder.removeResolvedFullImport(importData, sourceBuilder.getExportValues());
 		});
 	}
 
@@ -186,13 +185,5 @@ export class ModuleBuildersCollector {
 				sourceBuilder.attachPathToExportValue(value, builder.path);
 			});
 		});
-	}
-
-	#canTransferFullExportValues(currentBuilder: ModuleBuilder, sourceBuilder: ModuleBuilder) {
-		if (currentBuilder.hasOutOfScopeUnresolvedFullExports()) {
-			return false;
-		}
-
-		return !sourceBuilder.hasUnresolvedFullExports();
 	}
 }

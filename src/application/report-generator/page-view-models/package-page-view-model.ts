@@ -21,10 +21,10 @@ export class PackagePageViewModel extends PageViewModel {
 	constructor({ version, path, pathInformer, output }: Params) {
 		super({ version, pathInformer, output });
 
-		this.#package = output.packagesCollection.get(path);
+		this.#package = output.packages.getPackage(path);
 
 		this.fullPath = path;
-		this.shortPath = output.fSTree.getShortPathByPath(path);
+		this.shortPath = output.fs.getShortPath(path);
 		this.entryPointLinkData = this.getModuleLinkData(this.#package.entryPoint);
 		this.parentPackageLinkData = this.#package.parent ? this.getPackageLinkData(this.#package.parent) : null;
 	}

@@ -62,19 +62,19 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectModulesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#output.modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
+		return this.#output.modules.getAllModules().map(({ path }) => handler(this.getModuleLinkData(path)));
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectModulesTree(this.#output.fSTree.shortRootPath, handler);
+		return this.#collectModulesTree(null, handler);
 	}
 
 	collectPackagesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#output.packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
+		return this.#output.packages.getAllPackages().map(({ path }) => handler(this.getPackageLinkData(path)));
 	}
 
 	collectPackagesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectPackagesTree(this.#findRootPackages(this.#output.fSTree.shortRootPath), handler);
+		return this.#collectPackagesTree(this.#findRootPackages(null), handler);
 	}
 
 	collectProcessorErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
@@ -114,7 +114,7 @@ export class IndexPageViewModel extends PageViewModel {
 				handler({
 					values,
 					linkData: this.getModuleLinkData(path),
-					isFullyUnused: this.#output.modulesCollection.get(path).exports.size === values.length,
+					isFullyUnused: this.#output.modules.getModule(path).exports.size === values.length,
 				}),
 			);
 	}
@@ -183,12 +183,12 @@ export class IndexPageViewModel extends PageViewModel {
 			);
 	}
 
-	#collectModulesTree<T>(path: string, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
-		return this.#output.fSTree.getNodeChildrenByPath(path).map(({ path, name }) => {
+	#collectModulesTree<T>(path: string | null, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+		return this.#output.fs.getNodeChildren(path).map(({ path, name }) => {
 			const content = handler(
-				this.#output.modulesCollection.has(path)
+				this.#output.modules.hasModule(path)
 					? {
-							name: this.#output.modulesCollection.get(path).name,
+							name: this.#output.modules.getModule(path).name,
 							linkData: {
 								...this.getModuleLinkData(path),
 								content: name,
@@ -199,7 +199,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 			return {
 				content,
-				title: this.#output.fSTree.getShortPathByPath(path),
+				title: this.#output.fs.getShortPath(path),
 				children: this.#collectModulesTree<T>(path, handler),
 			};
 		});
@@ -207,7 +207,7 @@ export class IndexPageViewModel extends PageViewModel {
 
 	#collectPackagesTree<T>(paths: readonly string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
-			const pack = this.#output.packagesCollection.get(path);
+			const pack = this.#output.packages.getPackage(path);
 
 			return {
 				content: handler({
@@ -218,21 +218,21 @@ export class IndexPageViewModel extends PageViewModel {
 						content: pack.name,
 					},
 				}),
-				title: this.#output.fSTree.getShortPathByPath(path),
+				title: this.#output.fs.getShortPath(path),
 				children: this.#collectPackagesTree<T>(pack.packages, handler),
 			};
 		});
 	}
 
-	#findRootPackages(path: string): string[] {
-		const node = this.#output.fSTree.getNodeByPath(path);
+	#findRootPackages(path: string | null): string[] {
+		const node = this.#output.fs.getNode(path);
 
-		if (this.#output.packagesCollection.has(node.path)) {
+		if (this.#output.packages.hasPackage(node.path)) {
 			return [node.path];
 		}
 
-		return this.#output.fSTree
-			.getNodeChildrenByPath(path)
+		return this.#output.fs
+			.getNodeChildren(path)
 			.filter(({ isFile }) => !isFile)
 			.flatMap((child) => this.#findRootPackages(child.path));
 	}

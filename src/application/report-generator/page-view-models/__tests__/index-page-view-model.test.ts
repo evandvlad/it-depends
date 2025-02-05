@@ -43,7 +43,7 @@ function createSutComponents() {
 	return new IndexPageViewModel({
 		output,
 		version: "999",
-		pathInformer: new PathInformer({ rootPath: "/report", fSTree: output.fSTree }),
+		pathInformer: new PathInformer({ rootPath: "/report", fs: output.fs }),
 	});
 }
 

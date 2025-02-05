@@ -32,14 +32,14 @@ export abstract class PageViewModel {
 	protected getModuleLinkData(path: string): LinkData {
 		return {
 			url: this.#pathInformer.getModuleHtmlPagePathByRealPath(path),
-			content: this.#output.fSTree.getShortPathByPath(path),
+			content: this.#output.fs.getShortPath(path),
 		};
 	}
 
 	protected getPackageLinkData(path: string): LinkData {
 		return {
 			url: this.#pathInformer.getPackageHtmlPagePathByRealPath(path),
-			content: this.#output.fSTree.getShortPathByPath(path),
+			content: this.#output.fs.getShortPath(path),
 		};
 	}
 }
