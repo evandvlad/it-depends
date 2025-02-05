@@ -70,10 +70,10 @@ export class Domain {
 			fSTree,
 			modulesCollection,
 			packagesCollection,
-			processorErrors,
 		});
+
 		const summary = summaryCollector.collect();
 
-		return new Output({ modulesCollection, packagesCollection, summary, fSTree });
+		return new Output({ processorErrors, modulesCollection, packagesCollection, summary, fSTree });
 	}
 }

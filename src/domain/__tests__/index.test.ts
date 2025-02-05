@@ -116,7 +116,6 @@ function createSummary(parts: Partial<Summary>): Summary {
 		emptyExports: [],
 		possiblyUnusedExportValues: new Rec(),
 		incorrectImports: new Rec(),
-		processorErrors: new Rec(),
 		...parts,
 	};
 }

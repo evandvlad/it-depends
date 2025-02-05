@@ -78,7 +78,7 @@ export class IndexPageViewModel extends PageViewModel {
 	}
 
 	collectProcessorErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
-		return this.#output.summary.processorErrors.toEntries().map(([path, error]) =>
+		return this.#output.processorErrors.toEntries().map(([path, error]) =>
 			handler({
 				error,
 				linkData: this.getModuleLinkData(path),

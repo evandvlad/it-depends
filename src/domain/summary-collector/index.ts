@@ -2,14 +2,13 @@ import { Rec } from "~/lib/rec";
 import type { FSTree } from "../fs-tree";
 import type { Import } from "../import";
 import type { Module } from "../module";
-import type { Language, ModulesCollection, PackagesCollection, ProcessorErrors } from "../values";
+import type { Language, ModulesCollection, PackagesCollection } from "../values";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {
 	fSTree: FSTree;
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
-	processorErrors: ProcessorErrors;
 }
 
 export interface Summary {
@@ -23,7 +22,6 @@ export interface Summary {
 	possiblyUnusedExportValues: Rec<string, string[]>;
 	incorrectImports: Rec<string, Import[]>;
 	emptyExports: string[];
-	processorErrors: ProcessorErrors;
 }
 
 export class SummaryCollector {
@@ -45,14 +43,12 @@ export class SummaryCollector {
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
 		incorrectImports: new Rec(),
-		processorErrors: new Rec(),
 	};
 
-	constructor({ fSTree, packagesCollection, modulesCollection, processorErrors }: Params) {
+	constructor({ fSTree, packagesCollection, modulesCollection }: Params) {
 		this.#packagesCollection = packagesCollection;
 		this.#modulesCollection = modulesCollection;
 		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fSTree, packagesCollection });
-		this.#summary.processorErrors = processorErrors;
 	}
 
 	collect() {

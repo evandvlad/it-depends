@@ -1,8 +1,9 @@
 import type { FSTree } from "./fs-tree";
 import type { Summary } from "./summary-collector";
-import type { ModulesCollection, PackagesCollection } from "./values";
+import type { ModulesCollection, PackagesCollection, ProcessorErrors } from "./values";
 
 interface Params {
+	processorErrors: ProcessorErrors;
 	modulesCollection: ModulesCollection;
 	packagesCollection: PackagesCollection;
 	summary: Summary;
@@ -10,12 +11,14 @@ interface Params {
 }
 
 export class Output {
-	readonly summary;
 	readonly fs;
 	readonly modules;
 	readonly packages;
+	readonly processorErrors;
+	readonly summary;
 
-	constructor({ modulesCollection, packagesCollection, summary, fSTree }: Params) {
+	constructor({ processorErrors, modulesCollection, packagesCollection, summary, fSTree }: Params) {
+		this.processorErrors = processorErrors;
 		this.summary = summary;
 
 		this.fs = this.#createFS(fSTree);
