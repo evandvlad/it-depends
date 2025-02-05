@@ -1,9 +1,10 @@
 import { joinPaths } from "~/lib/fs-path";
-import type { FSTree } from "~/lib/fs-tree";
 
 interface Params {
 	rootPath: string;
-	fSTree: FSTree;
+	fSTree: {
+		getShortPathByPath: (path: string) => string;
+	};
 }
 
 export class PathInformer {

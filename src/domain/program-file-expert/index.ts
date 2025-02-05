@@ -1,7 +1,7 @@
 import { AppError } from "~/lib/errors";
 import { getName } from "~/lib/fs-path";
-import type { FSTree } from "~/lib/fs-tree";
 import type { ExtraPackageEntries } from "~/values";
+import type { FSTree } from "../fs-tree";
 import { ImportSourceResolver } from "./import-source-resolver";
 import {
 	type Aliases,

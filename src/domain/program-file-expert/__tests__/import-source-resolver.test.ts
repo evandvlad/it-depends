@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
+import { FSTree } from "../../fs-tree";
 import { ImportSourceResolver } from "../import-source-resolver";
 
 describe("import-source-resolver", () => {

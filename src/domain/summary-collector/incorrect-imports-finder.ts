@@ -1,4 +1,4 @@
-import type { FSTree } from "~/lib/fs-tree";
+import type { FSTree } from "../fs-tree";
 import type { Import } from "../import";
 import type { Module } from "../module";
 import type { Package } from "../package";

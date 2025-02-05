@@ -1,5 +1,5 @@
-import type { FSTree } from "~/lib/fs-tree";
 import { Rec } from "~/lib/rec";
+import type { FSTree } from "../fs-tree";
 import type { ProgramFileExpert } from "../program-file-expert";
 import type { ModuleBuildersCollection } from "../values";
 import { PackageBuilder } from "./package-builder";

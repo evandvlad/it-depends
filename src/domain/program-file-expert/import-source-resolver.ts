@@ -1,6 +1,6 @@
 import { delimiter, getParentPath, joinPaths } from "~/lib/fs-path";
-import type { FSTree } from "~/lib/fs-tree";
 import { isRelative } from "~/lib/import-path";
+import type { FSTree } from "../fs-tree";
 import { type Aliases, entryPointFileName, orderedByResolvingPriorityAcceptableFileExtNames } from "./values";
 
 interface PathInfo {

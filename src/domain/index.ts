@@ -1,5 +1,5 @@
-import { FSTree } from "~/lib/fs-tree";
 import type { ExtraPackageEntries, PathFilter } from "~/values";
+import { FSTree } from "./fs-tree";
 import { ModuleBuildersCollector } from "./module-builders-collector";
 import { Output } from "./output";
 import { PackagesCollector } from "./packages-collector";
