@@ -1,5 +1,5 @@
 import type { Output } from "~/domain";
-import { Rec } from "~/lib/rec";
+import type { Rec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 
@@ -26,24 +26,25 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly unresolvedFullImports;
 	readonly unresolvedFullExports;
 
-	#module;
-
 	constructor({ version, path, pathInformer, output }: Params) {
 		super({ version, pathInformer, output });
 
-		this.#module = output.modules.getModule(path);
+		const module = output.modules.getModule(path);
 
 		this.fullPath = path;
 		this.shortPath = output.fs.getShortPath(path);
-		this.language = this.#module.language;
+		this.language = module.language;
 
-		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;
-		this.unparsedDynamicImports = this.#module.unparsedDynamicImports;
-		this.shadowedExportValues = this.#module.shadowedExportValues;
+		this.packageLinkData = module.package ? this.getPackageLinkData(module.package) : null;
+		this.unparsedDynamicImports = module.unparsedDynamicImports;
+		this.shadowedExportValues = module.shadowedExportValues;
+		this.outOfScopeImports = module.outOfScopeImports.map(({ importPath }) => importPath);
+		this.unresolvedFullImports = module.unresolvedFullImports.map(({ importPath }) => importPath);
+		this.unresolvedFullExports = module.unresolvedFullExports.map(({ importPath }) => importPath);
 
-		this.code = this.#module.content;
+		this.code = module.content;
 
-		this.imports = this.#module.imports
+		this.imports = module.imports
 			.toSorted((first, second) => second.values.length - first.values.length)
 			.map((imp) => ({
 				name: imp.importPath,
@@ -51,8 +52,15 @@ export class ModulePageViewModel extends PageViewModel {
 				values: imp.values,
 			}));
 
-		this.exportsByValues = this.#getExportsByValues();
-		this.exportsByModules = this.#getExportsByModules();
+		this.exportsByValues = this.#convertExportsToEntriesAndSort(module.exportsByValue).map(([value, paths]) => ({
+			value,
+			linksData: paths.map((path) => this.getModuleLinkData(path)),
+		}));
+
+		this.exportsByModules = this.#convertExportsToEntriesAndSort(module.exportsByModule).map(([path, values]) => ({
+			values,
+			linkData: this.getModuleLinkData(path),
+		}));
 
 		this.incorrectImports = output.summary.incorrectImports
 			.getOrDefault(this.fullPath, [])
@@ -60,39 +68,9 @@ export class ModulePageViewModel extends PageViewModel {
 				url: pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
 				content: importPath,
 			}));
-
-		this.outOfScopeImports = output.summary.outOfScopeImports.getOrDefault(this.fullPath, []);
-		this.unresolvedFullImports = this.#module.unresolvedFullImports.map(({ importPath }) => importPath);
-		this.unresolvedFullExports = this.#module.unresolvedFullExports.map(({ importPath }) => importPath);
 	}
 
-	#getExportsByValues() {
-		return this.#module.exports
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([value, paths]) => ({
-				value,
-				linksData: paths.map((path) => this.getModuleLinkData(path)),
-			}));
-	}
-
-	#getExportsByModules() {
-		const rec = this.#module.exports.reduce((acc, paths, value) => {
-			paths.forEach((path) => {
-				const values = acc.getOrDefault(path, []);
-				values.push(value);
-				acc.set(path, values);
-			});
-
-			return acc;
-		}, new Rec<string, string[]>());
-
-		return rec
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, values]) => ({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}));
+	#convertExportsToEntriesAndSort(exports: Rec<string, string[]>) {
+		return exports.toEntries().toSorted((first, second) => second[1].length - first[1].length);
 	}
 }

@@ -4,10 +4,8 @@ import { AppError } from "~/lib/errors";
 import { Rec } from "~/lib/rec";
 import type { PathFilter } from "~/values";
 import { Domain } from "..";
-import { Import } from "../import";
 import { Module } from "../module";
 import { Package } from "../package";
-import type { Summary } from "../summary-collector";
 import type { ImportData, Language } from "../values";
 
 function createSutComponents() {
@@ -99,16 +97,6 @@ function createModules(
 				shadowedExportValues,
 			}),
 	);
-}
-
-function createSummary(parts: Partial<Summary>): Summary {
-	return {
-		outOfScopeImports: new Rec(),
-		emptyExports: [],
-		possiblyUnusedExportValues: new Rec(),
-		incorrectImports: new Rec(),
-		...parts,
-	};
 }
 
 function createPackages(
@@ -723,6 +711,9 @@ describe("domain", () => {
 								values: ["bar", "foo"],
 							}),
 						],
+						exports: createExportsRec({
+							all: [],
+						}),
 					},
 				]),
 			},
@@ -806,6 +797,10 @@ describe("domain", () => {
 								values: ["foo", "default"],
 							}),
 						],
+						exports: createExportsRec({
+							foo: [],
+							default: [],
+						}),
 						unresolvedFullExports: [createImportData({ importPath: "bar", values: ["*"] })],
 						unresolvedFullImports: [createImportData({ importPath: "bar", values: ["*"] })],
 					},
@@ -1153,145 +1148,6 @@ describe("domain", () => {
 				const output = instance.process(createProcessParams({ entries }));
 
 				expect(output.packages.getAllPackages()).toEqual(packages);
-			});
-		});
-
-		describe("summary", () => {
-			it.each([
-				{
-					name: "should be single module & with out of scope import",
-					entries: [
-						createProgramFileEntry({
-							path: "C:/dir/index.ts",
-							ieItems: [
-								{ type: "standard-import", source: "foo", values: ["default"] },
-								{ type: "standard-export", values: ["foo"] },
-							],
-						}),
-					],
-					result: createSummary({
-						outOfScopeImports: Rec.fromEntries([["C:/dir/index.ts", ["foo"]]]),
-						possiblyUnusedExportValues: Rec.fromEntries([["C:/dir/index.ts", ["foo"]]]),
-					}),
-				},
-
-				{
-					name: "should be module with dynamic imports",
-					entries: [
-						createProgramFileEntry({
-							path: "/dir/file.jsx",
-							language: "javascript",
-							ieItems: [
-								{ type: "standard-export", values: ["foo"] },
-								{ type: "dynamic-import", source: null },
-								{ type: "dynamic-import", source: null },
-							],
-						}),
-						createProgramFileEntry({
-							path: "/dir/index.ts",
-							ieItems: [{ type: "standard-import", source: "./file", values: ["*"] }],
-						}),
-					],
-					result: createSummary({
-						emptyExports: ["/dir/index.ts"],
-					}),
-				},
-
-				{
-					name: "should be module with unresolved full imports",
-					entries: [
-						createProgramFileEntry({
-							path: "C:/dir/index.tsx",
-							ieItems: [
-								{ type: "standard-import", source: "foo", values: ["*"] },
-								{ type: "standard-import", source: "bar", values: ["*"] },
-							],
-						}),
-					],
-					result: createSummary({
-						emptyExports: ["C:/dir/index.tsx"],
-					}),
-				},
-
-				{
-					name: "should be module with unresolved re-exports",
-					entries: [
-						createProgramFileEntry({
-							path: "C:/dir/index.tsx",
-							ieItems: [{ type: "standard-import", source: "./file", values: ["bar"] }],
-						}),
-						createProgramFileEntry({
-							path: "C:/dir/file.ts",
-							ieItems: [{ type: "re-export", source: "foo", inputValues: ["*"], outputValues: ["*"] }],
-						}),
-					],
-					result: createSummary({
-						emptyExports: ["C:/dir/index.tsx"],
-					}),
-				},
-
-				{
-					name: "should be module with shadowed export value",
-					entries: [
-						createProgramFileEntry({
-							path: "/dir/file1.js",
-							language: "javascript",
-							ieItems: [{ type: "standard-export", values: ["foo", "bar"] }],
-						}),
-						createProgramFileEntry({
-							path: "/dir/file2.js",
-							language: "javascript",
-							ieItems: [{ type: "re-export", source: "./file1", inputValues: ["*"], outputValues: ["*"] }],
-						}),
-						createProgramFileEntry({
-							path: "/dir/index.js",
-							language: "javascript",
-							ieItems: [{ type: "standard-import", source: "./file2", values: ["foo", "bar"] }],
-						}),
-					],
-					result: createSummary({
-						emptyExports: ["/dir/index.js"],
-					}),
-				},
-
-				{
-					name: "should be module with incorrect import",
-					entries: [
-						createProgramFileEntry({
-							path: "/dir1/file.ts",
-							ieItems: [{ type: "standard-export", values: ["foo"] }],
-						}),
-						createProgramFileEntry({
-							path: "/dir1/index.ts",
-							ieItems: [{ type: "standard-import", source: "./file", values: ["foo"] }],
-						}),
-						createProgramFileEntry({
-							path: "/dir2/index.ts",
-							ieItems: [{ type: "standard-import", source: "../dir1/file", values: ["foo"] }],
-						}),
-					],
-					result: createSummary({
-						emptyExports: ["/dir1/index.ts", "/dir2/index.ts"],
-						incorrectImports: Rec.fromEntries([
-							[
-								"/dir2/index.ts",
-								[
-									new Import(
-										createImportData({
-											filePath: "/dir1/file.ts",
-											importPath: "../dir1/file",
-										}),
-									),
-								],
-							],
-						]),
-					}),
-				},
-			])("$name", ({ entries, result }) => {
-				const { instance } = createSutComponents();
-
-				const { summary } = instance.process(createProcessParams({ entries }));
-				expect(summary).toEqual(result);
 			});
 		});
 

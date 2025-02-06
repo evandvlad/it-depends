@@ -12,10 +12,7 @@ interface Params {
 }
 
 export interface Summary {
-	outOfScopeImports: Rec<string, string[]>;
-	possiblyUnusedExportValues: Rec<string, string[]>;
 	incorrectImports: Rec<string, Import[]>;
-	emptyExports: string[];
 }
 
 export class SummaryCollector {
@@ -23,9 +20,6 @@ export class SummaryCollector {
 	#incorrectImportsFinder;
 
 	#summary: Summary = {
-		possiblyUnusedExportValues: new Rec(),
-		outOfScopeImports: new Rec(),
-		emptyExports: [],
 		incorrectImports: new Rec(),
 	};
 
@@ -43,33 +37,9 @@ export class SummaryCollector {
 	}
 
 	#handleModule(module: Module) {
-		const { path, imports, exports } = module;
+		const { path } = module;
 
-		const { outOfScopeImports, emptyExports, possiblyUnusedExportValues, incorrectImports } = this.#summary;
-
-		imports.forEach(({ isInScope, importPath }) => {
-			if (!isInScope) {
-				if (!outOfScopeImports.has(path)) {
-					outOfScopeImports.set(path, []);
-				}
-
-				outOfScopeImports.get(path).push(importPath);
-			}
-		});
-
-		exports.forEach((paths, value) => {
-			if (paths.length === 0) {
-				if (!possiblyUnusedExportValues.has(path)) {
-					possiblyUnusedExportValues.set(path, []);
-				}
-
-				possiblyUnusedExportValues.get(path).push(value);
-			}
-		});
-
-		if (exports.size === 0 && module.unresolvedFullExports.length === 0) {
-			emptyExports.push(path);
-		}
+		const { incorrectImports } = this.#summary;
 
 		const incorrectImportsSources = this.#incorrectImportsFinder.find(module);
 

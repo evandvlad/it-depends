@@ -9,6 +9,17 @@ interface Params {
 	output: Output;
 }
 
+interface OutOfScopeImportItem {
+	linkData: LinkData;
+	values: string[];
+}
+
+interface PossiblyUnusedExportsItem {
+	values: string[];
+	linkData: LinkData;
+	isFullyUnused: boolean;
+}
+
 export class IndexPageViewModel extends PageViewModel {
 	readonly langCountList;
 	readonly modulesList;
@@ -40,10 +51,13 @@ export class IndexPageViewModel extends PageViewModel {
 
 		const modulesList: LinkData[] = [];
 		const packagesList: LinkData[] = [];
+		const emptyExports: LinkData[] = [];
 		const unparsedDynamicImports: CountableLinkItem[] = [];
 		const unresolvedFullImports: CountableLinkItem[] = [];
 		const unresolvedFullExports: CountableLinkItem[] = [];
 		const shadowedExportValues: CountableLinkItem[] = [];
+		const outOfScopeImports: OutOfScopeImportItem[] = [];
+		const possiblyUnusedExports: PossiblyUnusedExportsItem[] = [];
 
 		modules.forEach((module) => {
 			const linkData = this.getModuleLinkData(module.path);
@@ -66,6 +80,25 @@ export class IndexPageViewModel extends PageViewModel {
 				shadowedExportValues.push({ linkData, num: module.shadowedExportValues.length });
 			}
 
+			if (module.outOfScopeImports.length > 0) {
+				outOfScopeImports.push({
+					linkData,
+					values: module.outOfScopeImports.map(({ importPath }) => importPath),
+				});
+			}
+
+			if (!module.hasExports) {
+				emptyExports.push(linkData);
+			}
+
+			if (module.possiblyUnusedExports.length > 0) {
+				possiblyUnusedExports.push({
+					values: module.possiblyUnusedExports,
+					isFullyUnused: module.exportsByValue.size === module.possiblyUnusedExports.length,
+					linkData,
+				});
+			}
+
 			modulesList.push(linkData);
 		});
 
@@ -80,17 +113,22 @@ export class IndexPageViewModel extends PageViewModel {
 
 		this.modulesList = modulesList;
 		this.packagesList = packagesList;
+		this.emptyExports = emptyExports;
 		this.unparsedDynamicImports = this.#sortCountableLinkItems(unparsedDynamicImports);
 		this.unresolvedFullImports = this.#sortCountableLinkItems(unresolvedFullImports);
 		this.unresolvedFullExports = this.#sortCountableLinkItems(unresolvedFullExports);
 		this.shadowedExportValues = this.#sortCountableLinkItems(shadowedExportValues);
 
+		this.outOfScopeImports = outOfScopeImports.toSorted((first, second) => second.values.length - first.values.length);
+
+		this.possiblyUnusedExports = possiblyUnusedExports.toSorted(
+			(first, second) => second.values.length - first.values.length,
+		);
+
 		this.processorErrors = this.#output.processorErrors.toEntries().map(([path, error]) => ({
 			error,
 			linkData: this.getModuleLinkData(path),
 		}));
-
-		this.emptyExports = this.#output.summary.emptyExports.map((path) => this.getModuleLinkData(path));
 
 		this.incorrectImports = this.#output.summary.incorrectImports
 			.toEntries()
@@ -105,23 +143,6 @@ export class IndexPageViewModel extends PageViewModel {
 
 				return { linkData: this.getModuleLinkData(path), importItems };
 			});
-
-		this.possiblyUnusedExports = this.#output.summary.possiblyUnusedExportValues
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, values]) => ({
-				values,
-				linkData: this.getModuleLinkData(path),
-				isFullyUnused: this.#output.modules.getModule(path).exports.size === values.length,
-			}));
-
-		this.outOfScopeImports = this.#output.summary.outOfScopeImports
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, values]) => ({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}));
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
