@@ -4,7 +4,7 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 export function emptyExportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectEmptyExports((linkData) => ({ content: a(linkData) }));
+	const items = pageViewModel.emptyExports.map((linkData) => ({ content: a(linkData) }));
 
 	return countCallout({
 		title: "Empty exports",

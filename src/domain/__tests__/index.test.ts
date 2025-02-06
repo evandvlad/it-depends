@@ -103,15 +103,6 @@ function createModules(
 
 function createSummary(parts: Partial<Summary>): Summary {
 	return {
-		packages: 0,
-		languages: Rec.fromObject({
-			typescript: 0,
-			javascript: 0,
-		}),
-		unparsedDynamicImports: new Rec(),
-		unresolvedFullImports: new Rec(),
-		unresolvedFullExports: new Rec(),
-		shadowedExportValues: new Rec(),
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
 		possiblyUnusedExportValues: new Rec(),
@@ -1179,11 +1170,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 1,
-						languages: Rec.fromObject({
-							typescript: 1,
-							javascript: 0,
-						}),
 						outOfScopeImports: Rec.fromEntries([["C:/dir/index.ts", ["foo"]]]),
 						possiblyUnusedExportValues: Rec.fromEntries([["C:/dir/index.ts", ["foo"]]]),
 					}),
@@ -1207,12 +1193,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 1,
-						languages: Rec.fromObject({
-							typescript: 1,
-							javascript: 1,
-						}),
-						unparsedDynamicImports: Rec.fromEntries([["/dir/file.jsx", 2]]),
 						emptyExports: ["/dir/index.ts"],
 					}),
 				},
@@ -1229,12 +1209,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 1,
-						languages: Rec.fromObject({
-							typescript: 1,
-							javascript: 0,
-						}),
-						unresolvedFullImports: Rec.fromEntries([["C:/dir/index.tsx", 2]]),
 						emptyExports: ["C:/dir/index.tsx"],
 					}),
 				},
@@ -1252,13 +1226,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 1,
-						languages: Rec.fromObject({
-							typescript: 2,
-							javascript: 0,
-						}),
-						unresolvedFullImports: Rec.fromEntries([["C:/dir/file.ts", 1]]),
-						unresolvedFullExports: Rec.fromEntries([["C:/dir/file.ts", 1]]),
 						emptyExports: ["C:/dir/index.tsx"],
 					}),
 				},
@@ -1283,12 +1250,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 1,
-						languages: Rec.fromObject({
-							typescript: 0,
-							javascript: 3,
-						}),
-						shadowedExportValues: Rec.fromEntries([["/dir/file2.js", 1]]),
 						emptyExports: ["/dir/index.js"],
 					}),
 				},
@@ -1310,11 +1271,6 @@ describe("domain", () => {
 						}),
 					],
 					result: createSummary({
-						packages: 2,
-						languages: Rec.fromObject({
-							typescript: 3,
-							javascript: 0,
-						}),
 						emptyExports: ["/dir1/index.ts", "/dir2/index.ts"],
 						incorrectImports: Rec.fromEntries([
 							[

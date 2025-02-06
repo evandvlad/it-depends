@@ -64,8 +64,6 @@ describe("module-page-view-model", () => {
 		expect(pageViewModel.code).toEqual(
 			`export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
 		);
-		expect(pageViewModel.numOfImports).toEqual(2);
-		expect(pageViewModel.numOfExports).toEqual(1);
 		expect(pageViewModel.packageLinkData).toEqual({
 			content: "src/lib/a",
 			url: "/report/content/packages/src/lib/a.html",
@@ -74,11 +72,10 @@ describe("module-page-view-model", () => {
 		expect(pageViewModel.shadowedExportValues).toEqual([]);
 	});
 
-	it("should collect import items correctly", () => {
+	it("should collect imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const importItems = pageViewModel.collectImportItems((params) => params);
 
-		expect(importItems).toEqual([
+		expect(pageViewModel.imports).toEqual([
 			{ linkData: null, name: "foo", values: ["f"] },
 			{
 				linkData: { url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "src/lib/a/b/c.ts" },
@@ -88,51 +85,47 @@ describe("module-page-view-model", () => {
 		]);
 	});
 
-	it("should collect export items by values correctly", () => {
+	it("should collect exports by values correctly", () => {
 		const pageViewModel = createSutComponents();
-		const exportItems = pageViewModel.collectExportItemsByValues((params) => params);
 
-		expect(exportItems).toEqual([
+		expect(pageViewModel.exportsByValues).toEqual([
 			{ linksData: [{ url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }], value: "a" },
 			{ linksData: [], value: "f" },
 			{ linksData: [], value: "b" },
 		]);
 	});
 
-	it("should collect export items by modules correctly", () => {
+	it("should collect exports by modules correctly", () => {
 		const pageViewModel = createSutComponents();
-		const exportItems = pageViewModel.collectExportItemsByModules((params) => params);
 
-		expect(exportItems).toEqual([
+		expect(pageViewModel.exportsByModules).toEqual([
 			{ linkData: { url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }, values: ["a"] },
 		]);
 	});
 
 	it("should collect incorrect imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const incorrectImports = pageViewModel.collectIncorrectImportItems((params) => params);
 
-		expect(incorrectImports).toEqual([{ url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "./b/c" }]);
+		expect(pageViewModel.incorrectImports).toEqual([
+			{ url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "./b/c" },
+		]);
 	});
 
 	it("should collect unresolved full imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const unresolvedFullImports = pageViewModel.collectUnresolvedFullImports((params) => params);
 
-		expect(unresolvedFullImports).toEqual(["bar"]);
+		expect(pageViewModel.unresolvedFullImports).toEqual(["bar"]);
 	});
 
 	it("should collect unresolved full exports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const unresolvedFullExports = pageViewModel.collectUnresolvedFullExports((params) => params);
 
-		expect(unresolvedFullExports).toEqual(["bar"]);
+		expect(pageViewModel.unresolvedFullExports).toEqual(["bar"]);
 	});
 
 	it("should collect out of scope imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const outOfScopeImports = pageViewModel.collectOutOfScopeImports((params) => params);
 
-		expect(outOfScopeImports).toEqual(["foo"]);
+		expect(pageViewModel.outOfScopeImports).toEqual(["foo"]);
 	});
 });

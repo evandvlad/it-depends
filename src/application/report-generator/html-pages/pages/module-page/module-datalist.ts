@@ -14,22 +14,22 @@ export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 			},
 			{
 				label: "Incorrect imports",
-				value: list({ items: pageViewModel.collectIncorrectImportItems((linkData) => ({ content: a(linkData) })) }),
+				value: list({ items: pageViewModel.incorrectImports.map((linkData) => ({ content: a(linkData) })) }),
 			},
 			{
 				label: "Out of scope imports",
 				value: list({
-					items: pageViewModel.collectOutOfScopeImports((path) => ({ content: path })),
+					items: pageViewModel.outOfScopeImports.map((path) => ({ content: path })),
 				}),
 			},
 			{ label: "Unparsed dynamic imports", value: String(pageViewModel.unparsedDynamicImports || "") },
 			{
 				label: "Unresolved full imports",
-				value: list({ items: pageViewModel.collectUnresolvedFullImports((path) => ({ content: path })) }),
+				value: list({ items: pageViewModel.unresolvedFullImports.map((path) => ({ content: path })) }),
 			},
 			{
 				label: "Unresolved full exports",
-				value: list({ items: pageViewModel.collectUnresolvedFullExports((path) => ({ content: path })) }),
+				value: list({ items: pageViewModel.unresolvedFullExports.map((path) => ({ content: path })) }),
 			},
 			{
 				label: "Shadowed export values",

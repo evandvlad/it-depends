@@ -71,17 +71,17 @@ describe("package-page-view-model", () => {
 
 	it("should collect module links correctly", () => {
 		const pageViewModel = createSutComponents();
-		const moduleLinks = pageViewModel.collectModuleLinks((params) => params);
 
-		expect(moduleLinks).toEqual([
+		expect(pageViewModel.moduleLinks).toEqual([
 			{ url: "/report/content/modules/src/lib/a/index.ts.html", content: "src/lib/a/index.ts" },
 		]);
 	});
 
 	it("should collect child package links correctly", () => {
 		const pageViewModel = createSutComponents();
-		const moduleLinks = pageViewModel.collectChildPackageLinks((params) => params);
 
-		expect(moduleLinks).toEqual([{ url: "/report/content/packages/src/lib/a/b.html", content: "src/lib/a/b" }]);
+		expect(pageViewModel.childPackageLinks).toEqual([
+			{ url: "/report/content/packages/src/lib/a/b.html", content: "src/lib/a/b" },
+		]);
 	});
 });

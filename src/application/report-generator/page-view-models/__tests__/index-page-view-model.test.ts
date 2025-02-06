@@ -59,19 +59,6 @@ describe("index-page-view-model", () => {
 		});
 	});
 
-	it("should get counters correctly", () => {
-		const pageViewModel = createSutComponents();
-
-		expect(pageViewModel.numOfModules).toEqual(4);
-		expect(pageViewModel.numOfPackages).toEqual(1);
-		expect(pageViewModel.numOfIncorrectImports).toEqual(1);
-		expect(pageViewModel.numOfPossiblyUnusedExports).toEqual(2);
-		expect(pageViewModel.numOfOutOfScopeImports).toEqual(1);
-		expect(pageViewModel.numOfShadowedExportValues).toEqual(1);
-		expect(pageViewModel.numOfUnparsedDynamicImports).toEqual(1);
-		expect(pageViewModel.numOfUnresolvedFullIE).toEqual(2);
-	});
-
 	it("should get lang counters correclty", () => {
 		const pageViewModel = createSutComponents();
 
@@ -83,9 +70,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect modules list correctly", () => {
 		const pageViewModel = createSutComponents();
-		const modulesList = pageViewModel.collectModulesList((item) => item);
 
-		expect(modulesList).toEqual([
+		expect(pageViewModel.modulesList).toEqual([
 			{
 				content: "src/main.ts",
 				url: "/report/content/modules/src/main.ts.html",
@@ -177,9 +163,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect packages list correctly", () => {
 		const pageViewModel = createSutComponents();
-		const packagesList = pageViewModel.collectPackagesList((item) => item);
 
-		expect(packagesList).toEqual([
+		expect(pageViewModel.packagesList).toEqual([
 			{
 				content: "src/lib/a",
 				url: "/report/content/packages/src/lib/a.html",
@@ -208,9 +193,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect processor errors correctly", () => {
 		const pageViewModel = createSutComponents();
-		const parserErrors = pageViewModel.collectProcessorErrors((item) => item);
 
-		expect(parserErrors).toEqual([
+		expect(pageViewModel.processorErrors).toEqual([
 			{
 				error: expect.any(Error),
 				linkData: {
@@ -223,9 +207,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect incorrect imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const incorrectImports = pageViewModel.collectIncorrectImports((item) => item);
 
-		expect(incorrectImports).toEqual([
+		expect(pageViewModel.incorrectImports).toEqual([
 			{
 				importItems: [
 					{
@@ -240,9 +223,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect possibly unused exports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const possiblyUnusedExports = pageViewModel.collectPossiblyUnusedExports((item) => item);
 
-		expect(possiblyUnusedExports).toEqual([
+		expect(pageViewModel.possiblyUnusedExports).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				values: ["f", "a"],
@@ -253,9 +235,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect out of scope imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const outOfScopeImports = pageViewModel.collectOutOfScopeImports((item) => item);
 
-		expect(outOfScopeImports).toEqual([
+		expect(pageViewModel.outOfScopeImports).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				values: ["blabla"],
@@ -265,9 +246,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect empty exports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const emptyExports = pageViewModel.collectEmptyExports((item) => item);
 
-		expect(emptyExports).toEqual([
+		expect(pageViewModel.emptyExports).toEqual([
 			{
 				content: "src/main.ts",
 				url: "/report/content/modules/src/main.ts.html",
@@ -277,9 +257,8 @@ describe("index-page-view-model", () => {
 
 	it("should collect unparsed dynamic imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const unparsedDynamicImports = pageViewModel.collectUnparsedDynamicImports((item) => item);
 
-		expect(unparsedDynamicImports).toEqual([
+		expect(pageViewModel.unparsedDynamicImports).toEqual([
 			{
 				linkData: { content: "src/lib/a/a.js", url: "/report/content/modules/src/lib/a/a.js.html" },
 				num: 1,
@@ -289,27 +268,24 @@ describe("index-page-view-model", () => {
 
 	it("should collect unresolved full imports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const unresolvedFullImports = pageViewModel.collectUnresolvedFullImports((item) => item);
 
-		expect(unresolvedFullImports).toEqual([
+		expect(pageViewModel.unresolvedFullImports).toEqual([
 			{ linkData: { content: "src/lib/a/c.js", url: "/report/content/modules/src/lib/a/c.js.html" }, num: 1 },
 		]);
 	});
 
 	it("should collect unresolved full exports correctly", () => {
 		const pageViewModel = createSutComponents();
-		const unresolvedFullExports = pageViewModel.collectUnresolvedFullExports((item) => item);
 
-		expect(unresolvedFullExports).toEqual([
+		expect(pageViewModel.unresolvedFullExports).toEqual([
 			{ linkData: { content: "src/lib/a/c.js", url: "/report/content/modules/src/lib/a/c.js.html" }, num: 1 },
 		]);
 	});
 
-	it("should collect shadowed exports values correctly", async () => {
+	it("should collect shadowed exports values correctly", () => {
 		const pageViewModel = createSutComponents();
-		const shadowedExportValues = pageViewModel.collectShadowedExportValues((item) => item);
 
-		expect(shadowedExportValues).toEqual([
+		expect(pageViewModel.shadowedExportValues).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				num: 1,

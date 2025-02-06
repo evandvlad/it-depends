@@ -7,6 +7,7 @@ import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./prog
 import { SummaryCollector } from "./summary-collector";
 import {
 	type IEItem,
+	type Language,
 	type ProcessorErrors,
 	type ProgramFileEntries,
 	type ProgramFileEntry,
@@ -23,7 +24,16 @@ interface Params {
 	settings: Settings;
 }
 
-export type { IEItem, Aliases, ProgramFileEntry, ProgramFileDetails, ProcessorErrors, ProgramFileEntries, Output };
+export type {
+	IEItem,
+	Aliases,
+	ProgramFileEntry,
+	ProgramFileDetails,
+	ProcessorErrors,
+	ProgramFileEntries,
+	Output,
+	Language,
+};
 
 export { ieValueAll };
 

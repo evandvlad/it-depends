@@ -4,7 +4,7 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 export function modulesCallout(pageViewModel: PackagePageViewModel) {
-	const items = pageViewModel.collectModuleLinks((linkData) => ({ content: a(linkData) }));
+	const items = pageViewModel.moduleLinks.map((linkData) => ({ content: a(linkData) }));
 
 	return countCallout({
 		title: "Modules",

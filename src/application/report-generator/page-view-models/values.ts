@@ -3,6 +3,11 @@ export interface LinkData {
 	content: string;
 }
 
+export interface CountableLinkItem {
+	linkData: LinkData;
+	num: number;
+}
+
 export interface LinkTreeItem {
 	name: string;
 	linkData: LinkData | null;

@@ -9,8 +9,9 @@ import { countCallout } from "../../components/count-callout";
 export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) {
 	const fullyUnusedItems: string[] = [];
 	const partiallyUnusedItems: string[] = [];
+	const count = pageViewModel.possiblyUnusedExports.reduce((acc, { values }) => acc + values.length, 0);
 
-	pageViewModel.collectPossiblyUnusedExports(({ linkData, values, isFullyUnused }) => {
+	pageViewModel.possiblyUnusedExports.forEach(({ linkData, values, isFullyUnused }) => {
 		const content = item({
 			mainContent: details({
 				title: a(linkData),
@@ -28,13 +29,13 @@ export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) 
 
 	return countCallout({
 		title: "Possibly unused exports",
-		counter: { value: pageViewModel.numOfPossiblyUnusedExports },
+		counter: { value: count },
 		content: tabs({
 			items: [
 				{ label: "Fully possible unused", content: fullyUnusedItems.join("") },
 				{ label: "Partially possible unused", content: partiallyUnusedItems.join("") },
 			],
 		}),
-		color: pageViewModel.numOfPossiblyUnusedExports > 0 ? "yellow" : "green",
+		color: count > 0 ? "yellow" : "green",
 	});
 }

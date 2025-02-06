@@ -20,7 +20,7 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 				label: "Modules list",
 				content: filterableList({
 					inputPlaceholder: "Filter modules...",
-					items: pageViewModel.collectModulesList((linkData) => ({
+					items: pageViewModel.modulesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,
 					})),
@@ -31,7 +31,7 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 
 	return countCallout({
 		title: "Modules",
-		counter: { value: pageViewModel.numOfModules },
+		counter: { value: pageViewModel.modulesList.length },
 		content: container({
 			items: [{ content: datalist({ items: pageViewModel.langCountList }) }, { content: tabsContent }],
 		}),

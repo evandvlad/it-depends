@@ -1,7 +1,7 @@
-import type { Output } from "~/domain";
+import type { Language, Output } from "~/domain";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
-import type { LinkData, LinkTreeItem, LinkTreeNode } from "./values";
+import type { CountableLinkItem, LinkData, LinkTreeItem, LinkTreeNode } from "./values";
 
 interface Params {
 	version: string;
@@ -10,177 +10,126 @@ interface Params {
 }
 
 export class IndexPageViewModel extends PageViewModel {
-	readonly numOfModules;
-	readonly numOfPackages;
 	readonly langCountList;
-	readonly numOfIncorrectImports;
-	readonly numOfPossiblyUnusedExports;
-	readonly numOfOutOfScopeImports;
-	readonly numOfUnparsedDynamicImports;
-	readonly numOfUnresolvedFullIE;
-	readonly numOfShadowedExportValues;
+	readonly modulesList;
+	readonly packagesList;
+	readonly processorErrors;
+	readonly unparsedDynamicImports;
+	readonly unresolvedFullImports;
+	readonly unresolvedFullExports;
+	readonly shadowedExportValues;
+	readonly emptyExports;
+	readonly incorrectImports;
+	readonly possiblyUnusedExports;
+	readonly outOfScopeImports;
 
 	#output;
-	#pathInformer;
 
 	constructor({ version, pathInformer, output }: Params) {
 		super({ version, pathInformer, output });
 
 		this.#output = output;
-		this.#pathInformer = pathInformer;
 
-		this.numOfModules = this.#output.summary.languages.reduce((acc, num) => acc + num, 0);
-		this.numOfPackages = this.#output.summary.packages;
+		const modules = this.#output.modules.getAllModules();
+		const packages = this.#output.packages.getAllPackages();
 
-		this.langCountList = this.#output.summary.languages
+		const langCounts: Record<Language, number> = {
+			typescript: 0,
+			javascript: 0,
+		};
+
+		const modulesList: LinkData[] = [];
+		const packagesList: LinkData[] = [];
+		const unparsedDynamicImports: CountableLinkItem[] = [];
+		const unresolvedFullImports: CountableLinkItem[] = [];
+		const unresolvedFullExports: CountableLinkItem[] = [];
+		const shadowedExportValues: CountableLinkItem[] = [];
+
+		modules.forEach((module) => {
+			const linkData = this.getModuleLinkData(module.path);
+
+			langCounts[module.language] += 1;
+
+			if (module.unparsedDynamicImports > 0) {
+				unparsedDynamicImports.push({ linkData, num: module.unparsedDynamicImports });
+			}
+
+			if (module.unresolvedFullImports.length > 0) {
+				unresolvedFullImports.push({ linkData, num: module.unresolvedFullImports.length });
+			}
+
+			if (module.unresolvedFullExports.length > 0) {
+				unresolvedFullExports.push({ linkData, num: module.unresolvedFullExports.length });
+			}
+
+			if (module.shadowedExportValues.length > 0) {
+				shadowedExportValues.push({ linkData, num: module.shadowedExportValues.length });
+			}
+
+			modulesList.push(linkData);
+		});
+
+		packages.forEach((pack) => {
+			packagesList.push(this.getPackageLinkData(pack.path));
+		});
+
+		this.langCountList = Object.entries(langCounts).map(([lang, count]) => ({
+			label: lang as Language,
+			value: count.toString(),
+		}));
+
+		this.modulesList = modulesList;
+		this.packagesList = packagesList;
+		this.unparsedDynamicImports = this.#sortCountableLinkItems(unparsedDynamicImports);
+		this.unresolvedFullImports = this.#sortCountableLinkItems(unresolvedFullImports);
+		this.unresolvedFullExports = this.#sortCountableLinkItems(unresolvedFullExports);
+		this.shadowedExportValues = this.#sortCountableLinkItems(shadowedExportValues);
+
+		this.processorErrors = this.#output.processorErrors.toEntries().map(([path, error]) => ({
+			error,
+			linkData: this.getModuleLinkData(path),
+		}));
+
+		this.emptyExports = this.#output.summary.emptyExports.map((path) => this.getModuleLinkData(path));
+
+		this.incorrectImports = this.#output.summary.incorrectImports
 			.toEntries()
-			.map(([lang, value]) => ({ label: lang, value: value.toString() }));
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, imports]) => {
+				const importItems = imports.map(({ importPath, filePath }) => ({
+					name: importPath,
+					linkData: filePath
+						? { url: pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
+						: null,
+				}));
 
-		this.numOfIncorrectImports = this.#output.summary.incorrectImports.reduce(
-			(acc, imports) => acc + imports.length,
-			0,
-		);
-		this.numOfOutOfScopeImports = this.#output.summary.outOfScopeImports.reduce(
-			(acc, importPaths) => acc + importPaths.length,
-			0,
-		);
+				return { linkData: this.getModuleLinkData(path), importItems };
+			});
 
-		this.numOfPossiblyUnusedExports = this.#output.summary.possiblyUnusedExportValues.reduce(
-			(acc, values) => acc + values.length,
-			0,
-		);
+		this.possiblyUnusedExports = this.#output.summary.possiblyUnusedExportValues
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, values]) => ({
+				values,
+				linkData: this.getModuleLinkData(path),
+				isFullyUnused: this.#output.modules.getModule(path).exports.size === values.length,
+			}));
 
-		this.numOfUnresolvedFullIE =
-			this.#output.summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0) +
-			this.#output.summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
-
-		this.numOfUnparsedDynamicImports = this.#output.summary.unparsedDynamicImports.reduce(
-			(acc, value) => acc + value,
-			0,
-		);
-		this.numOfShadowedExportValues = this.#output.summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
-	}
-
-	collectModulesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#output.modules.getAllModules().map(({ path }) => handler(this.getModuleLinkData(path)));
+		this.outOfScopeImports = this.#output.summary.outOfScopeImports
+			.toEntries()
+			.toSorted((first, second) => second[1].length - first[1].length)
+			.map(([path, values]) => ({
+				values,
+				linkData: this.getModuleLinkData(path),
+			}));
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
 		return this.#collectModulesTree(null, handler);
 	}
 
-	collectPackagesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#output.packages.getAllPackages().map(({ path }) => handler(this.getPackageLinkData(path)));
-	}
-
 	collectPackagesTree<T>(handler: (item: LinkTreeItem) => T) {
 		return this.#collectPackagesTree(this.#findRootPackages(null), handler);
-	}
-
-	collectProcessorErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
-		return this.#output.processorErrors.toEntries().map(([path, error]) =>
-			handler({
-				error,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectIncorrectImports<T>(
-		handler: (params: { linkData: LinkData; importItems: Array<{ name: string; linkData: LinkData | null }> }) => T,
-	) {
-		return this.#output.summary.incorrectImports
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, importSources]) => {
-				const importItems = importSources.map(({ importPath, filePath }) => ({
-					name: importPath,
-					linkData: filePath
-						? { url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
-						: null,
-				}));
-
-				return handler({ linkData: this.getModuleLinkData(path), importItems });
-			});
-	}
-
-	collectPossiblyUnusedExports<T>(
-		handler: (params: { linkData: LinkData; values: string[]; isFullyUnused: boolean }) => T,
-	) {
-		return this.#output.summary.possiblyUnusedExportValues
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, values]) =>
-				handler({
-					values,
-					linkData: this.getModuleLinkData(path),
-					isFullyUnused: this.#output.modules.getModule(path).exports.size === values.length,
-				}),
-			);
-	}
-
-	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
-		return this.#output.summary.outOfScopeImports
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, values]) =>
-				handler({
-					values,
-					linkData: this.getModuleLinkData(path),
-				}),
-			);
-	}
-
-	collectEmptyExports<T>(handler: (linkData: LinkData) => T) {
-		return this.#output.summary.emptyExports.map((path) => handler(this.getModuleLinkData(path)));
-	}
-
-	collectUnparsedDynamicImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#output.summary.unparsedDynamicImports
-			.toEntries()
-			.toSorted((first, second) => second[1] - first[1])
-			.map(([path, num]) =>
-				handler({
-					num,
-					linkData: this.getModuleLinkData(path),
-				}),
-			);
-	}
-
-	collectUnresolvedFullImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#output.summary.unresolvedFullImports
-			.toEntries()
-			.toSorted((first, second) => second[1] - first[1])
-			.map(([path, num]) =>
-				handler({
-					num,
-					linkData: this.getModuleLinkData(path),
-				}),
-			);
-	}
-
-	collectUnresolvedFullExports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#output.summary.unresolvedFullExports
-			.toEntries()
-			.toSorted((first, second) => second[1] - first[1])
-			.map(([path, num]) =>
-				handler({
-					num,
-					linkData: this.getModuleLinkData(path),
-				}),
-			);
-	}
-
-	collectShadowedExportValues<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#output.summary.shadowedExportValues
-			.toEntries()
-			.toSorted((first, second) => second[1] - first[1])
-			.map(([path, num]) =>
-				handler({
-					num,
-					linkData: this.getModuleLinkData(path),
-				}),
-			);
 	}
 
 	#collectModulesTree<T>(path: string | null, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
@@ -235,5 +184,9 @@ export class IndexPageViewModel extends PageViewModel {
 			.getNodeChildren(path)
 			.filter(({ isFile }) => !isFile)
 			.flatMap((child) => this.#findRootPackages(child.path));
+	}
+
+	#sortCountableLinkItems(items: CountableLinkItem[]) {
+		return items.toSorted((first, second) => second.num - first.num);
 	}
 }

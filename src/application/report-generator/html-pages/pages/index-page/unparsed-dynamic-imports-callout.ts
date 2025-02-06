@@ -6,14 +6,16 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 export function unparsedDynamicImportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectUnparsedDynamicImports(({ linkData, num }) => ({
+	const count = pageViewModel.unparsedDynamicImports.reduce((acc, { num }) => acc + num, 0);
+
+	const items = pageViewModel.unparsedDynamicImports.map(({ linkData, num }) => ({
 		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
 	}));
 
 	return countCallout({
 		title: "Unparsed dynamic imports",
-		counter: { value: pageViewModel.numOfUnparsedDynamicImports },
+		counter: { value: count },
 		content: list({ items }),
-		color: pageViewModel.numOfUnparsedDynamicImports > 0 ? "yellow" : "green",
+		color: count > 0 ? "yellow" : "green",
 	});
 }

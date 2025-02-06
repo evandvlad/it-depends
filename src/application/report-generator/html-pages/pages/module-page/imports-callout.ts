@@ -6,7 +6,7 @@ import { item } from "../../atoms/item";
 import { countCallout } from "../../components/count-callout";
 
 export function importsCallout(pageViewModel: ModulePageViewModel) {
-	const items = pageViewModel.collectImportItems(({ name, linkData, values }) =>
+	const items = pageViewModel.imports.map(({ name, linkData, values }) =>
 		item({
 			mainContent: details({
 				title: linkData ? a(linkData) : name,
@@ -16,9 +16,11 @@ export function importsCallout(pageViewModel: ModulePageViewModel) {
 		}),
 	);
 
+	const count = pageViewModel.imports.reduce((acc, { values }) => acc + values.length, 0);
+
 	return countCallout({
 		title: "Imports",
-		counter: { value: pageViewModel.numOfImports },
+		counter: { value: count },
 		content: items.join(""),
 		color: "green",
 	});

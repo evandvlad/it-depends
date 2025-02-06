@@ -6,14 +6,16 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectShadowedExportValues(({ linkData, num }) => ({
+	const items = pageViewModel.shadowedExportValues.map(({ linkData, num }) => ({
 		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
 	}));
 
+	const count = pageViewModel.shadowedExportValues.reduce((acc, { num }) => acc + num, 0);
+
 	return countCallout({
 		title: "Shadowed export values",
-		counter: { value: pageViewModel.numOfShadowedExportValues },
+		counter: { value: count },
 		content: list({ items }),
-		color: pageViewModel.numOfShadowedExportValues > 0 ? "yellow" : "green",
+		color: count > 0 ? "yellow" : "green",
 	});
 }

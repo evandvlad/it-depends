@@ -6,7 +6,7 @@ import { item } from "../../atoms/item";
 import { countCallout } from "../../components/count-callout";
 
 export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectOutOfScopeImports(({ linkData, values }) =>
+	const items = pageViewModel.outOfScopeImports.map(({ linkData, values }) =>
 		item({
 			mainContent: details({
 				title: a(linkData),
@@ -16,10 +16,12 @@ export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
 		}),
 	);
 
+	const count = pageViewModel.outOfScopeImports.reduce((acc, { values }) => acc + values.length, 0);
+
 	return countCallout({
 		title: "Out of scope imports",
-		counter: { value: pageViewModel.numOfOutOfScopeImports },
+		counter: { value: count },
 		content: items.join(""),
-		color: pageViewModel.numOfOutOfScopeImports > 0 ? "yellow" : "green",
+		color: count > 0 ? "yellow" : "green",
 	});
 }

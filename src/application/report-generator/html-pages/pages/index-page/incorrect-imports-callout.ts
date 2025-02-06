@@ -7,7 +7,7 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
-	const items = pageViewModel.collectIncorrectImports(({ linkData, importItems }) =>
+	const items = pageViewModel.incorrectImports.map(({ linkData, importItems }) =>
 		item({
 			mainContent: details({
 				title: a(linkData),
@@ -19,10 +19,12 @@ export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 		}),
 	);
 
+	const count = pageViewModel.incorrectImports.reduce((acc, { importItems }) => acc + importItems.length, 0);
+
 	return countCallout({
 		title: "Incorrect imports",
-		counter: { value: pageViewModel.numOfIncorrectImports },
+		counter: { value: count },
 		content: items.join(""),
-		color: pageViewModel.numOfIncorrectImports > 0 ? "red" : "green",
+		color: count > 0 ? "red" : "green",
 	});
 }

@@ -16,7 +16,7 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 				label: "Packages list",
 				content: filterableList({
 					inputPlaceholder: "Filter packages...",
-					items: pageViewModel.collectPackagesList((linkData) => ({
+					items: pageViewModel.packagesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,
 					})),
@@ -27,9 +27,11 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 }
 
 export function packagesCallout(pageViewModel: IndexPageViewModel) {
+	const numOfPackages = pageViewModel.packagesList.length;
+
 	return countCallout({
 		title: "Packages",
-		counter: { value: pageViewModel.numOfPackages },
-		content: pageViewModel.numOfPackages > 0 ? getTabs(pageViewModel) : "",
+		counter: { value: numOfPackages },
+		content: numOfPackages > 0 ? getTabs(pageViewModel) : "",
 	});
 }

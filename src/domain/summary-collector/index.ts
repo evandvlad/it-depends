@@ -2,7 +2,7 @@ import { Rec } from "~/lib/rec";
 import type { FSTree } from "../fs-tree";
 import type { Import } from "../import";
 import type { Module } from "../module";
-import type { Language, ModulesCollection, PackagesCollection } from "../values";
+import type { ModulesCollection, PackagesCollection } from "../values";
 import { IncorrectImportsFinder } from "./incorrect-imports-finder";
 
 interface Params {
@@ -12,12 +12,6 @@ interface Params {
 }
 
 export interface Summary {
-	packages: number;
-	languages: Rec<Language, number>;
-	unparsedDynamicImports: Rec<string, number>;
-	unresolvedFullImports: Rec<string, number>;
-	unresolvedFullExports: Rec<string, number>;
-	shadowedExportValues: Rec<string, number>;
 	outOfScopeImports: Rec<string, string[]>;
 	possiblyUnusedExportValues: Rec<string, string[]>;
 	incorrectImports: Rec<string, Import[]>;
@@ -25,20 +19,10 @@ export interface Summary {
 }
 
 export class SummaryCollector {
-	#packagesCollection;
 	#modulesCollection;
 	#incorrectImportsFinder;
 
 	#summary: Summary = {
-		packages: 0,
-		languages: Rec.fromObject({
-			typescript: 0,
-			javascript: 0,
-		}),
-		unparsedDynamicImports: new Rec(),
-		unresolvedFullImports: new Rec(),
-		unresolvedFullExports: new Rec(),
-		shadowedExportValues: new Rec(),
 		possiblyUnusedExportValues: new Rec(),
 		outOfScopeImports: new Rec(),
 		emptyExports: [],
@@ -46,14 +30,11 @@ export class SummaryCollector {
 	};
 
 	constructor({ fSTree, packagesCollection, modulesCollection }: Params) {
-		this.#packagesCollection = packagesCollection;
 		this.#modulesCollection = modulesCollection;
 		this.#incorrectImportsFinder = new IncorrectImportsFinder({ fSTree, packagesCollection });
 	}
 
 	collect() {
-		this.#summary.packages = this.#packagesCollection.size;
-
 		this.#modulesCollection.forEach((module) => {
 			this.#handleModule(module);
 		});
@@ -62,37 +43,9 @@ export class SummaryCollector {
 	}
 
 	#handleModule(module: Module) {
-		const { path, language, imports, exports } = module;
+		const { path, imports, exports } = module;
 
-		const {
-			languages,
-			unparsedDynamicImports,
-			unresolvedFullImports,
-			unresolvedFullExports,
-			shadowedExportValues,
-			outOfScopeImports,
-			emptyExports,
-			possiblyUnusedExportValues,
-			incorrectImports,
-		} = this.#summary;
-
-		languages.set(language, languages.get(language) + 1);
-
-		if (module.unparsedDynamicImports > 0) {
-			unparsedDynamicImports.set(path, module.unparsedDynamicImports);
-		}
-
-		if (module.unresolvedFullImports.length > 0) {
-			unresolvedFullImports.set(path, module.unresolvedFullImports.length);
-		}
-
-		if (module.unresolvedFullExports.length > 0) {
-			unresolvedFullExports.set(path, module.unresolvedFullExports.length);
-		}
-
-		if (module.shadowedExportValues.length > 0) {
-			shadowedExportValues.set(path, module.shadowedExportValues.length);
-		}
+		const { outOfScopeImports, emptyExports, possiblyUnusedExportValues, incorrectImports } = this.#summary;
 
 		imports.forEach(({ isInScope, importPath }) => {
 			if (!isInScope) {

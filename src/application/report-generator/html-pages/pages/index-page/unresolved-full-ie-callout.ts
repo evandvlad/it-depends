@@ -8,11 +8,11 @@ import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
 
 function getCalloutContent(pageViewModel: IndexPageViewModel) {
-	const importItems = pageViewModel.collectUnresolvedFullImports(({ linkData, num }) => ({
+	const importItems = pageViewModel.unresolvedFullImports.map(({ linkData, num }) => ({
 		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
 	}));
 
-	const exportItems = pageViewModel.collectUnresolvedFullExports(({ linkData, num }) => ({
+	const exportItems = pageViewModel.unresolvedFullExports.map(({ linkData, num }) => ({
 		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
 	}));
 
@@ -26,7 +26,9 @@ function getCalloutContent(pageViewModel: IndexPageViewModel) {
 }
 
 export function unresolvedFullIECallout(pageViewModel: IndexPageViewModel) {
-	const count = pageViewModel.numOfUnresolvedFullIE;
+	const count = pageViewModel.unresolvedFullImports
+		.concat(pageViewModel.unresolvedFullExports)
+		.reduce((acc, { num }) => acc + num, 0);
 
 	return countCallout({
 		title: "Unresolved full imports/exports",

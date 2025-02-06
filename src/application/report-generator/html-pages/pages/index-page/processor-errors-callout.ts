@@ -5,7 +5,7 @@ import { countCallout } from "../../components/count-callout";
 import { errorInfo } from "../../components/error-info";
 
 export function processorErrorsCallout(pageViewModel: IndexPageViewModel) {
-	const errors = pageViewModel.collectProcessorErrors(({ error, linkData }) =>
+	const errors = pageViewModel.processorErrors.map(({ error, linkData }) =>
 		details({
 			title: a(linkData),
 			content: errorInfo({ error }),
