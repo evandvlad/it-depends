@@ -15,9 +15,14 @@ interface OutOfScopeImportItem {
 }
 
 interface PossiblyUnusedExportsItem {
-	values: string[];
+	values: readonly string[];
 	linkData: LinkData;
 	isFullyUnused: boolean;
+}
+
+interface IncorrectImportItem {
+	linkData: LinkData;
+	importItems: Array<{ name: string; linkData: LinkData | null }>;
 }
 
 export class IndexPageViewModel extends PageViewModel {
@@ -58,6 +63,7 @@ export class IndexPageViewModel extends PageViewModel {
 		const shadowedExportValues: CountableLinkItem[] = [];
 		const outOfScopeImports: OutOfScopeImportItem[] = [];
 		const possiblyUnusedExports: PossiblyUnusedExportsItem[] = [];
+		const incorrectImports: IncorrectImportItem[] = [];
 
 		modules.forEach((module) => {
 			const linkData = this.getModuleLinkData(module.path);
@@ -99,6 +105,18 @@ export class IndexPageViewModel extends PageViewModel {
 				});
 			}
 
+			if (module.incorrectImports.length > 0) {
+				incorrectImports.push({
+					linkData,
+					importItems: module.incorrectImports.map(({ importPath, filePath }) => ({
+						name: importPath,
+						linkData: filePath
+							? { url: pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
+							: null,
+					})),
+				});
+			}
+
 			modulesList.push(linkData);
 		});
 
@@ -125,24 +143,14 @@ export class IndexPageViewModel extends PageViewModel {
 			(first, second) => second.values.length - first.values.length,
 		);
 
+		this.incorrectImports = incorrectImports.toSorted(
+			(first, second) => second.importItems.length - first.importItems.length,
+		);
+
 		this.processorErrors = this.#output.processorErrors.toEntries().map(([path, error]) => ({
 			error,
 			linkData: this.getModuleLinkData(path),
 		}));
-
-		this.incorrectImports = this.#output.summary.incorrectImports
-			.toEntries()
-			.toSorted((first, second) => second[1].length - first[1].length)
-			.map(([path, imports]) => {
-				const importItems = imports.map(({ importPath, filePath }) => ({
-					name: importPath,
-					linkData: filePath
-						? { url: pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
-						: null,
-				}));
-
-				return { linkData: this.getModuleLinkData(path), importItems };
-			});
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {

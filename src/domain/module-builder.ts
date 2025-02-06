@@ -13,11 +13,12 @@ export class ModuleBuilder {
 
 	#language;
 	#content;
+	#unparsedDynamicImports = 0;
 	#package: string | null = null;
 	#imports: ImportData[] = [];
 	#unresolvedFullImports: ImportData[] = [];
 	#unresolvedFullExports: ImportData[] = [];
-	#unparsedDynamicImports = 0;
+	#incorrectImports: ImportData[] = [];
 	#exports = new Rec<string, string[]>();
 	#shadowedExportValues: string[] = [];
 
@@ -83,6 +84,10 @@ export class ModuleBuilder {
 		this.#exports.set(value, paths);
 	}
 
+	getAllImports() {
+		return [...this.#imports, ...this.#unresolvedFullImports];
+	}
+
 	getInScopeImports() {
 		return this.#imports.filter((importData) => this.#isInScopeImport(importData));
 	}
@@ -114,6 +119,12 @@ export class ModuleBuilder {
 		}
 	}
 
+	setIncorrectImports(importDataList: ImportData[]) {
+		importDataList.forEach((importData) => {
+			this.#incorrectImports.push(importData);
+		});
+	}
+
 	build() {
 		return new Module({
 			path: this.path,
@@ -126,6 +137,7 @@ export class ModuleBuilder {
 			unresolvedFullExports: this.#unresolvedFullExports,
 			shadowedExportValues: this.#shadowedExportValues,
 			unparsedDynamicImports: this.#unparsedDynamicImports,
+			incorrectImports: this.#incorrectImports,
 		});
 	}
 

@@ -1,10 +1,10 @@
 import type { ExtraPackageEntries, PathFilter } from "~/values";
+import { processCollections } from "./collections-processor";
 import { FSTree } from "./fs-tree";
 import { ModuleBuildersCollector } from "./module-builders-collector";
 import { Output } from "./output";
 import { PackagesCollector } from "./packages-collector";
 import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./program-file-expert";
-import { SummaryCollector } from "./summary-collector";
 import {
 	type IEItem,
 	type Language,
@@ -74,16 +74,11 @@ export class Domain {
 		});
 
 		const packagesCollection = packagesCollector.collect();
+
+		processCollections({ fSTree, packagesCollection, moduleBuildersCollection });
+
 		const modulesCollection = moduleBuildersCollection.mapValue((moduleBuilder) => moduleBuilder.build());
 
-		const summaryCollector = new SummaryCollector({
-			fSTree,
-			modulesCollection,
-			packagesCollection,
-		});
-
-		const summary = summaryCollector.collect();
-
-		return new Output({ processorErrors, modulesCollection, packagesCollection, summary, fSTree });
+		return new Output({ processorErrors, modulesCollection, packagesCollection, fSTree });
 	}
 }

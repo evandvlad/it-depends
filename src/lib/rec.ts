@@ -1,5 +1,7 @@
 import { assert } from "~/lib/errors";
 
+export type ReadonlyRec<K extends PropertyKey, V> = Omit<Rec<K, V>, "set">;
+
 export class Rec<K extends PropertyKey, V> {
 	#data: Record<K, V> = Object.create({});
 

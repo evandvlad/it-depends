@@ -1,15 +1,14 @@
 import type { FSTree } from "../fs-tree";
-import type { Import } from "../import";
-import type { Module } from "../module";
+import type { ModuleBuilder } from "../module-builder";
 import type { Package } from "../package";
-import type { PackagesCollection } from "../values";
+import type { ImportData, PackagesCollection } from "../values";
 
 interface Params {
 	fSTree: FSTree;
 	packagesCollection: PackagesCollection;
 }
 
-export class IncorrectImportsFinder {
+export class IncorrectImportsProcessor {
 	#fSTree;
 	#packagesCollection;
 
@@ -18,29 +17,30 @@ export class IncorrectImportsFinder {
 		this.#packagesCollection = packagesCollection;
 	}
 
-	find({ path, imports, unresolvedFullImports }: Module): Import[] {
-		const pack = this.#findPackageByFilePath(path);
+	process(builder: ModuleBuilder) {
+		const pack = this.#findPackageByFilePath(builder.path);
 
-		return imports
-			.concat(unresolvedFullImports)
-			.filter((imp) =>
-				pack ? !this.#isCorrectImportFromPackage(pack, imp) : !this.#isCorrectImportWithoutPackage(imp),
+		const incorrectImports = builder
+			.getAllImports()
+			.filter((importData) =>
+				pack ? !this.#isCorrectImportFromPackage(pack, importData) : !this.#isCorrectImportWithoutPackage(importData),
 			);
+
+		builder.setIncorrectImports(incorrectImports);
 	}
 
-	#isCorrectImportFromPackage(pack: Package, imp: Import) {
-		if (!imp.isInScope) {
+	#isCorrectImportFromPackage(pack: Package, importData: ImportData) {
+		if (!importData.filePath) {
 			return true;
 		}
 
-		const filePath = imp.filePath!;
-		const importPackage = this.#findPackageByFilePath(filePath);
+		const importPackage = this.#findPackageByFilePath(importData.filePath);
 
 		if (!importPackage) {
 			return true;
 		}
 
-		const isEntryPointImport = importPackage.entryPoint === filePath;
+		const isEntryPointImport = importPackage.entryPoint === importData.filePath;
 
 		if ((pack.parent === importPackage.parent || importPackage.parent === null) && isEntryPointImport) {
 			return true;
@@ -63,16 +63,15 @@ export class IncorrectImportsFinder {
 		return false;
 	}
 
-	#isCorrectImportWithoutPackage(imp: Import) {
-		if (!imp.isInScope) {
+	#isCorrectImportWithoutPackage(importData: ImportData) {
+		if (!importData.filePath) {
 			return true;
 		}
 
-		const filePath = imp.filePath!;
-		const importPackage = this.#findPackageByFilePath(filePath);
+		const importPackage = this.#findPackageByFilePath(importData.filePath);
 
 		if (importPackage) {
-			return importPackage.entryPoint === filePath && importPackage.parent === null;
+			return importPackage.entryPoint === importData.filePath && importPackage.parent === null;
 		}
 
 		return true;

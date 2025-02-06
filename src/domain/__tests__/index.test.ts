@@ -69,6 +69,7 @@ function createModules(
 		shadowedExportValues?: string[];
 		unresolvedFullImports?: ImportData[];
 		unresolvedFullExports?: ImportData[];
+		incorrectImports?: ImportData[];
 	}>,
 ) {
 	return moduleParams.map(
@@ -83,6 +84,7 @@ function createModules(
 			shadowedExportValues = [],
 			unresolvedFullImports = [],
 			unresolvedFullExports = [],
+			incorrectImports = [],
 		}) =>
 			new Module({
 				path,
@@ -95,6 +97,7 @@ function createModules(
 				unresolvedFullExports,
 				unresolvedFullImports,
 				shadowedExportValues,
+				incorrectImports,
 			}),
 	);
 }
@@ -1578,9 +1581,13 @@ describe("domain", () => {
 			])("$name", ({ entries, isCorrect }) => {
 				const { instance } = createSutComponents();
 
-				const { summary } = instance.process(createProcessParams({ entries }));
+				const { modules } = instance.process(createProcessParams({ entries }));
 
-				expect(summary.incorrectImports.size === 0).toEqual(isCorrect);
+				const incorrectImportsCount = modules
+					.getAllModules()
+					.reduce((acc, { incorrectImports }) => acc + incorrectImports.length, 0);
+
+				expect(incorrectImportsCount === 0).toEqual(isCorrect);
 			});
 		});
 	});

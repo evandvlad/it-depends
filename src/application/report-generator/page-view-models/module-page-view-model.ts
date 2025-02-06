@@ -1,5 +1,5 @@
 import type { Output } from "~/domain";
-import type { Rec } from "~/lib/rec";
+import type { ReadonlyRec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
 
@@ -62,15 +62,13 @@ export class ModulePageViewModel extends PageViewModel {
 			linkData: this.getModuleLinkData(path),
 		}));
 
-		this.incorrectImports = output.summary.incorrectImports
-			.getOrDefault(this.fullPath, [])
-			.map(({ importPath, filePath }) => ({
-				url: pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
-				content: importPath,
-			}));
+		this.incorrectImports = module.incorrectImports.map(({ importPath, filePath }) => ({
+			url: pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
+			content: importPath,
+		}));
 	}
 
-	#convertExportsToEntriesAndSort(exports: Rec<string, string[]>) {
+	#convertExportsToEntriesAndSort(exports: ReadonlyRec<string, string[]>) {
 		return exports.toEntries().toSorted((first, second) => second[1].length - first[1].length);
 	}
 }

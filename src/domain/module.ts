@@ -1,5 +1,5 @@
 import { getName } from "~/lib/fs-path";
-import { Rec } from "~/lib/rec";
+import { type ReadonlyRec, Rec } from "~/lib/rec";
 import { Import } from "./import";
 import type { Exports, ImportData, Language } from "./values";
 
@@ -12,6 +12,7 @@ interface Params {
 	exports: Exports;
 	unresolvedFullImports: ImportData[];
 	unresolvedFullExports: ImportData[];
+	incorrectImports: ImportData[];
 	shadowedExportValues: string[];
 	unparsedDynamicImports: number;
 }
@@ -22,16 +23,17 @@ export class Module {
 	readonly package;
 	readonly language;
 	readonly content;
-	readonly imports;
-	readonly exportsByValue;
-	readonly exportsByModule;
-	readonly unresolvedFullImports;
-	readonly unresolvedFullExports;
-	readonly shadowedExportValues;
-	readonly unparsedDynamicImports;
-	readonly outOfScopeImports;
 	readonly hasExports;
-	readonly possiblyUnusedExports;
+	readonly unparsedDynamicImports;
+	readonly imports: readonly Import[];
+	readonly unresolvedFullImports: readonly Import[];
+	readonly unresolvedFullExports: readonly Import[];
+	readonly outOfScopeImports: readonly Import[];
+	readonly incorrectImports: readonly Import[];
+	readonly shadowedExportValues: readonly string[];
+	readonly possiblyUnusedExports: readonly string[];
+	readonly exportsByValue: ReadonlyRec<string, string[]>;
+	readonly exportsByModule: ReadonlyRec<string, string[]>;
 
 	constructor({
 		path,
@@ -44,6 +46,7 @@ export class Module {
 		unresolvedFullExports,
 		shadowedExportValues,
 		unparsedDynamicImports,
+		incorrectImports,
 	}: Params) {
 		this.path = path;
 		this.package = pack;
@@ -55,6 +58,7 @@ export class Module {
 		this.imports = imports.map((importData) => new Import(importData));
 		this.unresolvedFullImports = unresolvedFullImports.map((importData) => new Import(importData));
 		this.unresolvedFullExports = unresolvedFullExports.map((importData) => new Import(importData));
+		this.incorrectImports = incorrectImports.map((importData) => new Import(importData));
 		this.shadowedExportValues = shadowedExportValues;
 		this.unparsedDynamicImports = unparsedDynamicImports;
 		this.outOfScopeImports = this.imports.filter(({ isInScope }) => !isInScope);
