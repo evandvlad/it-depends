@@ -1,16 +1,12 @@
-import type { PackagesCollection } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Output } from "~/domain";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
-import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
-	path: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	path: string;
 	pathInformer: PathInformer;
-	packagesCollection: PackagesCollection;
+	output: Output;
 }
 
 export class PackagePageViewModel extends PageViewModel {
@@ -18,25 +14,19 @@ export class PackagePageViewModel extends PageViewModel {
 	readonly shortPath;
 	readonly entryPointLinkData;
 	readonly parentPackageLinkData;
+	readonly moduleLinks;
+	readonly childPackageLinks;
 
-	#package;
+	constructor({ version, path, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-	constructor({ version, path, pathInformer, fsNavCursor, packagesCollection }: Params) {
-		super({ version, pathInformer, fsNavCursor });
-
-		this.#package = packagesCollection.get(path);
+		const pack = output.packages.getPackage(path);
 
 		this.fullPath = path;
-		this.shortPath = fsNavCursor.getShortPathByPath(path);
-		this.entryPointLinkData = this.getModuleLinkData(this.#package.entryPoint);
-		this.parentPackageLinkData = this.#package.parent ? this.getPackageLinkData(this.#package.parent) : null;
-	}
-
-	collectModuleLinks<T>(handler: (linkData: LinkData) => T) {
-		return this.#package.modules.toSorted().map((path) => handler(this.getModuleLinkData(path)));
-	}
-
-	collectChildPackageLinks<T>(handler: (linkData: LinkData) => T) {
-		return this.#package.packages.toSorted().map((path) => handler(this.getPackageLinkData(path)));
+		this.shortPath = output.fs.getShortPath(path);
+		this.entryPointLinkData = this.getModuleLinkData(pack.entryPoint);
+		this.parentPackageLinkData = pack.parent ? this.getPackageLinkData(pack.parent) : null;
+		this.moduleLinks = pack.modules.toSorted().map((path) => this.getModuleLinkData(path));
+		this.childPackageLinks = pack.packages.toSorted().map((path) => this.getPackageLinkData(path));
 	}
 }

@@ -1,53 +1,61 @@
 import { describe, expect, it } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { createDomain, createProcessParams, createProgramFileEntry } from "~/__test-utils__/components-factories";
 import { PathInformer } from "../../path-informer";
 import { PackagePageViewModel } from "../package-page-view-model";
 
-async function createPageViewModelParams() {
-	const rootPath = "/report" as AbsoluteFsPath;
+function createSutComponents() {
+	const domain = createDomain();
 
-	const { packagesCollection, fsNavCursor } = await processFileItems([
-		{
-			path: "/src/index.ts",
-			content: `import { a } from "./lib/a";`,
-		},
-		{
-			path: "/src/lib/a/index.ts",
-			content: `export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
-		},
-		{
-			path: "/src/lib/a/b/index.ts",
-			content: "export const b = 1;",
-		},
-		{
-			path: "/src/lib/a/b/c.ts",
-			content: "export const b = 2;",
-		},
-	]);
+	const output = domain.process(
+		createProcessParams({
+			entries: [
+				createProgramFileEntry({
+					path: "/src/index.ts",
+					ieItems: [{ type: "standard-import", source: "./lib/a", values: ["a"] }],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/index.ts",
+					ieItems: [
+						{ type: "re-export", source: "foo", inputValues: ["f"], outputValues: ["f"] },
+						{ type: "re-export", source: "bar", inputValues: ["*"], outputValues: ["*"] },
+						{ type: "re-export", source: "./b/c", inputValues: ["b"], outputValues: ["b"] },
+						{ type: "standard-export", values: ["a"] },
+					],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/b/index.ts",
+					ieItems: [{ type: "standard-export", values: ["b"] }],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/b/c.ts",
+					ieItems: [{ type: "standard-export", values: ["b"] }],
+				}),
+			],
+		}),
+	);
 
-	return {
-		path: "/src/lib/a" as AbsoluteFsPath,
+	return new PackagePageViewModel({
+		output,
+		path: "/src/lib/a",
 		version: "999",
-		packagesCollection,
-		fsNavCursor,
-		pathInformer: new PathInformer({ rootPath, fsNavCursor }),
-	};
+		pathInformer: new PathInformer({ rootPath: "/report", fs: output.fs }),
+	});
 }
 
 describe("package-page-view-model", () => {
-	it("should get layout properties correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new PackagePageViewModel(params);
+	it("should get layout properties correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		expect(pageViewModel.version).toEqual(params.version);
-		expect(pageViewModel.assetsPath).toEqual("/report/assets");
-		expect(pageViewModel.indexHtmlPagePath).toEqual("/report/content/index.html");
+		expect(pageViewModel.version).toEqual("999");
+		expect(pageViewModel.layoutParams).toEqual({
+			indexHtmlPagePath: "/report/content/index.html",
+			externalStylePaths: ["/report/assets/index.css"],
+			externalScriptPaths: ["/report/assets/index.js"],
+		});
 	});
 
-	it("should get base package properties correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new PackagePageViewModel(params);
+	it("should get base package properties correctly", () => {
+		const pageViewModel = createSutComponents();
 
 		expect(pageViewModel.fullPath).toEqual("/src/lib/a");
 		expect(pageViewModel.shortPath).toEqual("src/lib/a");
@@ -61,23 +69,19 @@ describe("package-page-view-model", () => {
 		});
 	});
 
-	it("should collect module links correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new PackagePageViewModel(params);
+	it("should collect module links correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const moduleLinks = pageViewModel.collectModuleLinks((params) => params);
-
-		expect(moduleLinks).toEqual([
+		expect(pageViewModel.moduleLinks).toEqual([
 			{ url: "/report/content/modules/src/lib/a/index.ts.html", content: "src/lib/a/index.ts" },
 		]);
 	});
 
-	it("should collect child package links correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new PackagePageViewModel(params);
+	it("should collect child package links correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const moduleLinks = pageViewModel.collectChildPackageLinks((params) => params);
-
-		expect(moduleLinks).toEqual([{ url: "/report/content/packages/src/lib/a/b.html", content: "src/lib/a/b" }]);
+		expect(pageViewModel.childPackageLinks).toEqual([
+			{ url: "/report/content/packages/src/lib/a/b.html", content: "src/lib/a/b" },
+		]);
 	});
 });

@@ -1,178 +1,172 @@
-import type { ImportPath, ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Language, Output } from "~/domain";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
-import type { LinkData, LinkTreeItem, LinkTreeNode } from "./values";
+import type { CountableLinkItem, LinkData, LinkTreeItem, LinkTreeNode } from "./values";
 
 interface Params {
 	version: string;
-	fsNavCursor: FSNavCursor;
 	pathInformer: PathInformer;
-	summary: Summary;
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
+	output: Output;
+}
+
+interface OutOfScopeImportItem {
+	linkData: LinkData;
+	values: string[];
+}
+
+interface PossiblyUnusedExportsItem {
+	values: readonly string[];
+	linkData: LinkData;
+	isFullyUnused: boolean;
+}
+
+interface IncorrectImportItem {
+	linkData: LinkData;
+	importItems: Array<{ name: string; linkData: LinkData | null }>;
 }
 
 export class IndexPageViewModel extends PageViewModel {
-	readonly numOfModules;
-	readonly numOfPackages;
 	readonly langCountList;
-	readonly numOfIncorrectImports;
-	readonly numOfPossiblyUnusedExports;
-	readonly numOfOutOfScopeImports;
-	readonly numOfUnparsedDynamicImports;
-	readonly numOfUnresolvedFullIE;
-	readonly numOfShadowedExportValues;
+	readonly modulesList;
+	readonly packagesList;
+	readonly processorErrors;
+	readonly unparsedDynamicImports;
+	readonly unresolvedFullImports;
+	readonly unresolvedFullExports;
+	readonly shadowedExportValues;
+	readonly emptyExports;
+	readonly incorrectImports;
+	readonly possiblyUnusedExports;
+	readonly outOfScopeImports;
 
-	#modulesCollection;
-	#packagesCollection;
-	#summary;
-	#fsNavCursor;
-	#pathInformer;
+	#output;
 
-	constructor({ version, pathInformer, fsNavCursor, summary, modulesCollection, packagesCollection }: Params) {
-		super({ version, pathInformer, fsNavCursor });
+	constructor({ version, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-		this.#modulesCollection = modulesCollection;
-		this.#packagesCollection = packagesCollection;
-		this.#summary = summary;
-		this.#fsNavCursor = fsNavCursor;
-		this.#pathInformer = pathInformer;
+		this.#output = output;
 
-		this.numOfModules = summary.languages.reduce((acc, num) => acc + num, 0);
-		this.numOfPackages = summary.packages;
+		const modules = this.#output.modules.getAllModules();
+		const packages = this.#output.packages.getAllPackages();
 
-		this.langCountList = summary.languages
-			.toEntries()
-			.map(([lang, value]) => ({ label: lang, value: value.toString() }));
+		const langCounts: Record<Language, number> = {
+			typescript: 0,
+			javascript: 0,
+		};
 
-		this.numOfIncorrectImports = summary.incorrectImports.reduce((acc, importSources) => acc + importSources.length, 0);
-		this.numOfOutOfScopeImports = summary.outOfScopeImports.reduce((acc, importPaths) => acc + importPaths.length, 0);
+		const modulesList: LinkData[] = [];
+		const packagesList: LinkData[] = [];
+		const emptyExports: LinkData[] = [];
+		const unparsedDynamicImports: CountableLinkItem[] = [];
+		const unresolvedFullImports: CountableLinkItem[] = [];
+		const unresolvedFullExports: CountableLinkItem[] = [];
+		const shadowedExportValues: CountableLinkItem[] = [];
+		const outOfScopeImports: OutOfScopeImportItem[] = [];
+		const possiblyUnusedExports: PossiblyUnusedExportsItem[] = [];
+		const incorrectImports: IncorrectImportItem[] = [];
 
-		this.numOfPossiblyUnusedExports = summary.possiblyUnusedExportValues.reduce(
-			(acc, values) => acc + values.length,
-			0,
+		modules.forEach((module) => {
+			const linkData = this.getModuleLinkData(module.path);
+
+			langCounts[module.language] += 1;
+
+			if (module.unparsedDynamicImports > 0) {
+				unparsedDynamicImports.push({ linkData, num: module.unparsedDynamicImports });
+			}
+
+			if (module.unresolvedFullImports.length > 0) {
+				unresolvedFullImports.push({ linkData, num: module.unresolvedFullImports.length });
+			}
+
+			if (module.unresolvedFullExports.length > 0) {
+				unresolvedFullExports.push({ linkData, num: module.unresolvedFullExports.length });
+			}
+
+			if (module.shadowedExportValues.length > 0) {
+				shadowedExportValues.push({ linkData, num: module.shadowedExportValues.length });
+			}
+
+			if (module.outOfScopeImports.length > 0) {
+				outOfScopeImports.push({
+					linkData,
+					values: module.outOfScopeImports.map(({ importPath }) => importPath),
+				});
+			}
+
+			if (!module.hasExports) {
+				emptyExports.push(linkData);
+			}
+
+			if (module.possiblyUnusedExports.length > 0) {
+				possiblyUnusedExports.push({
+					values: module.possiblyUnusedExports,
+					isFullyUnused: module.exportsByValue.size === module.possiblyUnusedExports.length,
+					linkData,
+				});
+			}
+
+			if (module.incorrectImports.length > 0) {
+				incorrectImports.push({
+					linkData,
+					importItems: module.incorrectImports.map(({ importPath, filePath }) => ({
+						name: importPath,
+						linkData: filePath
+							? { url: pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
+							: null,
+					})),
+				});
+			}
+
+			modulesList.push(linkData);
+		});
+
+		packages.forEach((pack) => {
+			packagesList.push(this.getPackageLinkData(pack.path));
+		});
+
+		this.langCountList = Object.entries(langCounts).map(([lang, count]) => ({
+			label: lang as Language,
+			value: count.toString(),
+		}));
+
+		this.modulesList = modulesList;
+		this.packagesList = packagesList;
+		this.emptyExports = emptyExports;
+		this.unparsedDynamicImports = this.#sortCountableLinkItems(unparsedDynamicImports);
+		this.unresolvedFullImports = this.#sortCountableLinkItems(unresolvedFullImports);
+		this.unresolvedFullExports = this.#sortCountableLinkItems(unresolvedFullExports);
+		this.shadowedExportValues = this.#sortCountableLinkItems(shadowedExportValues);
+
+		this.outOfScopeImports = outOfScopeImports.toSorted((first, second) => second.values.length - first.values.length);
+
+		this.possiblyUnusedExports = possiblyUnusedExports.toSorted(
+			(first, second) => second.values.length - first.values.length,
 		);
 
-		this.numOfUnresolvedFullIE =
-			summary.unresolvedFullImports.reduce((acc, value) => acc + value, 0) +
-			summary.unresolvedFullExports.reduce((acc, value) => acc + value, 0);
+		this.incorrectImports = incorrectImports.toSorted(
+			(first, second) => second.importItems.length - first.importItems.length,
+		);
 
-		this.numOfUnparsedDynamicImports = summary.unparsedDynamicImports.reduce((acc, value) => acc + value, 0);
-		this.numOfShadowedExportValues = summary.shadowedExportValues.reduce((acc, value) => acc + value, 0);
-	}
-
-	collectModulesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#modulesCollection.toValues().map(({ path }) => handler(this.getModuleLinkData(path)));
+		this.processorErrors = this.#output.processorErrors.toEntries().map(([path, error]) => ({
+			error,
+			linkData: this.getModuleLinkData(path),
+		}));
 	}
 
 	collectModulesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectModulesTree(this.#fsNavCursor.shortRootPath, handler);
-	}
-
-	collectPackagesList<T>(handler: (linkData: LinkData) => T) {
-		return this.#packagesCollection.toValues().map(({ path }) => handler(this.getPackageLinkData(path)));
+		return this.#collectModulesTree(null, handler);
 	}
 
 	collectPackagesTree<T>(handler: (item: LinkTreeItem) => T) {
-		return this.#collectPackagesTree(this.#findRootPackages(this.#fsNavCursor.shortRootPath), handler);
+		return this.#collectPackagesTree(this.#findRootPackages(null), handler);
 	}
 
-	collectParserErrors<T>(handler: (params: { error: Error; linkData: LinkData }) => T) {
-		return this.#summary.parserErrors.toEntries().map(([path, error]) =>
-			handler({
-				error,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectIncorrectImports<T>(
-		handler: (params: {
-			linkData: LinkData;
-			importItems: Array<{ name: string; linkData: LinkData | null }>;
-		}) => T,
-	) {
-		return this.#summary.incorrectImports.toEntries().map(([path, importSources]) => {
-			const importItems = importSources.map(({ importPath, filePath }) => ({
-				name: importPath,
-				linkData: filePath
-					? { url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath), content: importPath }
-					: null,
-			}));
-
-			return handler({ linkData: this.getModuleLinkData(path), importItems });
-		});
-	}
-
-	collectPossiblyUnusedExports<T>(
-		handler: (params: { linkData: LinkData; values: string[]; isFullyUnused: boolean }) => T,
-	) {
-		return this.#summary.possiblyUnusedExportValues.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-				isFullyUnused: this.#modulesCollection.get(path).exports.size === values.length,
-			}),
-		);
-	}
-
-	collectOutOfScopeImports<T>(handler: (params: { linkData: LinkData; values: ImportPath[] }) => T) {
-		return this.#summary.outOfScopeImports.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectEmptyExports<T>(handler: (linkData: LinkData) => T) {
-		return this.#summary.emptyExports.map((path) => handler(this.getModuleLinkData(path)));
-	}
-
-	collectUnparsedDynamicImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unparsedDynamicImports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectUnresolvedFullImports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullImports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectUnresolvedFullExports<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.unresolvedFullExports.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectShadowedExportValues<T>(handler: (params: { linkData: LinkData; num: number }) => T) {
-		return this.#summary.shadowedExportValues.toEntries().map(([path, num]) =>
-			handler({
-				num,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	#collectModulesTree<T>(path: AbsoluteFsPath, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
-		return this.#fsNavCursor.getNodeChildrenByPath(path).map(({ path, name }) => {
+	#collectModulesTree<T>(path: string | null, handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+		return this.#output.fs.getNodeChildren(path).map(({ path, name }) => {
 			const content = handler(
-				this.#modulesCollection.has(path)
+				this.#output.modules.hasModule(path)
 					? {
-							name: this.#modulesCollection.get(path).name,
+							name: this.#output.modules.getModule(path).name,
 							linkData: {
 								...this.getModuleLinkData(path),
 								content: name,
@@ -183,15 +177,15 @@ export class IndexPageViewModel extends PageViewModel {
 
 			return {
 				content,
-				title: this.#fsNavCursor.getShortPathByPath(path),
+				title: this.#output.fs.getShortPath(path),
 				children: this.#collectModulesTree<T>(path, handler),
 			};
 		});
 	}
 
-	#collectPackagesTree<T>(paths: AbsoluteFsPath[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
+	#collectPackagesTree<T>(paths: readonly string[], handler: (item: LinkTreeItem) => T): LinkTreeNode<T>[] {
 		return paths.map((path) => {
-			const pack = this.#packagesCollection.get(path);
+			const pack = this.#output.packages.getPackage(path);
 
 			return {
 				content: handler({
@@ -202,22 +196,26 @@ export class IndexPageViewModel extends PageViewModel {
 						content: pack.name,
 					},
 				}),
-				title: this.#fsNavCursor.getShortPathByPath(path),
+				title: this.#output.fs.getShortPath(path),
 				children: this.#collectPackagesTree<T>(pack.packages, handler),
 			};
 		});
 	}
 
-	#findRootPackages(path: AbsoluteFsPath): AbsoluteFsPath[] {
-		const node = this.#fsNavCursor.getNodeByPath(path);
+	#findRootPackages(path: string | null): string[] {
+		const node = this.#output.fs.getNode(path);
 
-		if (this.#packagesCollection.has(node.path)) {
+		if (this.#output.packages.hasPackage(node.path)) {
 			return [node.path];
 		}
 
-		return this.#fsNavCursor
-			.getNodeChildrenByPath(path)
+		return this.#output.fs
+			.getNodeChildren(path)
 			.filter(({ isFile }) => !isFile)
 			.flatMap((child) => this.#findRootPackages(child.path));
+	}
+
+	#sortCountableLinkItems(items: CountableLinkItem[]) {
+		return items.toSorted((first, second) => second.num - first.num);
 	}
 }

@@ -204,3 +204,26 @@
 		padding: 15px 0;
 	}
 }
+
+.item {
+	display: grid;
+	grid-auto-flow: column;
+	grid-template-columns: auto max-content;
+	gap: 5px;
+}
+
+.textbox {
+	display: block;
+	width: 100%;
+	padding: 12px;
+	font-family: var(--g-base-font-style);
+	font-size: var(--g-base-font-size);
+	color: var(--g-dark-gray-color);
+	border: none;
+	border-radius: 0;
+	outline: none;
+
+	&::placeholder {
+		color: var(--g-gray-color);
+	}
+}

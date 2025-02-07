@@ -1,4 +1,4 @@
-interface Params {
+export interface Params {
 	value: number;
 	color?: "gray" | "white";
 }

@@ -1,30 +1,8 @@
-import { platform } from "node:os";
 import { describe, expect, it } from "@jest/globals";
-import {
-	type AbsoluteFsPath,
-	getBreadcrumbs,
-	getName,
-	getParentPath,
-	isAbsolutePath,
-	joinPaths,
-	normalizePath,
-} from "../fs-path";
-
-const isWindows = platform() === "win32";
+import { AppError } from "~/lib/errors";
+import { getBreadcrumbs, getName, getParentPath, joinPaths, normalizePath } from "../fs-path";
 
 describe("fs-path", () => {
-	describe("isAbsolutePath", () => {
-		it.each([
-			{ name: "should be absolute windows path", path: "C:\\tmp\\dir", result: isWindows },
-			{ name: "should be absolute normalized windows path", path: "C:/tmp/dir", result: isWindows },
-			{ name: "should be absolute unix path", path: "/tmp/dir", result: true },
-			{ name: "should be relative windows path", path: ".\\tmp\\dir", result: false },
-			{ name: "should be relative normalized path", path: "../tmp/dir", result: false },
-		])("$name", ({ path, result }) => {
-			expect(isAbsolutePath(path)).toEqual(result);
-		});
-	});
-
 	describe("normalizePath", () => {
 		it.each([
 			{ name: "should be normalized windows relative path", path: ".\\tmp\\file.txt", result: "./tmp/file.txt" },
@@ -40,20 +18,56 @@ describe("fs-path", () => {
 				result: "C:/tmp/file.txt",
 			},
 		])("$name", ({ path, result }) => {
-			expect(normalizePath(path as AbsoluteFsPath)).toEqual(result);
+			expect(normalizePath(path)).toEqual(result);
 		});
 	});
 
 	describe("joinPaths", () => {
 		it.each([
 			{
-				name: "should join paths",
-				path1: "/tmp/dir",
-				path2: "../file.txt",
+				name: "should change dir",
+				path: "/tmp/dir",
+				subpath: "../file.txt",
 				result: "/tmp/file.txt",
 			},
-		])("$name", ({ path1, path2, result }) => {
-			expect(joinPaths(path1 as AbsoluteFsPath, path2)).toEqual(result);
+			{
+				name: "should get parent path",
+				path: "/tmp/dir",
+				subpath: "..",
+				result: "/tmp",
+			},
+			{
+				name: "should get file path in current dir",
+				path: "/tmp/dir",
+				subpath: "./file.ts",
+				result: "/tmp/dir/file.ts",
+			},
+			{
+				name: "should get file path in current dir (without dot in the beginning)",
+				path: "/tmp/dir",
+				subpath: "file.ts",
+				result: "/tmp/dir/file.ts",
+			},
+			{
+				name: "should get file in root dir",
+				path: "/tmp/dir1/dir2",
+				subpath: "../../../file.ts",
+				result: "/file.ts",
+			},
+		])("$name", ({ path, subpath, result }) => {
+			expect(joinPaths(path, subpath)).toEqual(result);
+		});
+
+		it("should be error for incorrect params for windows", () => {
+			expect(() => {
+				joinPaths("C:/src", "../../file.ts");
+			}).toThrow(new AppError("Can't join path 'C:' with sub-path '../file.ts'"));
+		});
+
+		it("should be error for incorrect params for unix", () => {
+			expect(() => {
+				joinPaths("/src", "../../file.ts");
+			}).toThrow(new AppError("Can't join path '/' with sub-path '../file.ts'"));
 		});
 	});
 
@@ -70,23 +84,34 @@ describe("fs-path", () => {
 				path: "/tmp/dir",
 				result: "/tmp",
 			},
-
-			{
-				name: "should get parent path for root dir which is root dir",
-				path: "/",
-				result: "/",
-			},
 		])("$name", ({ path, result }) => {
-			expect(getParentPath(path as AbsoluteFsPath)).toEqual(result);
+			expect(getParentPath(path)).toEqual(result);
+		});
+
+		it("should be error if path is unix root", () => {
+			expect(() => {
+				getParentPath("/");
+			}).toThrow(new AppError("Can't get parent path from root '/'"));
+		});
+
+		it("should be error if path is windows root", () => {
+			expect(() => {
+				getParentPath("C:");
+			}).toThrow(new AppError("Can't get parent path from root 'C:'"));
 		});
 	});
 
 	describe("getName", () => {
 		it.each([
 			{
-				name: "should be empty for root",
+				name: "should be correct for unix root",
 				path: "/",
-				result: "",
+				result: "/",
+			},
+			{
+				name: "should be correct for windows root",
+				path: "C:",
+				result: "C:",
 			},
 			{
 				name: "should be dir for path to folder",
@@ -99,7 +124,7 @@ describe("fs-path", () => {
 				result: "file.js",
 			},
 		])("$name", ({ path, result }) => {
-			expect(getName(path as AbsoluteFsPath)).toEqual(result);
+			expect(getName(path)).toEqual(result);
 		});
 	});
 
@@ -136,7 +161,7 @@ describe("fs-path", () => {
 				result: ["/"],
 			},
 		])("$name", ({ path, result }) => {
-			expect(getBreadcrumbs(path as AbsoluteFsPath)).toEqual(result);
+			expect(getBreadcrumbs(path)).toEqual(result);
 		});
 	});
 });

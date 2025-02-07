@@ -1,15 +1,22 @@
-import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
-
 interface Params {
-	assetsPath: AbsoluteFsPath;
-	indexHtmlPagePath: AbsoluteFsPath;
+	indexHtmlPagePath: string;
+	externalStylePaths: string[];
+	externalScriptPaths: string[];
 	version: string;
 	content: string;
 	title?: string;
 	header?: string;
 }
 
-export function layout({ title, content, assetsPath, indexHtmlPagePath, version, header = "" }: Params) {
+export function layout({
+	title,
+	content,
+	version,
+	indexHtmlPagePath,
+	externalStylePaths,
+	externalScriptPaths,
+	header = "",
+}: Params) {
 	const pageTitle = `It-depends${title ? ` | ${title}` : ""}`;
 
 	return `
@@ -18,7 +25,7 @@ export function layout({ title, content, assetsPath, indexHtmlPagePath, version,
 			<head>
 				<title>${pageTitle}</title>
 				<meta charset="utf-8" />
-				<link rel="stylesheet" href="${joinPaths(assetsPath, "index.css")}" type="text/css" />
+				${externalStylePaths.map((path) => `<link rel="stylesheet" href="${path}" type="text/css" />`).join("")}
 			</head>
 			<body>
 				<main class="layout">
@@ -37,6 +44,7 @@ export function layout({ title, content, assetsPath, indexHtmlPagePath, version,
 						</div>
 					</footer>
 				</main>
+				${externalScriptPaths.map((path) => `<script src="${path}"></script>`).join("")}
 			</body>
 		</html>
 	`;

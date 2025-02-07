@@ -1,80 +1,66 @@
 import { describe, expect, it } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { createDomain, createProcessParams, createProgramFileEntry } from "~/__test-utils__/components-factories";
+import { Rec } from "~/lib/rec";
 import { PathInformer } from "../../path-informer";
 import { IndexPageViewModel } from "../index-page-view-model";
 
-async function createPageViewModelParams() {
-	const { modulesCollection, packagesCollection, fsNavCursor, summary } = await processFileItems([
-		{
-			path: "/src/main.ts",
-			content: `import { a } from "./lib/a/a";`,
-		},
-		{
-			path: "/src/lib/a/index.ts",
-			content: `
-				export { f } from "blabla";
-				export * from "./a";
-				export const a = "aaa";
-			`,
-		},
-		{
-			path: "/src/lib/a/a.js",
-			content: `
-				const a = "a";
-				const t = await import("/module/" + a);
-				export { a };
-			`,
-		},
-		{
-			path: "/src/lib/a/b.js",
-			content: "Parser error should be",
-		},
-		{
-			path: "/src/lib/a/c.js",
-			content: `
-				export * from "nowhere";
-			`,
-		},
-	]);
+function createSutComponents() {
+	const domain = createDomain();
 
-	return {
+	const output = domain.process(
+		createProcessParams({
+			entries: [
+				createProgramFileEntry({
+					path: "/src/main.ts",
+					ieItems: [{ type: "standard-import", source: "./lib/a/a", values: ["a"] }],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/index.ts",
+					ieItems: [
+						{ type: "re-export", source: "blabla", inputValues: ["f"], outputValues: ["f"] },
+						{ type: "re-export", source: "./a", inputValues: ["*"], outputValues: ["*"] },
+						{ type: "standard-export", values: ["a"] },
+					],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/a.js",
+					language: "javascript",
+					ieItems: [
+						{ type: "dynamic-import", source: null },
+						{ type: "standard-export", values: ["a"] },
+					],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/c.js",
+					language: "javascript",
+					ieItems: [{ type: "re-export", source: "nowhere", inputValues: ["*"], outputValues: ["*"] }],
+				}),
+			],
+			processorErrors: Rec.fromObject({ "/src/lib/a/b.js": new Error("Some error") }),
+		}),
+	);
+
+	return new IndexPageViewModel({
+		output,
 		version: "999",
-		modulesCollection,
-		packagesCollection,
-		fsNavCursor,
-		summary,
-		pathInformer: new PathInformer({ rootPath: "/report" as AbsoluteFsPath, fsNavCursor }),
-	};
+		pathInformer: new PathInformer({ rootPath: "/report", fs: output.fs }),
+	});
 }
 
 describe("index-page-view-model", () => {
-	it("should get layout properties correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should get layout properties correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		expect(pageViewModel.version).toEqual(params.version);
-		expect(pageViewModel.assetsPath).toEqual("/report/assets");
-		expect(pageViewModel.indexHtmlPagePath).toEqual("/report/content/index.html");
+		expect(pageViewModel.version).toEqual("999");
+		expect(pageViewModel.layoutParams).toEqual({
+			indexHtmlPagePath: "/report/content/index.html",
+			externalStylePaths: ["/report/assets/index.css"],
+			externalScriptPaths: ["/report/assets/index.js"],
+		});
 	});
 
-	it("should get counters correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
-
-		expect(pageViewModel.numOfModules).toEqual(4);
-		expect(pageViewModel.numOfPackages).toEqual(1);
-		expect(pageViewModel.numOfIncorrectImports).toEqual(1);
-		expect(pageViewModel.numOfPossiblyUnusedExports).toEqual(2);
-		expect(pageViewModel.numOfOutOfScopeImports).toEqual(1);
-		expect(pageViewModel.numOfShadowedExportValues).toEqual(1);
-		expect(pageViewModel.numOfUnparsedDynamicImports).toEqual(1);
-		expect(pageViewModel.numOfUnresolvedFullIE).toEqual(2);
-	});
-
-	it("should get lang counters correclty", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should get lang counters correclty", () => {
+		const pageViewModel = createSutComponents();
 
 		expect(pageViewModel.langCountList).toEqual([
 			{ label: "typescript", value: "2" },
@@ -82,13 +68,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect modules list correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect modules list correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const modulesList = pageViewModel.collectModulesList((item) => item);
-
-		expect(modulesList).toEqual([
+		expect(pageViewModel.modulesList).toEqual([
 			{
 				content: "src/main.ts",
 				url: "/report/content/modules/src/main.ts.html",
@@ -108,10 +91,8 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect modules tree correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
-
+	it("should collect modules tree correctly", () => {
+		const pageViewModel = createSutComponents();
 		const modulesTree = pageViewModel.collectModulesTree((item) => JSON.stringify(item));
 
 		expect(modulesTree).toEqual([
@@ -180,13 +161,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect packages list correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect packages list correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const packagesList = pageViewModel.collectPackagesList((item) => item);
-
-		expect(packagesList).toEqual([
+		expect(pageViewModel.packagesList).toEqual([
 			{
 				content: "src/lib/a",
 				url: "/report/content/packages/src/lib/a.html",
@@ -194,10 +172,8 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect packages tree correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
-
+	it("should collect packages tree correctly", () => {
+		const pageViewModel = createSutComponents();
 		const packagesTree = pageViewModel.collectPackagesTree((item) => item);
 
 		expect(packagesTree).toEqual([
@@ -215,13 +191,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect parser errors correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect processor errors correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const parserErrors = pageViewModel.collectParserErrors((item) => item);
-
-		expect(parserErrors).toEqual([
+		expect(pageViewModel.processorErrors).toEqual([
 			{
 				error: expect.any(Error),
 				linkData: {
@@ -232,13 +205,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect incorrect imports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect incorrect imports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const incorrectImports = pageViewModel.collectIncorrectImports((item) => item);
-
-		expect(incorrectImports).toEqual([
+		expect(pageViewModel.incorrectImports).toEqual([
 			{
 				importItems: [
 					{
@@ -251,13 +221,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect possibly unused exports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect possibly unused exports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const possiblyUnusedExports = pageViewModel.collectPossiblyUnusedExports((item) => item);
-
-		expect(possiblyUnusedExports).toEqual([
+		expect(pageViewModel.possiblyUnusedExports).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				values: ["f", "a"],
@@ -266,13 +233,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect out of scope imports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect out of scope imports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const outOfScopeImports = pageViewModel.collectOutOfScopeImports((item) => item);
-
-		expect(outOfScopeImports).toEqual([
+		expect(pageViewModel.outOfScopeImports).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				values: ["blabla"],
@@ -280,13 +244,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect empty exports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect empty exports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const emptyExports = pageViewModel.collectEmptyExports((item) => item);
-
-		expect(emptyExports).toEqual([
+		expect(pageViewModel.emptyExports).toEqual([
 			{
 				content: "src/main.ts",
 				url: "/report/content/modules/src/main.ts.html",
@@ -294,13 +255,10 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect unparsed dynamic imports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect unparsed dynamic imports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const unparsedDynamicImports = pageViewModel.collectUnparsedDynamicImports((item) => item);
-
-		expect(unparsedDynamicImports).toEqual([
+		expect(pageViewModel.unparsedDynamicImports).toEqual([
 			{
 				linkData: { content: "src/lib/a/a.js", url: "/report/content/modules/src/lib/a/a.js.html" },
 				num: 1,
@@ -308,35 +266,26 @@ describe("index-page-view-model", () => {
 		]);
 	});
 
-	it("should collect unresolved full imports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect unresolved full imports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const unresolvedFullImports = pageViewModel.collectUnresolvedFullImports((item) => item);
-
-		expect(unresolvedFullImports).toEqual([
+		expect(pageViewModel.unresolvedFullImports).toEqual([
 			{ linkData: { content: "src/lib/a/c.js", url: "/report/content/modules/src/lib/a/c.js.html" }, num: 1 },
 		]);
 	});
 
-	it("should collect unresolved full exports correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect unresolved full exports correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const unresolvedFullExports = pageViewModel.collectUnresolvedFullExports((item) => item);
-
-		expect(unresolvedFullExports).toEqual([
+		expect(pageViewModel.unresolvedFullExports).toEqual([
 			{ linkData: { content: "src/lib/a/c.js", url: "/report/content/modules/src/lib/a/c.js.html" }, num: 1 },
 		]);
 	});
 
-	it("should collect shadowed exports values correctly", async () => {
-		const params = await createPageViewModelParams();
-		const pageViewModel = new IndexPageViewModel(params);
+	it("should collect shadowed exports values correctly", () => {
+		const pageViewModel = createSutComponents();
 
-		const shadowedExportValues = pageViewModel.collectShadowedExportValues((item) => item);
-
-		expect(shadowedExportValues).toEqual([
+		expect(pageViewModel.shadowedExportValues).toEqual([
 			{
 				linkData: { content: "src/lib/a/index.ts", url: "/report/content/modules/src/lib/a/index.ts.html" },
 				num: 1,

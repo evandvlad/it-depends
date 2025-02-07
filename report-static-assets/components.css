@@ -14,6 +14,7 @@
 		padding: 10px var(--layout-indent);
 		position: sticky;
 		top: 0;
+		z-index: 2;
 	}
 
 	.layout__header-content {
@@ -100,5 +101,33 @@
 	.module-code__line-code {
 		display: table-cell;
 		white-space: nowrap;
+	}
+}
+
+.filtrable-list {
+	.filtrable-list__filter {
+		display: flex;
+		border: 1px solid var(--g-gray-color);
+		border-top-color: transparent;
+		border-right-color: transparent;
+		margin-bottom: 10px;
+	}
+
+	.filtrable-list__mode-switch {
+		display: flex;
+		align-self: center;
+		flex-shrink: 0;
+		margin-left: 10px;
+		font-size: var(--g-small-font-size);
+		cursor: pointer;
+		color: var(--g-gray-color);
+	}
+
+	.filtrable-list__mode-switch-checkbox {
+		display: none;
+	}
+
+	.filtrable-list__mode-switch-checkbox:checked + .filtrable-list__mode-switch {
+		color: var(--g-black-color);
 	}
 }

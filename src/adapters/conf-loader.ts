@@ -1,15 +1,15 @@
-import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
+import { joinPaths } from "~/lib/fs-path";
 
 interface Conf {
 	version: string;
-	reportStaticAssetsPath: AbsoluteFsPath;
+	reportStaticAssetsPath: string;
 }
 
 export class ConfLoader {
 	#confPath;
 
 	constructor(appRootPath: string) {
-		this.#confPath = joinPaths(appRootPath as AbsoluteFsPath, "../.it-depends-conf.js");
+		this.#confPath = joinPaths(appRootPath, "../.it-depends-conf.js");
 	}
 
 	async load() {

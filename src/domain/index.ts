@@ -1,64 +1,84 @@
-import { FSNavCursor } from "~/lib/fs-nav-cursor";
+import type { ExtraPackageEntries, PathFilter } from "~/values";
+import { processCollections } from "./collections-processor";
+import { FSTree } from "./fs-tree";
+import { ModuleBuildersCollector } from "./module-builders-collector";
+import { Output } from "./output";
+import { PackagesCollector } from "./packages-collector";
+import { type Aliases, type ProgramFileDetails, ProgramFileExpert } from "./program-file-expert";
 import {
-	type DispatcherPort,
-	type FileItem,
-	type FileItems,
-	type ImportPath,
-	transformFileItems,
-} from "./file-items-transformer";
-import { type ImportAliasMapper, type ModulesCollection, collectModules } from "./modules-collector";
-import { type ExtraPackageEntries, type PackagesCollection, PackagesCollector } from "./packages-collector";
-import { type Summary, SummaryCollector } from "./summary-collector";
+	type IEItem,
+	type Language,
+	type ProcessorErrors,
+	type ProgramFileEntries,
+	type ProgramFileEntry,
+	ieValueAll,
+} from "./values";
 
 interface Settings {
-	importAliasMapper: ImportAliasMapper;
+	aliases: Aliases;
+	pathFilter: PathFilter;
 	extraPackageEntries: ExtraPackageEntries;
 }
 
 interface Params {
-	fileItems: FileItems;
-	dispatcherPort: DispatcherPort;
 	settings: Settings;
 }
 
-export interface Result {
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
-	summary: Summary;
-	fsNavCursor: FSNavCursor;
-}
-
 export type {
-	FileItem,
-	FileItems,
-	DispatcherPort,
-	ModulesCollection,
-	PackagesCollection,
-	Summary,
-	ImportAliasMapper,
-	ExtraPackageEntries,
-	ImportPath,
+	IEItem,
+	Aliases,
+	ProgramFileEntry,
+	ProgramFileDetails,
+	ProcessorErrors,
+	ProgramFileEntries,
+	Output,
+	Language,
 };
 
-export async function process({
-	fileItems,
-	dispatcherPort,
-	settings: { importAliasMapper, extraPackageEntries },
-}: Params): Promise<Result> {
-	const { fileEntries, parserErrors } = await transformFileItems({ fileItems, dispatcherPort });
+export { ieValueAll };
 
-	const fsNavCursor = new FSNavCursor(fileEntries.toKeys());
-	const modulesCollection = collectModules({ fsNavCursor, fileEntries, importAliasMapper });
+export class Domain {
+	#settings;
+	#programFileExpert;
 
-	const packagesCollector = new PackagesCollector({
-		fsNavCursor,
-		modulesCollection,
-		extraPackageEntries,
-	});
-	const packagesCollection = packagesCollector.collect();
+	constructor({ settings }: Params) {
+		this.#settings = settings;
+		this.#programFileExpert = new ProgramFileExpert({ settings });
+	}
 
-	const summaryCollector = new SummaryCollector({ fsNavCursor, modulesCollection, packagesCollection, parserErrors });
-	const summary = summaryCollector.collect();
+	pathFilter: PathFilter = (params) => {
+		if (params.isFile && !this.#programFileExpert.isAcceptableFile(params.path)) {
+			return false;
+		}
 
-	return { modulesCollection, packagesCollection, summary, fsNavCursor };
+		return this.#settings.pathFilter(params);
+	};
+
+	programFileDetailsGetter = (path: string) => {
+		return this.#programFileExpert.getDetails(path);
+	};
+
+	process({ entries, processorErrors }: { entries: ProgramFileEntries; processorErrors: ProcessorErrors }): Output {
+		const allFilePaths = entries.toKeys();
+
+		const fSTree = new FSTree(allFilePaths);
+		const importSourceResolver = this.#programFileExpert.createImportSourceResolver({ fSTree });
+
+		const moduleBuildersCollector = new ModuleBuildersCollector({ importSourceResolver });
+		const moduleBuildersCollection = moduleBuildersCollector.collect(entries);
+
+		const packagesCollector = new PackagesCollector({
+			fSTree,
+			moduleBuildersCollection,
+			programFileExpert: this.#programFileExpert,
+		});
+
+		const packagesCollection = packagesCollector.collect();
+
+		processCollections({ fSTree, packagesCollection, moduleBuildersCollection });
+
+		const modulesCollection = moduleBuildersCollection.mapValue((moduleBuilder) => moduleBuilder.build());
+
+		return new Output({ processorErrors, modulesCollection, packagesCollection, fSTree });
+	}
 }

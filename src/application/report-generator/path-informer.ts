@@ -1,9 +1,10 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import { type AbsoluteFsPath, joinPaths } from "~/lib/fs-path";
+import { joinPaths } from "~/lib/fs-path";
 
 interface Params {
-	rootPath: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	rootPath: string;
+	fs: {
+		getShortPath: (path: string) => string;
+	};
 }
 
 export class PathInformer {
@@ -11,12 +12,12 @@ export class PathInformer {
 	readonly assetsPath;
 	readonly indexHtmlPagePath;
 
+	#fs;
 	#modulesFolderPath;
 	#packagesFolderPath;
-	#fsNavCursor;
 
-	constructor({ rootPath, fsNavCursor }: Params) {
-		this.#fsNavCursor = fsNavCursor;
+	constructor({ rootPath, fs }: Params) {
+		this.#fs = fs;
 
 		this.rootPath = rootPath;
 		this.assetsPath = joinPaths(this.rootPath, "assets");
@@ -29,13 +30,13 @@ export class PathInformer {
 		this.#packagesFolderPath = joinPaths(contentPath, "packages");
 	}
 
-	getModuleHtmlPagePathByRealPath(path: AbsoluteFsPath) {
-		const shortPath = this.#fsNavCursor.getShortPathByPath(path);
+	getModuleHtmlPagePathByRealPath(path: string) {
+		const shortPath = this.#fs.getShortPath(path);
 		return joinPaths(this.#modulesFolderPath, `${shortPath}.html`);
 	}
 
-	getPackageHtmlPagePathByRealPath(path: AbsoluteFsPath) {
-		const shortPath = this.#fsNavCursor.getShortPathByPath(path);
+	getPackageHtmlPagePathByRealPath(path: string) {
+		const shortPath = this.#fs.getShortPath(path);
 		return joinPaths(this.#packagesFolderPath, `${shortPath}.html`);
 	}
 }

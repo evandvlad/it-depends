@@ -1,21 +1,26 @@
-interface Params {
-	items: { label: string; content: string }[];
+import { createId } from "~/lib/id";
+
+interface Item {
+	label: string;
+	content: string;
 }
 
-let indexId = 0;
+interface Params {
+	items: Item[];
+}
 
 export function tabs({ items }: Params) {
-	indexId += 1;
+	const id = createId();
 
 	const tabs = items
 		.filter(({ content }) => Boolean(content))
 		.map(({ label, content }, index) => {
-			const name = `tabs-${indexId}`;
-			const id = `tabs-tab-${indexId}-${index}`;
+			const name = `tabs-${id}`;
+			const tabId = `tabs-tab-${id}-${index}`;
 
 			return `
-				<input class="tabs__tab-handle" type="radio" id="${id}" name="${name}" ${index === 0 ? "checked" : ""}>
-				<label for="${id}" class="tabs__tab-label">${label}</label>
+				<input class="tabs__tab-handle" type="radio" id="${tabId}" name="${name}" ${index === 0 ? "checked" : ""}>
+				<label for="${tabId}" class="tabs__tab-label">${label}</label>
 				<div class="tabs__tab-content">${content}</div>
 			`;
 		});

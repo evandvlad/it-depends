@@ -1,11 +1,15 @@
+interface Item {
+	content: string;
+}
+
 interface Params {
-	items: string[];
+	items: Item[];
 	direction?: "vertical" | "horizontal";
 	gap?: `${number}px`;
 }
 
 export function container({ items, direction = "vertical", gap = "10px" }: Params) {
-	const preparedItems = items.filter(Boolean);
+	const preparedItems = items.filter(({ content }) => Boolean(content));
 
 	if (preparedItems.length === 0) {
 		return "";
@@ -13,7 +17,7 @@ export function container({ items, direction = "vertical", gap = "10px" }: Param
 
 	return `
 		<div class="container container--${direction}" style="gap: ${gap}">
-			${preparedItems.join("")}
+			${preparedItems.map(({ content }) => content).join("")}
 		</div>
 	`;
 }

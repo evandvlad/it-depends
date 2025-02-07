@@ -1,63 +1,72 @@
 import { describe, expect, it, jest } from "@jest/globals";
-import { processFileItems } from "~/__test-utils__/entity-factories";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import { createDomain, createProcessParams, createProgramFileEntry } from "~/__test-utils__/components-factories";
+import { Rec } from "~/lib/rec";
 import { generateReport } from "..";
 
-async function createParams() {
-	const { packagesCollection, fsNavCursor, summary, modulesCollection } = await processFileItems([
-		{
-			path: "/src/main.ts",
-			content: `import { a } from "./lib/a";`,
-		},
-		{
-			path: "/src/lib/a/index.ts",
-			content: `export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
-		},
-		{
-			path: "/src/lib/a/b/index.ts",
-			content: "export const b = 1;",
-		},
-		{
-			path: "/src/lib/a/b/c.ts",
-			content: "export const b = 2;",
-		},
-		{
-			path: "/src/lib/a/b/d.ts",
-			content: "Parse error should be",
-		},
-	]);
+function createSutComponents() {
+	const domain = createDomain();
 
-	const dispatcherPort = {
-		dispatch: jest.fn(),
-	};
+	const output = domain.process(
+		createProcessParams({
+			entries: [
+				createProgramFileEntry({
+					path: "/src/main.ts",
+					content: `import { a } from "./lib/a";`,
+					ieItems: [{ type: "standard-import", source: "./lib/a", values: ["a"] }],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/index.ts",
+					content: `export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
+					ieItems: [
+						{ type: "re-export", source: "foo", inputValues: ["f"], outputValues: ["f"] },
+						{ type: "re-export", source: "bar", inputValues: ["*"], outputValues: ["*"] },
+						{ type: "re-export", source: "./b/c", inputValues: ["b"], outputValues: ["b"] },
+						{ type: "standard-export", values: ["a"] },
+					],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/b/index.ts",
+					content: "export const b = 1;",
+					ieItems: [{ type: "standard-export", values: ["b"] }],
+				}),
+				createProgramFileEntry({
+					path: "/src/lib/a/b/c.ts",
+					content: "export const b = 2;",
+					ieItems: [{ type: "standard-export", values: ["b"] }],
+				}),
+			],
+			processorErrors: Rec.fromObject({ "/src/lib/a/b/d.ts": new Error("Some error") }),
+		}),
+	);
 
-	const fSysPort = {
-		removeDir: jest.fn(() => Promise.resolve()),
-		makeDir: jest.fn(() => Promise.resolve()),
-		copy: jest.fn(() => Promise.resolve()),
-		writeFile: jest.fn<(path: AbsoluteFsPath, html: string) => Promise<void>>(() => Promise.resolve()),
-	};
-
-	return {
+	const params = {
 		settings: {
 			version: "777",
-			path: "/report" as AbsoluteFsPath,
-			staticAssetsPath: "/assets" as AbsoluteFsPath,
+			path: "/report",
+			staticAssetsPath: "/assets",
 		},
-		dispatcherPort,
-		fSysPort,
-		modulesCollection,
-		packagesCollection,
-		fsNavCursor,
-		summary,
+		dispatcherPort: {
+			dispatch: jest.fn(),
+		},
+		fSysPort: {
+			removeDir: jest.fn(() => Promise.resolve()),
+			makeDir: jest.fn(() => Promise.resolve()),
+			copy: jest.fn(() => Promise.resolve()),
+			writeFile: jest.fn<(path: string, html: string) => Promise<void>>(() => Promise.resolve()),
+		},
+		output,
 	};
+
+	const instance = () => generateReport(params);
+
+	return { params, instance };
 }
 
 describe("report-generator", () => {
 	it("should write correct number of html files", async () => {
-		const params = await createParams();
+		const { params, instance } = createSutComponents();
 
-		await generateReport(params);
+		await instance();
 
 		const pages = params.fSysPort.writeFile.mock.calls.map(([path]) => path);
 
@@ -73,11 +82,13 @@ describe("report-generator", () => {
 	});
 
 	it("should dispatch events correctly", async () => {
-		const params = await createParams();
+		const { params, instance } = createSutComponents();
 
-		await generateReport(params);
+		await instance();
 
-		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "report-generation-started");
-		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "report-generation-completed");
+		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(1, "report-generation:started");
+		expect(params.dispatcherPort.dispatch).toHaveBeenNthCalledWith(2, "report-generation:finished", {
+			path: "/report/content/index.html",
+		});
 	});
 });

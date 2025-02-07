@@ -1,18 +1,13 @@
-import type { ModulesCollection, Summary } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
-import { Rec } from "~/lib/rec";
+import type { Output } from "~/domain";
+import type { ReadonlyRec } from "~/lib/rec";
 import type { PathInformer } from "../path-informer";
 import { PageViewModel } from "./page-view-model";
-import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
-	path: AbsoluteFsPath;
-	fsNavCursor: FSNavCursor;
+	path: string;
 	pathInformer: PathInformer;
-	modulesCollection: ModulesCollection;
-	summary: Summary;
+	output: Output;
 }
 
 export class ModulePageViewModel extends PageViewModel {
@@ -20,89 +15,60 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly shortPath;
 	readonly language;
 	readonly code;
-	readonly numOfImports;
-	readonly numOfExports;
+	readonly imports;
+	readonly exportsByValues;
+	readonly exportsByModules;
 	readonly packageLinkData;
 	readonly unparsedDynamicImports;
+	readonly shadowedExportValues;
+	readonly incorrectImports;
+	readonly outOfScopeImports;
 	readonly unresolvedFullImports;
 	readonly unresolvedFullExports;
-	readonly shadowedExportValues;
-	readonly outOfScopeImports;
 
-	#summary;
-	#pathInformer;
-	#module;
+	constructor({ version, path, pathInformer, output }: Params) {
+		super({ version, pathInformer, output });
 
-	constructor({ version, path, pathInformer, fsNavCursor, modulesCollection, summary }: Params) {
-		super({ version, pathInformer, fsNavCursor });
-
-		this.#summary = summary;
-		this.#pathInformer = pathInformer;
-		this.#module = modulesCollection.get(path);
+		const module = output.modules.getModule(path);
 
 		this.fullPath = path;
-		this.shortPath = fsNavCursor.getShortPathByPath(path);
-		this.language = this.#module.language;
+		this.shortPath = output.fs.getShortPath(path);
+		this.language = module.language;
 
-		this.packageLinkData = this.#module.package ? this.getPackageLinkData(this.#module.package) : null;
-		this.unparsedDynamicImports = this.#module.unparsedDynamicImports;
-		this.shadowedExportValues = this.#module.shadowedExportValues;
+		this.packageLinkData = module.package ? this.getPackageLinkData(module.package) : null;
+		this.unparsedDynamicImports = module.unparsedDynamicImports;
+		this.shadowedExportValues = module.shadowedExportValues;
+		this.outOfScopeImports = module.outOfScopeImports.map(({ importPath }) => importPath);
+		this.unresolvedFullImports = module.unresolvedFullImports.map(({ importPath }) => importPath);
+		this.unresolvedFullExports = module.unresolvedFullExports.map(({ importPath }) => importPath);
 
-		this.code = this.#module.content;
+		this.code = module.content;
 
-		this.unresolvedFullImports = this.#module.unresolvedFullImports.map(({ importPath }) => importPath);
-		this.unresolvedFullExports = this.#module.unresolvedFullExports.map(({ importPath }) => importPath);
+		this.imports = module.imports
+			.toSorted((first, second) => second.values.length - first.values.length)
+			.map((imp) => ({
+				name: imp.importPath,
+				linkData: imp.filePath ? this.getModuleLinkData(imp.filePath) : null,
+				values: imp.values,
+			}));
 
-		this.numOfImports = this.#module.imports.reduce((acc, { values }) => acc + values.length, 0);
-		this.numOfExports = this.#module.exports.reduce((acc, paths) => acc + paths.length, 0);
+		this.exportsByValues = this.#convertExportsToEntriesAndSort(module.exportsByValue).map(([value, paths]) => ({
+			value,
+			linksData: paths.map((path) => this.getModuleLinkData(path)),
+		}));
 
-		this.outOfScopeImports = summary.outOfScopeImports.getOrDefault(path, []);
+		this.exportsByModules = this.#convertExportsToEntriesAndSort(module.exportsByModule).map(([path, values]) => ({
+			values,
+			linkData: this.getModuleLinkData(path),
+		}));
+
+		this.incorrectImports = module.incorrectImports.map(({ importPath, filePath }) => ({
+			url: pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
+			content: importPath,
+		}));
 	}
 
-	collectImportItems<T>(handler: (params: { name: string; linkData: LinkData | null; values: string[] }) => T) {
-		return this.#module.imports.map(({ importSource, values }) =>
-			handler({
-				name: importSource.importPath,
-				linkData: importSource.filePath ? this.getModuleLinkData(importSource.filePath) : null,
-				values,
-			}),
-		);
-	}
-
-	collectExportItemsByValues<T>(handler: (params: { linksData: LinkData[]; value: string }) => T) {
-		return this.#module.exports.toEntries().map(([value, paths]) =>
-			handler({
-				value,
-				linksData: paths.map((path) => this.getModuleLinkData(path)),
-			}),
-		);
-	}
-
-	collectExportItemsByModules<T>(handler: (params: { linkData: LinkData; values: string[] }) => T) {
-		const rec = this.#module.exports.reduce((acc, paths, value) => {
-			paths.forEach((path) => {
-				const values = acc.getOrDefault(path, []);
-				values.push(value);
-				acc.set(path, values);
-			});
-
-			return acc;
-		}, new Rec<AbsoluteFsPath, string[]>());
-
-		return rec.toEntries().map(([path, values]) =>
-			handler({
-				values,
-				linkData: this.getModuleLinkData(path),
-			}),
-		);
-	}
-
-	collectIncorrectImportItems<T>(handler: (linkData: LinkData) => T) {
-		return this.#summary.incorrectImports.getOrDefault(this.fullPath, []).map(({ importPath, filePath }) =>
-			handler({
-				url: this.#pathInformer.getModuleHtmlPagePathByRealPath(filePath!),
-				content: importPath,
-			}),
-		);
+	#convertExportsToEntriesAndSort(exports: ReadonlyRec<string, string[]>) {
+		return exports.toEntries().toSorted((first, second) => second[1].length - first[1].length);
 	}
 }

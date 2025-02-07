@@ -1,19 +1,23 @@
-import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
-import { type AbsoluteFsPath, getParentPath, joinPaths } from "~/lib/fs-path";
+import { access, cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { isAbsolute, join } from "node:path";
 
 type StatEntryType = "file" | "dir" | "unknown";
 
 export class FSys {
-	readFile(path: AbsoluteFsPath) {
+	isAbsolutePath(path: string) {
+		return isAbsolute(path);
+	}
+
+	readFile(path: string) {
 		return readFile(path, "utf-8");
 	}
 
-	async readDir(path: AbsoluteFsPath) {
+	async readDir(path: string) {
 		const names = await readdir(path);
-		return names.map((name) => joinPaths(path, name));
+		return names.map((name) => join(path, name));
 	}
 
-	async getStatEntryType(path: AbsoluteFsPath): Promise<StatEntryType> {
+	async getStatEntryType(path: string): Promise<StatEntryType> {
 		const statEntry = await stat(path);
 
 		if (statEntry.isFile()) {
@@ -27,22 +31,31 @@ export class FSys {
 		return "unknown";
 	}
 
-	async makeDir(path: AbsoluteFsPath) {
+	async makeDir(path: string) {
 		await mkdir(path, { recursive: true });
 	}
 
-	async removeDir(path: AbsoluteFsPath) {
+	async removeDir(path: string) {
 		await rm(path, { recursive: true, force: true });
 	}
 
-	async writeFile(path: AbsoluteFsPath, content: string) {
-		const parentPath = getParentPath(path);
+	async writeFile(path: string, content: string) {
+		const parentPath = join(path, "..");
 
 		await this.makeDir(parentPath);
 		await writeFile(path, content);
 	}
 
-	async copy(sourcePath: AbsoluteFsPath, destinationPath: AbsoluteFsPath) {
+	async copy(sourcePath: string, destinationPath: string) {
 		await cp(sourcePath, destinationPath, { recursive: true });
+	}
+
+	async checkAccess(path: string) {
+		try {
+			await access(path);
+			return true;
+		} catch {
+			return false;
+		}
 	}
 }

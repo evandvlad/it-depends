@@ -1,20 +1,19 @@
 import type { EventBusDispatcher } from "~/lib/event-bus";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
 
 export interface FSysPort {
-	makeDir: (path: AbsoluteFsPath) => Promise<void>;
-	removeDir: (path: AbsoluteFsPath) => Promise<void>;
-	copy: (sourcePath: AbsoluteFsPath, destinationPath: AbsoluteFsPath) => Promise<void>;
-	writeFile: (path: AbsoluteFsPath, content: string) => Promise<void>;
+	makeDir: (path: string) => Promise<void>;
+	removeDir: (path: string) => Promise<void>;
+	copy: (sourcePath: string, destinationPath: string) => Promise<void>;
+	writeFile: (path: string, content: string) => Promise<void>;
 }
 
 export interface ReportSettings {
 	version: string;
-	path: AbsoluteFsPath;
-	staticAssetsPath: AbsoluteFsPath;
+	path: string;
+	staticAssetsPath: string;
 }
 
 export type DispatcherPort = EventBusDispatcher<{
-	"report-generation-started": [];
-	"report-generation-completed": [];
+	"report-generation:started": [];
+	"report-generation:finished": [{ path: string }];
 }>;

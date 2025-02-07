@@ -1,6 +1,4 @@
-import type { ModulesCollection, PackagesCollection, Summary } from "~/domain";
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Output } from "~/domain";
 import { Rec } from "~/lib/rec";
 import { indexPage, modulePage, packagePage } from "./html-pages";
 import { IndexPageViewModel, ModulePageViewModel, PackagePageViewModel } from "./page-view-models";
@@ -12,48 +10,32 @@ interface Params {
 	settings: ReportSettings;
 	dispatcherPort: DispatcherPort;
 	fSysPort: FSysPort;
-	summary: Summary;
-	fsNavCursor: FSNavCursor;
-	modulesCollection: ModulesCollection;
-	packagesCollection: PackagesCollection;
+	output: Output;
 }
 
-export type { ReportSettings, DispatcherPort };
+export type { ReportSettings, DispatcherPort, FSysPort };
 
-export async function generateReport({
-	settings,
-	dispatcherPort,
-	fSysPort,
-	summary,
-	fsNavCursor,
-	modulesCollection,
-	packagesCollection,
-}: Params) {
-	const pathInformer = new PathInformer({ rootPath: settings.path, fsNavCursor });
+export async function generateReport({ settings, dispatcherPort, fSysPort, output }: Params) {
+	const pathInformer = new PathInformer({ rootPath: settings.path, fs: output.fs });
 
-	dispatcherPort.dispatch("report-generation-started");
+	dispatcherPort.dispatch("report-generation:started");
 
 	const { version } = settings;
-	const htmlPages = new Rec<AbsoluteFsPath, string>();
+	const htmlPages = new Rec<string, string>();
 
-	htmlPages.set(
-		pathInformer.indexHtmlPagePath,
-		indexPage(
-			new IndexPageViewModel({ version, pathInformer, fsNavCursor, summary, modulesCollection, packagesCollection }),
-		),
-	);
+	htmlPages.set(pathInformer.indexHtmlPagePath, indexPage(new IndexPageViewModel({ version, pathInformer, output })));
 
-	modulesCollection.forEach(({ path }) => {
+	output.modules.getAllModules().forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getModuleHtmlPagePathByRealPath(path),
-			modulePage(new ModulePageViewModel({ version, path, pathInformer, fsNavCursor, modulesCollection, summary })),
+			modulePage(new ModulePageViewModel({ version, path, pathInformer, output })),
 		);
 	});
 
-	packagesCollection.forEach(({ path }) => {
+	output.packages.getAllPackages().forEach(({ path }) => {
 		htmlPages.set(
 			pathInformer.getPackageHtmlPagePathByRealPath(path),
-			packagePage(new PackagePageViewModel({ version, path, pathInformer, fsNavCursor, packagesCollection })),
+			packagePage(new PackagePageViewModel({ version, path, pathInformer, output })),
 		);
 	});
 
@@ -65,5 +47,5 @@ export async function generateReport({
 		staticAssetsPath: settings.staticAssetsPath,
 	});
 
-	dispatcherPort.dispatch("report-generation-completed");
+	dispatcherPort.dispatch("report-generation:finished", { path: pathInformer.indexHtmlPagePath });
 }

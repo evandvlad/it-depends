@@ -1,42 +1,45 @@
-import type { FSNavCursor } from "~/lib/fs-nav-cursor";
-import type { AbsoluteFsPath } from "~/lib/fs-path";
+import type { Output } from "~/domain";
+import { joinPaths } from "~/lib/fs-path";
 import type { PathInformer } from "../path-informer";
 import type { LinkData } from "./values";
 
 interface Params {
 	version: string;
 	pathInformer: PathInformer;
-	fsNavCursor: FSNavCursor;
+	output: Output;
 }
 
 export abstract class PageViewModel {
 	readonly version;
-	readonly assetsPath;
-	readonly indexHtmlPagePath;
+	readonly layoutParams;
 
-	#fsNavCursor;
+	#output;
 	#pathInformer;
 
-	constructor({ version, pathInformer, fsNavCursor }: Params) {
-		this.version = version;
-		this.assetsPath = pathInformer.assetsPath;
-		this.indexHtmlPagePath = pathInformer.indexHtmlPagePath;
-
-		this.#fsNavCursor = fsNavCursor;
+	constructor({ version, pathInformer, output }: Params) {
+		this.#output = output;
 		this.#pathInformer = pathInformer;
-	}
 
-	protected getModuleLinkData(path: AbsoluteFsPath): LinkData {
-		return {
-			url: this.#pathInformer.getModuleHtmlPagePathByRealPath(path),
-			content: this.#fsNavCursor.getShortPathByPath(path),
+		this.version = version;
+
+		this.layoutParams = {
+			indexHtmlPagePath: pathInformer.indexHtmlPagePath,
+			externalStylePaths: [joinPaths(pathInformer.assetsPath, "index.css")],
+			externalScriptPaths: [joinPaths(pathInformer.assetsPath, "index.js")],
 		};
 	}
 
-	protected getPackageLinkData(path: AbsoluteFsPath): LinkData {
+	protected getModuleLinkData(path: string): LinkData {
+		return {
+			url: this.#pathInformer.getModuleHtmlPagePathByRealPath(path),
+			content: this.#output.fs.getShortPath(path),
+		};
+	}
+
+	protected getPackageLinkData(path: string): LinkData {
 		return {
 			url: this.#pathInformer.getPackageHtmlPagePathByRealPath(path),
-			content: this.#fsNavCursor.getShortPathByPath(path),
+			content: this.#output.fs.getShortPath(path),
 		};
 	}
 }
