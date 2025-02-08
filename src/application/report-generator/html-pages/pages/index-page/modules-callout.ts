@@ -19,7 +19,6 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 			{
 				label: "Modules list",
 				content: entityList({
-					type: "module",
 					items: pageViewModel.modulesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,

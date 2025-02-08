@@ -9,7 +9,7 @@ export function emptyExportsCallout(pageViewModel: IndexPageViewModel) {
 	return countCallout({
 		title: "Empty exports",
 		counter: { value: items.length },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: items.length > 0 ? "yellow" : "green",
 	});
 }

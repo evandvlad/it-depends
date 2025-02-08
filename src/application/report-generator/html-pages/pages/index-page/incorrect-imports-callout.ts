@@ -15,7 +15,7 @@ export function incorrectImportsCallout(pageViewModel: IndexPageViewModel) {
 	return countCallout({
 		title: "Incorrect imports",
 		counter: { value: count },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: count > 0 ? "red" : "green",
 	});
 }

@@ -15,7 +15,6 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 			{
 				label: "Packages list",
 				content: entityList({
-					type: "package",
 					items: pageViewModel.packagesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,

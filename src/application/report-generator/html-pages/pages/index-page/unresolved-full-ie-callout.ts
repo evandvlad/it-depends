@@ -20,8 +20,8 @@ function getCalloutContent(pageViewModel: IndexPageViewModel) {
 
 	return container({
 		items: [
-			{ content: card({ title: "Imports", content: entityList({ type: "module", items: importItems }) }) },
-			{ content: card({ title: "Exports", content: entityList({ type: "module", items: exportItems }) }) },
+			{ content: card({ title: "Imports", content: entityList({ items: importItems }) }) },
+			{ content: card({ title: "Exports", content: entityList({ items: exportItems }) }) },
 		],
 		gap: "0px",
 	});

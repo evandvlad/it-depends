@@ -32,8 +32,8 @@ export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) 
 		counter: { value: count },
 		content: tabs({
 			items: [
-				{ label: "Fully possible unused", content: entityList({ type: "module", items: fullyUnusedItems }) },
-				{ label: "Partially possible unused", content: entityList({ type: "module", items: partiallyUnusedItems }) },
+				{ label: "Fully possible unused", content: entityList({ items: fullyUnusedItems }) },
+				{ label: "Partially possible unused", content: entityList({ items: partiallyUnusedItems }) },
 			],
 		}),
 		color: count > 0 ? "yellow" : "green",

@@ -19,7 +19,7 @@ export function outOfScopeImportsCallout(pageViewModel: IndexPageViewModel) {
 	return countCallout({
 		title: "Out of scope imports",
 		counter: { value: count },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: count > 0 ? "yellow" : "green",
 	});
 }

@@ -4,8 +4,6 @@ import { item } from "../atoms/item";
 import { textbox } from "../atoms/textbox";
 import { spreadDataAttrs } from "../helpers/data-attrs";
 
-type EntityType = "module" | "package";
-
 export interface Item {
 	content: string;
 	value: string;
@@ -13,11 +11,10 @@ export interface Item {
 }
 
 interface Params {
-	type: EntityType;
 	items: Item[];
 }
 
-function getFilterConstructor({ itemsLength, type }: { itemsLength: number; type: EntityType }) {
+function getFilterConstructor({ itemsLength }: { itemsLength: number }) {
 	if (itemsLength < 20) {
 		return {
 			listDataAttrs: {},
@@ -34,7 +31,7 @@ function getFilterConstructor({ itemsLength, type }: { itemsLength: number; type
 		getItemDataAttrs: (value: string) => ({ "data-js-filtrable-list-item": id, "data-js-value": value }),
 		renderFilterHtml: () => `
 			<div class="entity-list__filter">
-				${textbox({ placeholder: `Filter ${type}s...`, dataAttrs: { "data-js-filtrable-list-input": id } })}
+				${textbox({ placeholder: "Filter...", dataAttrs: { "data-js-filtrable-list-input": id } })}
 				<input
 					id="${switchModeId}"
 					class="entity-list__mode-switch-checkbox"
@@ -47,12 +44,12 @@ function getFilterConstructor({ itemsLength, type }: { itemsLength: number; type
 	};
 }
 
-export function entityList({ items, type }: Params) {
+export function entityList({ items }: Params) {
 	if (items.length === 0) {
 		return "";
 	}
 
-	const filterContructor = getFilterConstructor({ itemsLength: items.length, type });
+	const filterContructor = getFilterConstructor({ itemsLength: items.length });
 
 	const itemsContent = items
 		.map(({ content, value, count }) =>

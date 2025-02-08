@@ -15,7 +15,7 @@ export function unparsedDynamicImportsCallout(pageViewModel: IndexPageViewModel)
 	return countCallout({
 		title: "Unparsed dynamic imports",
 		counter: { value: count },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: count > 0 ? "yellow" : "green",
 	});
 }

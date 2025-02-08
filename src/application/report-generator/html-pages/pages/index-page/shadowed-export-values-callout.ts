@@ -15,7 +15,7 @@ export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
 	return countCallout({
 		title: "Shadowed export values",
 		counter: { value: count },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: count > 0 ? "yellow" : "green",
 	});
 }

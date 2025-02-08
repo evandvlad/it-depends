@@ -9,7 +9,7 @@ export function packagesCallout(pageViewModel: PackagePageViewModel) {
 	return countCallout({
 		title: "Packages",
 		counter: { value: items.length },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		open: true,
 	});
 }

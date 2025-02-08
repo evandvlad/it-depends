@@ -19,7 +19,7 @@ export function importsCallout(pageViewModel: ModulePageViewModel) {
 	return countCallout({
 		title: "Imports",
 		counter: { value: count },
-		content: entityList({ type: "module", items }),
+		content: entityList({ items }),
 		color: "green",
 	});
 }

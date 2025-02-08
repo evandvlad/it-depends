@@ -32,8 +32,8 @@ export function exportsCallout(pageViewModel: ModulePageViewModel) {
 		counter: { value: count },
 		content: tabs({
 			items: [
-				{ label: "By modules", content: entityList({ type: "module", items: itemsByModules }) },
-				{ label: "By values", content: entityList({ type: "module", items: itemsByValues }) },
+				{ label: "By modules", content: entityList({ items: itemsByModules }) },
+				{ label: "By values", content: entityList({ items: itemsByValues }) },
 			],
 		}),
 		color: count > 0 ? "green" : "yellow",
