@@ -58,14 +58,15 @@ describe("module-page-view-model", () => {
 	it("should get base module properties correctly", () => {
 		const pageViewModel = createSutComponents();
 
-		expect(pageViewModel.fullPath).toEqual("/src/lib/a/index.ts");
+		expect(pageViewModel.name).toEqual("index.ts");
 		expect(pageViewModel.shortPath).toEqual("src/lib/a/index.ts");
 		expect(pageViewModel.language).toEqual("typescript");
 		expect(pageViewModel.code).toEqual(
 			`export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
 		);
 		expect(pageViewModel.packageLinkData).toEqual({
-			content: "src/lib/a",
+			content: "a",
+			title: "src/lib/a",
 			url: "/report/content/packages/src/lib/a.html",
 		});
 		expect(pageViewModel.unparsedDynamicImports).toEqual(0);

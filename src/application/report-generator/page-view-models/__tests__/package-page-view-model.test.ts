@@ -57,15 +57,17 @@ describe("package-page-view-model", () => {
 	it("should get base package properties correctly", () => {
 		const pageViewModel = createSutComponents();
 
-		expect(pageViewModel.fullPath).toEqual("/src/lib/a");
+		expect(pageViewModel.name).toEqual("a");
 		expect(pageViewModel.shortPath).toEqual("src/lib/a");
 		expect(pageViewModel.entryPointLinkData).toEqual({
 			url: "/report/content/modules/src/lib/a/index.ts.html",
-			content: "src/lib/a/index.ts",
+			content: "index.ts",
+			title: "src/lib/a/index.ts",
 		});
 		expect(pageViewModel.parentPackageLinkData).toEqual({
 			url: "/report/content/packages/src.html",
 			content: "src",
+			title: "src",
 		});
 	});
 

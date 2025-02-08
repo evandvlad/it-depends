@@ -1,6 +1,7 @@
 export interface LinkData {
 	url: string;
 	content: string;
+	title?: string;
 }
 
 export interface CountableLinkItem {

@@ -9,10 +9,10 @@ import { packagesCallout } from "./packages-callout";
 export function packagePage(pageViewModel: PackagePageViewModel) {
 	const title = `Package: ${pageViewModel.shortPath}`;
 
-	const leftSection = `<div style="width: 60%">${packageDatalist(pageViewModel)}</div>`;
+	const leftSection = `<div style="width: 50%">${packageDatalist(pageViewModel)}</div>`;
 
 	const rightSection = `
-		<div style="width: 40%">${container({
+		<div style="width: 50%">${container({
 			items: [{ content: modulesCallout(pageViewModel) }, { content: packagesCallout(pageViewModel) }],
 		})}</div>
 	`;
