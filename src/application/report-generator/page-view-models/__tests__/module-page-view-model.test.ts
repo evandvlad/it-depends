@@ -76,12 +76,12 @@ describe("module-page-view-model", () => {
 		const pageViewModel = createSutComponents();
 
 		expect(pageViewModel.imports).toEqual([
-			{ linkData: null, name: "foo", values: ["f"] },
 			{
 				linkData: { url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "src/lib/a/b/c.ts" },
 				name: "./b/c",
 				values: ["b"],
 			},
+			{ linkData: null, name: "foo", values: ["f"] },
 		]);
 	});
 
@@ -90,8 +90,8 @@ describe("module-page-view-model", () => {
 
 		expect(pageViewModel.exportsByValues).toEqual([
 			{ linksData: [{ url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }], value: "a" },
-			{ linksData: [], value: "f" },
 			{ linksData: [], value: "b" },
+			{ linksData: [], value: "f" },
 		]);
 	});
 

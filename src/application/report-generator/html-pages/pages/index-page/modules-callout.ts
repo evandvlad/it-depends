@@ -5,7 +5,7 @@ import { datalist } from "../../atoms/datalist";
 import { tabs } from "../../atoms/tabs";
 import { tree } from "../../atoms/tree";
 import { countCallout } from "../../components/count-callout";
-import { filterableList } from "../../components/filtrable-list";
+import { entityList } from "../../components/entity-list";
 
 export function modulesCallout(pageViewModel: IndexPageViewModel) {
 	const tabsContent = tabs({
@@ -18,8 +18,8 @@ export function modulesCallout(pageViewModel: IndexPageViewModel) {
 			},
 			{
 				label: "Modules list",
-				content: filterableList({
-					inputPlaceholder: "Filter modules...",
+				content: entityList({
+					type: "module",
 					items: pageViewModel.modulesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,

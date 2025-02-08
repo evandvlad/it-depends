@@ -3,7 +3,7 @@ import { a } from "../../atoms/a";
 import { tabs } from "../../atoms/tabs";
 import { tree } from "../../atoms/tree";
 import { countCallout } from "../../components/count-callout";
-import { filterableList } from "../../components/filtrable-list";
+import { entityList } from "../../components/entity-list";
 
 function getTabs(pageViewModel: IndexPageViewModel) {
 	return tabs({
@@ -14,8 +14,8 @@ function getTabs(pageViewModel: IndexPageViewModel) {
 			},
 			{
 				label: "Packages list",
-				content: filterableList({
-					inputPlaceholder: "Filter packages...",
+				content: entityList({
+					type: "package",
 					items: pageViewModel.packagesList.map((linkData) => ({
 						content: a(linkData),
 						value: linkData.content,
