@@ -12,6 +12,7 @@ interface Params {
 
 export class ModulePageViewModel extends PageViewModel {
 	readonly name;
+	readonly fullPath;
 	readonly shortPath;
 	readonly language;
 	readonly code;
@@ -32,6 +33,7 @@ export class ModulePageViewModel extends PageViewModel {
 		const module = output.modules.getModule(path);
 
 		this.name = module.name;
+		this.fullPath = path;
 		this.shortPath = output.fs.getShortPath(path);
 		this.language = module.language;
 

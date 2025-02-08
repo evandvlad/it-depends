@@ -2,12 +2,19 @@ import type { ModulePageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
 import { datalist } from "../../atoms/datalist";
 import { list } from "../../atoms/list";
+import { moduleDropMenu } from "../../components/module-drop-menu";
 
 export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({
 		items: [
 			{ label: "Language", value: pageViewModel.language },
-			{ label: "Name", value: pageViewModel.name, title: pageViewModel.shortPath },
+			{
+				label: "Name",
+				value: `<span title="${pageViewModel.shortPath}">${pageViewModel.name}</span> ${moduleDropMenu({
+					shortPath: pageViewModel.shortPath,
+					fullPath: pageViewModel.fullPath,
+				})}`,
+			},
 			{
 				label: "Package",
 				value: pageViewModel.packageLinkData ? a(pageViewModel.packageLinkData) : "",
