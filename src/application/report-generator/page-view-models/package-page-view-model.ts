@@ -12,6 +12,7 @@ interface Params {
 export class PackagePageViewModel extends PageViewModel {
 	readonly name;
 	readonly shortPath;
+	readonly fullPath;
 	readonly entryPointLinkData;
 	readonly parentPackageLinkData;
 	readonly moduleLinks;
@@ -23,12 +24,15 @@ export class PackagePageViewModel extends PageViewModel {
 		const pack = output.packages.getPackage(path);
 
 		this.name = pack.name;
+		this.fullPath = path;
 		this.shortPath = output.fs.getShortPath(path);
 
 		this.entryPointLinkData = {
 			...this.getModuleLinkData(pack.entryPoint),
 			content: output.modules.getModule(pack.entryPoint).name,
 			title: output.fs.getShortPath(pack.entryPoint),
+			shortPath: output.fs.getShortPath(pack.entryPoint),
+			fullPath: pack.entryPoint,
 		};
 
 		this.parentPackageLinkData = pack.parent
@@ -36,6 +40,8 @@ export class PackagePageViewModel extends PageViewModel {
 					...this.getPackageLinkData(pack.parent),
 					content: output.packages.getPackage(pack.parent).name,
 					title: output.fs.getShortPath(pack.parent),
+					shortPath: output.fs.getShortPath(pack.parent),
+					fullPath: pack.parent,
 				}
 			: null;
 

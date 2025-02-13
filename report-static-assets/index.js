@@ -66,7 +66,7 @@ window.app = (function () {
 			navigator.clipboard.writeText(text);
 		},
 
-		openFileInVSCode(filePath) {
+		openInVSCode(filePath) {
 			openUrl(`vscode://file/${filePath}`);
 		},
 	};

@@ -64,10 +64,12 @@ describe("module-page-view-model", () => {
 		expect(pageViewModel.code).toEqual(
 			`export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
 		);
-		expect(pageViewModel.packageLinkData).toEqual({
+		expect(pageViewModel.packageData).toEqual({
 			content: "a",
 			title: "src/lib/a",
 			url: "/report/content/packages/src/lib/a.html",
+			shortPath: "src/lib/a",
+			fullPath: "/src/lib/a",
 		});
 		expect(pageViewModel.unparsedDynamicImports).toEqual(0);
 		expect(pageViewModel.shadowedExportValues).toEqual([]);

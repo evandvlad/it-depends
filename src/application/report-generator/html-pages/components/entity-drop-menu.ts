@@ -5,10 +5,10 @@ interface Params {
 	fullPath: string;
 }
 
-export function moduleDropMenu({ shortPath, fullPath }: Params) {
+export function entityDropMenu({ shortPath, fullPath }: Params) {
 	return dropMenu({
 		items: [
-			{ content: "Open in VS Code", onClick: `app.openFileInVSCode('${fullPath}');` },
+			{ content: "Open in VS Code", onClick: `app.openInVSCode('${fullPath}');` },
 			{ content: "Copy full path", onClick: `app.copyToClipboard('${fullPath}');` },
 			{ content: "Copy path", onClick: `app.copyToClipboard('${shortPath}');` },
 		],

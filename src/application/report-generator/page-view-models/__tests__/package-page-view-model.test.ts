@@ -63,11 +63,15 @@ describe("package-page-view-model", () => {
 			url: "/report/content/modules/src/lib/a/index.ts.html",
 			content: "index.ts",
 			title: "src/lib/a/index.ts",
+			shortPath: "src/lib/a/index.ts",
+			fullPath: "/src/lib/a/index.ts",
 		});
 		expect(pageViewModel.parentPackageLinkData).toEqual({
 			url: "/report/content/packages/src.html",
 			content: "src",
 			title: "src",
+			shortPath: "src",
+			fullPath: "/src",
 		});
 	});
 

@@ -19,7 +19,7 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly imports;
 	readonly exportsByValues;
 	readonly exportsByModules;
-	readonly packageLinkData;
+	readonly packageData;
 	readonly unparsedDynamicImports;
 	readonly shadowedExportValues;
 	readonly incorrectImports;
@@ -37,11 +37,13 @@ export class ModulePageViewModel extends PageViewModel {
 		this.shortPath = output.fs.getShortPath(path);
 		this.language = module.language;
 
-		this.packageLinkData = module.package
+		this.packageData = module.package
 			? {
 					...this.getPackageLinkData(module.package),
 					content: output.packages.getPackage(module.package).name,
 					title: output.fs.getShortPath(module.package),
+					shortPath: output.fs.getShortPath(module.package),
+					fullPath: module.package,
 				}
 			: null;
 

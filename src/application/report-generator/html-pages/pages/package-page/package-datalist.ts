@@ -1,15 +1,24 @@
 import type { PackagePageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
 import { datalist } from "../../atoms/datalist";
+import { entityDropMenu } from "../../components/entity-drop-menu";
 
-export function packageDatalist({ name, shortPath, entryPointLinkData, parentPackageLinkData }: PackagePageViewModel) {
+export function packageDatalist(pageViewModel: PackagePageViewModel) {
 	return datalist({
 		items: [
-			{ label: "Name", value: name, title: shortPath },
-			{ label: "Entry point", value: a(entryPointLinkData) },
+			{
+				label: "Name",
+				value: `<span title="${pageViewModel.shortPath}">${pageViewModel.name}</span> ${entityDropMenu(pageViewModel)}`,
+			},
+			{
+				label: "Entry point",
+				value: `${a(pageViewModel.entryPointLinkData)} ${entityDropMenu(pageViewModel.entryPointLinkData)}`,
+			},
 			{
 				label: "Parent package",
-				value: parentPackageLinkData ? a(parentPackageLinkData) : "",
+				value: pageViewModel.parentPackageLinkData
+					? `${a(pageViewModel.parentPackageLinkData)} ${entityDropMenu(pageViewModel.parentPackageLinkData)}`
+					: "",
 			},
 		],
 	});
