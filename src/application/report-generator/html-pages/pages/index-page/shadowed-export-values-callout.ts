@@ -1,13 +1,13 @@
 import type { IndexPageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { counter } from "../../atoms/counter";
-import { item } from "../../atoms/item";
-import { list } from "../../atoms/list";
 import { countCallout } from "../../components/count-callout";
+import { entityList } from "../../components/entity-list";
 
 export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
 	const items = pageViewModel.shadowedExportValues.map(({ linkData, num }) => ({
-		content: item({ mainContent: a(linkData), extraContent: counter({ value: num }) }),
+		content: a(linkData),
+		value: linkData.content,
+		count: num,
 	}));
 
 	const count = pageViewModel.shadowedExportValues.reduce((acc, { num }) => acc + num, 0);
@@ -15,7 +15,7 @@ export function shadowedExportValuesCallout(pageViewModel: IndexPageViewModel) {
 	return countCallout({
 		title: "Shadowed export values",
 		counter: { value: count },
-		content: list({ items }),
+		content: entityList({ items }),
 		color: count > 0 ? "yellow" : "green",
 	});
 }

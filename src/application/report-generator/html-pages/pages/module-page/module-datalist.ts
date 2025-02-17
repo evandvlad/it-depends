@@ -2,15 +2,21 @@ import type { ModulePageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
 import { datalist } from "../../atoms/datalist";
 import { list } from "../../atoms/list";
+import { entityDropMenu } from "../../components/entity-drop-menu";
 
 export function moduleDatalist(pageViewModel: ModulePageViewModel) {
 	return datalist({
 		items: [
 			{ label: "Language", value: pageViewModel.language },
-			{ label: "Full path", value: pageViewModel.fullPath },
+			{
+				label: "Name",
+				value: `<span title="${pageViewModel.shortPath}">${pageViewModel.name}</span> ${entityDropMenu(pageViewModel)}`,
+			},
 			{
 				label: "Package",
-				value: pageViewModel.packageLinkData ? a(pageViewModel.packageLinkData) : "",
+				value: pageViewModel.packageData
+					? `${a(pageViewModel.packageData)} ${entityDropMenu(pageViewModel.packageData)}`
+					: "",
 			},
 			{
 				label: "Incorrect imports",

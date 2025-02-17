@@ -1,6 +1,12 @@
 "use strict";
 
-(function () {
+window.app = (function () {
+	function openUrl(url) {
+		const link = document.createElement("a");
+		link.href = url;
+		link.click();
+	}
+
 	function initFiltrableLists() {
 		const containerDataAttribute = "data-js-filtrable-list";
 		const filterInputDataAttribute = "data-js-filtrable-list-input";
@@ -54,5 +60,15 @@
 	}
 
 	initFiltrableLists();
+
+	return {
+		copyToClipboard(text) {
+			navigator.clipboard.writeText(text);
+		},
+
+		openInVSCode(filePath) {
+			openUrl(`vscode://file/${filePath}`);
+		},
+	};
 })();
 

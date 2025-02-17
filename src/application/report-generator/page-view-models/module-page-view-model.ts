@@ -11,6 +11,7 @@ interface Params {
 }
 
 export class ModulePageViewModel extends PageViewModel {
+	readonly name;
 	readonly fullPath;
 	readonly shortPath;
 	readonly language;
@@ -18,7 +19,7 @@ export class ModulePageViewModel extends PageViewModel {
 	readonly imports;
 	readonly exportsByValues;
 	readonly exportsByModules;
-	readonly packageLinkData;
+	readonly packageData;
 	readonly unparsedDynamicImports;
 	readonly shadowedExportValues;
 	readonly incorrectImports;
@@ -31,11 +32,21 @@ export class ModulePageViewModel extends PageViewModel {
 
 		const module = output.modules.getModule(path);
 
+		this.name = module.name;
 		this.fullPath = path;
 		this.shortPath = output.fs.getShortPath(path);
 		this.language = module.language;
 
-		this.packageLinkData = module.package ? this.getPackageLinkData(module.package) : null;
+		this.packageData = module.package
+			? {
+					...this.getPackageLinkData(module.package),
+					content: output.packages.getPackage(module.package).name,
+					title: output.fs.getShortPath(module.package),
+					shortPath: output.fs.getShortPath(module.package),
+					fullPath: module.package,
+				}
+			: null;
+
 		this.unparsedDynamicImports = module.unparsedDynamicImports;
 		this.shadowedExportValues = module.shadowedExportValues;
 		this.outOfScopeImports = module.outOfScopeImports.map(({ importPath }) => importPath);
@@ -45,7 +56,10 @@ export class ModulePageViewModel extends PageViewModel {
 		this.code = module.content;
 
 		this.imports = module.imports
-			.toSorted((first, second) => second.values.length - first.values.length)
+			.toSorted((first, second) => {
+				const sortByValues = second.values.length - first.values.length;
+				return sortByValues === 0 ? first.importPath.localeCompare(second.importPath) : sortByValues;
+			})
 			.map((imp) => ({
 				name: imp.importPath,
 				linkData: imp.filePath ? this.getModuleLinkData(imp.filePath) : null,
@@ -69,6 +83,9 @@ export class ModulePageViewModel extends PageViewModel {
 	}
 
 	#convertExportsToEntriesAndSort(exports: ReadonlyRec<string, string[]>) {
-		return exports.toEntries().toSorted((first, second) => second[1].length - first[1].length);
+		return exports.toEntries().toSorted((first, second) => {
+			const primarySort = second[1].length - first[1].length;
+			return primarySort === 0 ? first[0].localeCompare(second[0]) : primarySort;
+		});
 	}
 }

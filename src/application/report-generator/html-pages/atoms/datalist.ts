@@ -1,17 +1,18 @@
 interface Item {
 	label: string;
 	value: string;
+	title?: string;
 }
 
 interface Params {
 	items: Item[];
 }
 
-function datalistItem({ label, value }: Item) {
+function datalistItem({ label, value, title = "" }: Item) {
 	return `
 		<div class="datalist__item">
 			<div class="datalist__item-label">${label}</div>
-			<div class="datalist__item-value">${value || " - "}</div>
+			<div class="datalist__item-value" title=${title}>${value || " - "}</div>
 		</div>
 	`;
 }

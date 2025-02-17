@@ -1,32 +1,29 @@
 import type { ModulePageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { counter } from "../../atoms/counter";
 import { details } from "../../atoms/details";
-import { item } from "../../atoms/item";
 import { list } from "../../atoms/list";
 import { tabs } from "../../atoms/tabs";
 import { countCallout } from "../../components/count-callout";
+import { entityList } from "../../components/entity-list";
 
 export function exportsCallout(pageViewModel: ModulePageViewModel) {
-	const itemsByModules = pageViewModel.exportsByModules.map(({ linkData, values }) =>
-		item({
-			mainContent: details({
-				title: a(linkData),
-				content: values.join(", "),
-			}),
-			extraContent: counter({ value: values.length }),
+	const itemsByModules = pageViewModel.exportsByModules.map(({ linkData, values }) => ({
+		content: details({
+			title: a(linkData),
+			content: values.join(", "),
 		}),
-	);
+		value: linkData.content,
+		count: values.length,
+	}));
 
-	const itemsByValues = pageViewModel.exportsByValues.map(({ value, linksData }) =>
-		item({
-			mainContent: details({
-				title: value,
-				content: list({ items: linksData.map((linkData) => ({ content: a(linkData) })) }),
-			}),
-			extraContent: counter({ value: linksData.length }),
+	const itemsByValues = pageViewModel.exportsByValues.map(({ value, linksData }) => ({
+		value,
+		content: details({
+			title: value,
+			content: list({ items: linksData.map((linkData) => ({ content: a(linkData) })) }),
 		}),
-	);
+		count: linksData.length,
+	}));
 
 	const count = pageViewModel.exportsByModules.reduce((acc, { values }) => acc + values.length, 0);
 
@@ -35,8 +32,8 @@ export function exportsCallout(pageViewModel: ModulePageViewModel) {
 		counter: { value: count },
 		content: tabs({
 			items: [
-				{ label: "By modules", content: itemsByModules.join("") },
-				{ label: "By values", content: itemsByValues.join("") },
+				{ label: "By modules", content: entityList({ items: itemsByModules }) },
+				{ label: "By values", content: entityList({ items: itemsByValues }) },
 			],
 		}),
 		color: count > 0 ? "green" : "yellow",

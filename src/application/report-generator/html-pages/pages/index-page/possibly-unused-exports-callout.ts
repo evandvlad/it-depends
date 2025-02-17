@@ -1,29 +1,29 @@
 import type { IndexPageViewModel } from "../../../page-view-models";
 import { a } from "../../atoms/a";
-import { counter } from "../../atoms/counter";
 import { details } from "../../atoms/details";
-import { item } from "../../atoms/item";
 import { tabs } from "../../atoms/tabs";
 import { countCallout } from "../../components/count-callout";
+import { type Item, entityList } from "../../components/entity-list";
 
 export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) {
-	const fullyUnusedItems: string[] = [];
-	const partiallyUnusedItems: string[] = [];
+	const fullyUnusedItems: Item[] = [];
+	const partiallyUnusedItems: Item[] = [];
 	const count = pageViewModel.possiblyUnusedExports.reduce((acc, { values }) => acc + values.length, 0);
 
 	pageViewModel.possiblyUnusedExports.forEach(({ linkData, values, isFullyUnused }) => {
-		const content = item({
-			mainContent: details({
+		const item = {
+			content: details({
 				title: a(linkData),
 				content: values.join(", "),
 			}),
-			extraContent: counter({ value: values.length }),
-		});
+			value: linkData.content,
+			count: values.length,
+		};
 
 		if (isFullyUnused) {
-			fullyUnusedItems.push(content);
+			fullyUnusedItems.push(item);
 		} else {
-			partiallyUnusedItems.push(content);
+			partiallyUnusedItems.push(item);
 		}
 	});
 
@@ -32,8 +32,8 @@ export function possiblyUnusedExportsCallout(pageViewModel: IndexPageViewModel) 
 		counter: { value: count },
 		content: tabs({
 			items: [
-				{ label: "Fully possible unused", content: fullyUnusedItems.join("") },
-				{ label: "Partially possible unused", content: partiallyUnusedItems.join("") },
+				{ label: "Fully possible unused", content: entityList({ items: fullyUnusedItems }) },
+				{ label: "Partially possible unused", content: entityList({ items: partiallyUnusedItems }) },
 			],
 		}),
 		color: count > 0 ? "yellow" : "green",

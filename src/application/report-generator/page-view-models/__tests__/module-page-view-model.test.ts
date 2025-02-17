@@ -58,15 +58,18 @@ describe("module-page-view-model", () => {
 	it("should get base module properties correctly", () => {
 		const pageViewModel = createSutComponents();
 
-		expect(pageViewModel.fullPath).toEqual("/src/lib/a/index.ts");
+		expect(pageViewModel.name).toEqual("index.ts");
 		expect(pageViewModel.shortPath).toEqual("src/lib/a/index.ts");
 		expect(pageViewModel.language).toEqual("typescript");
 		expect(pageViewModel.code).toEqual(
 			`export { f } from "foo"; export * from "bar"; export { b } from "./b/c"; export const a = "aaa";`,
 		);
-		expect(pageViewModel.packageLinkData).toEqual({
-			content: "src/lib/a",
+		expect(pageViewModel.packageData).toEqual({
+			content: "a",
+			title: "src/lib/a",
 			url: "/report/content/packages/src/lib/a.html",
+			shortPath: "src/lib/a",
+			fullPath: "/src/lib/a",
 		});
 		expect(pageViewModel.unparsedDynamicImports).toEqual(0);
 		expect(pageViewModel.shadowedExportValues).toEqual([]);
@@ -76,12 +79,12 @@ describe("module-page-view-model", () => {
 		const pageViewModel = createSutComponents();
 
 		expect(pageViewModel.imports).toEqual([
-			{ linkData: null, name: "foo", values: ["f"] },
 			{
 				linkData: { url: "/report/content/modules/src/lib/a/b/c.ts.html", content: "src/lib/a/b/c.ts" },
 				name: "./b/c",
 				values: ["b"],
 			},
+			{ linkData: null, name: "foo", values: ["f"] },
 		]);
 	});
 
@@ -90,8 +93,8 @@ describe("module-page-view-model", () => {
 
 		expect(pageViewModel.exportsByValues).toEqual([
 			{ linksData: [{ url: "/report/content/modules/src/index.ts.html", content: "src/index.ts" }], value: "a" },
-			{ linksData: [], value: "f" },
 			{ linksData: [], value: "b" },
+			{ linksData: [], value: "f" },
 		]);
 	});
 
